@@ -256,45 +256,70 @@
     }
 
     /* CRITICAL: Keep PDF document sheet 100% true white paper with crisp dark typography regardless of dark mode! */
-    html.dark #pdf-document-sheet {
+    #pdf-document-sheet,
+    #pdf-render-clone,
+    .pdf-pure-white-export,
+    html.dark #pdf-document-sheet,
+    html.dark #pdf-render-clone,
+    html.dark .pdf-pure-white-export {
       background-color: #ffffff !important;
+      background: #ffffff !important;
       color: #0f172a !important;
+      color-scheme: light !important;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
     }
+    #pdf-document-sheet *,
+    #pdf-render-clone *,
+    .pdf-pure-white-export * {
+      color-scheme: light !important;
+    }
     html.dark #pdf-document-sheet .text-slate-900,
-    html.dark #pdf-document-sheet .text-slate-800 {
+    html.dark #pdf-document-sheet .text-slate-800,
+    #pdf-render-clone .text-slate-900,
+    #pdf-render-clone .text-slate-800 {
       color: #0f172a !important;
     }
     html.dark #pdf-document-sheet .text-slate-700,
-    html.dark #pdf-document-sheet .text-slate-600 {
+    html.dark #pdf-document-sheet .text-slate-600,
+    #pdf-render-clone .text-slate-700,
+    #pdf-render-clone .text-slate-600 {
       color: #334155 !important;
     }
-    html.dark #pdf-document-sheet .text-slate-500 {
+    html.dark #pdf-document-sheet .text-slate-500,
+    #pdf-render-clone .text-slate-500 {
       color: #64748b !important;
     }
-    html.dark #pdf-document-sheet .bg-slate-50 {
+    html.dark #pdf-document-sheet .bg-slate-50,
+    #pdf-render-clone .bg-slate-50 {
       background-color: #f8fafc !important;
     }
-    html.dark #pdf-document-sheet .bg-slate-100 {
+    html.dark #pdf-document-sheet .bg-slate-100,
+    #pdf-render-clone .bg-slate-100 {
       background-color: #f1f5f9 !important;
     }
     html.dark #pdf-document-sheet .border-slate-200,
-    html.dark #pdf-document-sheet .border-slate-100 {
+    html.dark #pdf-document-sheet .border-slate-100,
+    #pdf-render-clone .border-slate-200,
+    #pdf-render-clone .border-slate-100 {
       border-color: #e2e8f0 !important;
     }
-    /* Print styles so printing produces a clean multi-page A4 document */
+    /* Print styles so printing produces a clean multi-page A4 document on PC, Mac and iPhone */
     @page {
       size: A4 portrait;
       margin: 8mm 10mm;
     }
     @media print {
-      html, body {
+      :root, html, body {
+        color-scheme: light !important;
+        background-color: #ffffff !important;
         background: #ffffff !important;
         color: #0f172a !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
         height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       .no-print, header, nav, #auth-screen, #quote-builder-fullscreen, [id^="modal-"], #toast-notification {
         display: none !important;
@@ -311,7 +336,8 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-      #pdf-document-sheet {
+      #pdf-document-sheet,
+      #pdf-render-clone {
         display: block !important;
         position: static !important;
         width: 100% !important;
@@ -320,7 +346,17 @@
         padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        background-color: #ffffff !important;
         background: #ffffff !important;
+        color: #0f172a !important;
+        color-scheme: light !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #pdf-document-sheet *,
+      #pdf-render-clone * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       .overflow-x-auto {
         overflow: visible !important;
@@ -596,6 +632,17 @@
           <div class="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 truncate">Escritorio o Celular</div>
         </div>
       </button>
+
+      <!-- 9. Cambiar Tema en Sidebar (Ideal para Celular y Móvil) -->
+      <button type="button" id="btn-sidebar-theme-toggle" onclick="toggleTheme()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 mt-2 font-semibold" title="Cambiar a Modo Oscuro / Claro">
+        <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-indigo-950/60 text-amber-600 dark:text-indigo-400 flex items-center justify-center text-lg shrink-0 shadow-xs transition-transform group-hover:scale-110" id="sidebar-theme-icon-box">
+          <span id="sidebar-theme-icon">🌙</span>
+        </div>
+        <div class="sidebar-text flex-1 min-w-0">
+          <div class="text-xs font-bold truncate" id="sidebar-theme-text">Modo Claro</div>
+          <div class="text-[10px] text-slate-400 truncate" id="sidebar-theme-sub">Cambiar apariencia</div>
+        </div>
+      </button>
     </nav>
 
     <!-- Sidebar Bottom: User Card & Desktop Collapse Toggle -->
@@ -656,8 +703,8 @@
           <span class="hidden sm:inline" id="btn-install-app-text">Instalar App</span>
         </button>
 
-        <!-- Dark / Light Mode Toggle Button -->
-        <button type="button" id="btn-theme-toggle" onclick="toggleTheme()" class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm transition shrink-0 cursor-pointer" title="Cambiar a Modo Oscuro / Claro">
+        <!-- Dark / Light Mode Toggle Button (Optimized for Desktop & Mobile Touch) -->
+        <button type="button" id="btn-theme-toggle" onclick="toggleTheme()" class="min-w-[42px] min-h-[42px] p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm transition shrink-0 cursor-pointer flex items-center justify-center" title="Cambiar a Modo Oscuro / Claro">
           <span id="theme-icon">🌙</span>
         </button>
 
@@ -2751,6 +2798,7 @@
     function applyTheme(theme) {
       const isDark = theme === 'dark';
       document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 
       const themeIcon = document.getElementById('theme-icon');
       if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
@@ -2760,6 +2808,15 @@
 
       const menuThemeText = document.getElementById('menu-theme-text');
       if (menuThemeText) menuThemeText.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+
+      const sidebarThemeIcon = document.getElementById('sidebar-theme-icon');
+      if (sidebarThemeIcon) sidebarThemeIcon.textContent = isDark ? '☀️' : '🌙';
+
+      const sidebarThemeText = document.getElementById('sidebar-theme-text');
+      if (sidebarThemeText) sidebarThemeText.textContent = isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro';
+
+      const sidebarThemeSub = document.getElementById('sidebar-theme-sub');
+      if (sidebarThemeSub) sidebarThemeSub.textContent = isDark ? 'Fondo blanco y descansado' : 'Fondo oscuro elegante';
 
       const drawerThemeIcon = document.getElementById('drawer-theme-icon');
       if (drawerThemeIcon) drawerThemeIcon.textContent = isDark ? '☀️' : '🌙';
@@ -2772,11 +2829,19 @@
       } catch (e) {}
     }
 
+    let _themeToggleLock = false;
     function toggleTheme() {
-      const isDark = document.documentElement.classList.contains('dark');
-      applyTheme(isDark ? 'light' : 'dark');
-      showToast(isDark ? '☀️ Modo Claro activado' : '🌙 Modo Oscuro activado');
+      if (_themeToggleLock) return;
+      _themeToggleLock = true;
+      setTimeout(() => { _themeToggleLock = false; }, 350);
+
+      document.getElementById('user-menu-popover')?.classList.add('hidden');
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
+      const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+      applyTheme(nextTheme);
+      showToast(nextTheme === 'dark' ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
     }
+    window.toggleTheme = toggleTheme;
 
     // ==========================================
     // PWA INSTALLATION SYSTEM (GLOBAL ENGINE)
@@ -4534,7 +4599,25 @@
         showToast(`Cotización ${q.number} guardada en el historial`);
       });
 
-      // High-Precision PDF Generation Engine (Zero Clipping, 100% Complete)
+      // Function to guarantee print always outputs crisp white paper with dark typography
+      function triggerPrintWhiteMode() {
+        const wasDark = document.documentElement.classList.contains('dark');
+        if (wasDark) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.colorScheme = 'light';
+        }
+        setTimeout(() => {
+          window.print();
+          if (wasDark) {
+            setTimeout(() => {
+              document.documentElement.classList.add('dark');
+              document.documentElement.style.colorScheme = 'dark';
+            }, 800);
+          }
+        }, 150);
+      }
+
+      // High-Precision PDF Generation Engine (100% Pure White Background, Zero Dark Leakage)
       document.getElementById('btn-download-pdf')?.addEventListener('click', () => {
         // 1. Force refresh of current quote and PDF elements
         renderQuoteEditorAndPdf();
@@ -4545,12 +4628,19 @@
         const cleanTitle = (state.activeQuote.eventTitle || 'Evento').replace(/[^a-zA-Z0-9_-]/g, '_');
         const filename = `${state.activeQuote.number}_${cleanTitle}.pdf`;
 
-        showToast('Generando PDF completo de alta resolución...');
+        showToast('Generando PDF oficial en fondo blanco...');
 
-        // 2. Clone sheet into an off-screen fixed A4-width canvas container
-        // This guarantees NO horizontal column clipping, NO responsive shrinking, and NO scroll offset clipping!
+        // 2. Temporarily switch DOM to light mode so all inherited styles & canvas render in pure crisp white
+        const wasDark = document.documentElement.classList.contains('dark');
+        if (wasDark) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.colorScheme = 'light';
+        }
+
+        // 3. Clone sheet into an off-screen fixed A4-width canvas container
         const clone = sheet.cloneNode(true);
         clone.id = 'pdf-render-clone';
+        clone.classList.add('pdf-pure-white-export');
         clone.style.width = '794px';
         clone.style.maxWidth = '794px';
         clone.style.minWidth = '794px';
@@ -4561,6 +4651,7 @@
         clone.style.borderRadius = '0';
         clone.style.backgroundColor = '#ffffff';
         clone.style.color = '#0f172a';
+        clone.style.colorScheme = 'light';
 
         // Ensure all overflow wrappers are visible in clone
         clone.querySelectorAll('.overflow-x-auto, .overflow-visible, .pdf-table-wrapper').forEach(el => {
@@ -4581,9 +4672,19 @@
         sandbox.style.top = '0';
         sandbox.style.width = '794px';
         sandbox.style.backgroundColor = '#ffffff';
+        sandbox.style.color = '#0f172a';
+        sandbox.style.colorScheme = 'light';
         sandbox.style.zIndex = '-9999';
         sandbox.appendChild(clone);
         document.body.appendChild(sandbox);
+
+        const restoreThemeAndCleanup = () => {
+          if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
+          if (wasDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          }
+        };
 
         const opt = {
           margin: [8, 8, 8, 8], // 8mm uniform margins
@@ -4596,7 +4697,8 @@
             logging: false,
             scrollY: 0,
             scrollX: 0,
-            windowWidth: 1024
+            windowWidth: 1024,
+            backgroundColor: '#ffffff'
           },
           jsPDF: {
             unit: 'mm',
@@ -4612,17 +4714,17 @@
 
         if (typeof html2pdf !== 'undefined') {
           html2pdf().set(opt).from(clone).save().then(() => {
-            if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
+            restoreThemeAndCleanup();
             showToast(`✅ PDF descargado con éxito: ${filename}`);
           }).catch(err => {
             console.error('Error generating PDF:', err);
-            if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
-            showToast('Abriendo ventana de impresión como alternativa...');
-            window.print();
+            restoreThemeAndCleanup();
+            showToast('Abriendo visor de impresión...');
+            triggerPrintWhiteMode();
           });
         } else {
-          if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
-          window.print();
+          restoreThemeAndCleanup();
+          triggerPrintWhiteMode();
         }
       });
 
@@ -4630,9 +4732,7 @@
       document.getElementById('btn-print-pdf')?.addEventListener('click', () => {
         renderQuoteEditorAndPdf();
         setQuoteStepMode('preview');
-        setTimeout(() => {
-          window.print();
-        }, 150);
+        triggerPrintWhiteMode();
       });
 
       // Open Email Modal
@@ -5253,14 +5353,8 @@ ${state.company.phone}`;
         showToast('✅ Contraseña actualizada exitosamente.');
       });
 
-      // ==========================================
-      // THEME & DARK MODE EVENT LISTENERS
-      // ==========================================
-      document.getElementById('btn-theme-toggle')?.addEventListener('click', toggleTheme);
-      document.getElementById('btn-menu-toggle-theme')?.addEventListener('click', () => {
-        userMenuPopover?.classList.add('hidden');
-        toggleTheme();
-      });
+      // Note: Theme toggles (btn-theme-toggle, btn-menu-toggle-theme, btn-sidebar-theme-toggle)
+      // are cleanly handled via window.toggleTheme with debounce protection.
 
       // ==========================================
       // PWA INSTALLATION ENGINE & SERVICE WORKER
