@@ -321,7 +321,15 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .no-print, header, nav, #auth-screen, #quote-builder-fullscreen, [id^="modal-"], #toast-notification {
+      #dashboard-wrapper {
+        margin: 0 !important;
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        left: 0 !important;
+      }
+      .no-print, header, nav, #app-sidebar, #auth-screen, #quote-builder-fullscreen, [id^="modal-"], #toast-notification {
         display: none !important;
       }
       main {
@@ -342,7 +350,7 @@
         position: static !important;
         width: 100% !important;
         max-width: 100% !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
         padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
@@ -350,6 +358,7 @@
         background: #ffffff !important;
         color: #0f172a !important;
         color-scheme: light !important;
+        box-sizing: border-box !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -4637,44 +4646,64 @@
           document.documentElement.style.colorScheme = 'light';
         }
 
-        // 3. Clone sheet into an off-screen fixed A4-width canvas container
+        // 3. Clone sheet into an off-screen fixed A4-width canvas container (Pixel-perfect A4 geometry)
         const clone = sheet.cloneNode(true);
         clone.id = 'pdf-render-clone';
-        clone.classList.add('pdf-pure-white-export');
+        // Strip out mx-auto, responsive padding and responsive widths that cause horizontal offsets
+        clone.className = 'bg-white space-y-6 text-slate-900 pdf-pure-white-export';
         clone.style.width = '794px';
-        clone.style.maxWidth = '794px';
         clone.style.minWidth = '794px';
-        clone.style.margin = '0';
-        clone.style.padding = '20px 28px';
+        clone.style.maxWidth = '794px';
+        clone.style.margin = '0px';
+        clone.style.marginLeft = '0px';
+        clone.style.marginRight = '0px';
+        clone.style.marginTop = '0px';
+        clone.style.marginBottom = '0px';
+        // 34px left & right padding equals exactly 9.0mm symmetrical margins on A4 paper!
+        clone.style.padding = '30px 34px';
+        clone.style.boxSizing = 'border-box';
         clone.style.boxShadow = 'none';
         clone.style.border = 'none';
-        clone.style.borderRadius = '0';
+        clone.style.borderRadius = '0px';
         clone.style.backgroundColor = '#ffffff';
         clone.style.color = '#0f172a';
         clone.style.colorScheme = 'light';
+        clone.style.transform = 'none';
 
-        // Ensure all overflow wrappers are visible in clone
+        // Ensure all overflow wrappers are visible and 100% width in clone
         clone.querySelectorAll('.overflow-x-auto, .overflow-visible, .pdf-table-wrapper').forEach(el => {
           el.style.overflow = 'visible';
           el.style.width = '100%';
+          el.style.maxWidth = '100%';
+          el.style.margin = '0';
+          el.style.padding = '0';
         });
 
-        // Ensure table headers and cells have explicit white/dark colors for high contrast
+        // Ensure table headers and cells have explicit white/dark colors and 100% table layout
         clone.querySelectorAll('table').forEach(tbl => {
           tbl.style.width = '100%';
+          tbl.style.maxWidth = '100%';
+          tbl.style.tableLayout = 'auto';
           tbl.style.borderCollapse = 'collapse';
         });
 
-        // Temporary mount in hidden DOM container
+        // Temporary mount in hidden DOM container at origin (0, 0) to avoid any negative coordinate displacement
         const sandbox = document.createElement('div');
+        sandbox.id = 'pdf-render-sandbox';
         sandbox.style.position = 'fixed';
-        sandbox.style.left = '-9999px';
-        sandbox.style.top = '0';
+        sandbox.style.left = '0px';
+        sandbox.style.top = '0px';
         sandbox.style.width = '794px';
+        sandbox.style.margin = '0px';
+        sandbox.style.padding = '0px';
+        sandbox.style.boxSizing = 'border-box';
         sandbox.style.backgroundColor = '#ffffff';
         sandbox.style.color = '#0f172a';
         sandbox.style.colorScheme = 'light';
-        sandbox.style.zIndex = '-9999';
+        sandbox.style.zIndex = '-99999';
+        sandbox.style.pointerEvents = 'none';
+        sandbox.style.opacity = '1';
+        sandbox.style.overflow = 'visible';
         sandbox.appendChild(clone);
         document.body.appendChild(sandbox);
 
@@ -4687,7 +4716,7 @@
         };
 
         const opt = {
-          margin: [8, 8, 8, 8], // 8mm uniform margins
+          margin: [0, 0, 0, 0], // Zero jsPDF margin: internal 34px padding provides exact 9mm A4 margins with 0% shift!
           filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
@@ -4697,7 +4726,10 @@
             logging: false,
             scrollY: 0,
             scrollX: 0,
-            windowWidth: 1024,
+            x: 0,
+            y: 0,
+            width: 794,
+            windowWidth: 794,
             backgroundColor: '#ffffff'
           },
           jsPDF: {
