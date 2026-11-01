@@ -1,0 +1,12 @@
+# Dependencias y logs
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Vercel
+.vercel/
+
+# Backups y temporales
+*.tmp
+*.bak
