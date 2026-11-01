@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light" style="color-scheme: light;">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="description" content="Xander Pro — Sistema profesional para cotización de eventos, bodas, banquetes, recetas compuestas por persona (Pax) y control de flujo de caja." />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Xander Pro" />
   <link rel="manifest" href="manifest.json" />
   <meta property="og:title" content="Xander Pro — Sistema de Cotizaciones y Recetas para Eventos" />
@@ -113,11 +113,14 @@
     .login-blob {
       position: absolute;
       border-radius: 9999px;
-      filter: blur(50px);
-      opacity: 0.78;
-      mix-blend-mode: screen;
+      filter: blur(60px);
+      opacity: 0.22;
       pointer-events: none;
       will-change: transform;
+    }
+    html.dark .login-blob {
+      opacity: 0.75;
+      mix-blend-mode: screen;
     }
     .blob-1 {
       top: 5%;
@@ -399,27 +402,41 @@
       transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     /* Desktop collapsed state (w-20 / 80px) */
-    body.sidebar-collapsed #app-sidebar {
-      width: 5rem !important; /* 80px */
+    @media (min-width: 1024px) {
+      body.sidebar-collapsed #app-sidebar {
+        width: 5rem !important; /* 80px */
+      }
+      body.sidebar-collapsed #dashboard-wrapper {
+        margin-left: 5rem !important;
+      }
+      body.sidebar-collapsed .sidebar-text,
+      body.sidebar-collapsed .sidebar-badge,
+      body.sidebar-collapsed .sidebar-header-details,
+      body.sidebar-collapsed .sidebar-collapse-label,
+      body.sidebar-collapsed .sidebar-footer-card,
+      body.sidebar-collapsed .sidebar-user-info {
+        display: none !important;
+      }
+      body.sidebar-collapsed .sidebar-nav-btn {
+        justify-content: center !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      body.sidebar-collapsed #btn-collapse-sidebar .collapse-arrow {
+        transform: rotate(180deg);
+      }
     }
-    body.sidebar-collapsed #dashboard-wrapper {
-      margin-left: 5rem !important;
+    @media (max-width: 1023.98px) {
+      #dashboard-wrapper {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+      }
     }
-    body.sidebar-collapsed .sidebar-text,
-    body.sidebar-collapsed .sidebar-badge,
-    body.sidebar-collapsed .sidebar-header-details,
-    body.sidebar-collapsed .sidebar-collapse-label,
-    body.sidebar-collapsed .sidebar-footer-card,
-    body.sidebar-collapsed .sidebar-user-info {
-      display: none !important;
-    }
-    body.sidebar-collapsed .sidebar-nav-btn {
-      justify-content: center !important;
-      padding-left: 0.5rem !important;
-      padding-right: 0.5rem !important;
-    }
-    body.sidebar-collapsed #btn-collapse-sidebar .collapse-arrow {
-      transform: rotate(180deg);
+    @media screen and (max-width: 768px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
     }
     html.dark #app-sidebar {
       background-color: #0b101d !important;
@@ -445,12 +462,12 @@
     }
   </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden is-unauthenticated">
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden is-unauthenticated">
 
   <!-- ==========================================
        LOGIN SCREEN CON AMBIENTE ANIMADO VIBRANTE
        ========================================== -->
-  <div id="auth-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-500 overflow-hidden bg-slate-950">
+  <div id="auth-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-500 overflow-hidden bg-gradient-to-br from-slate-50 via-indigo-50/40 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
     <!-- Animated ambient glowing background -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="login-blob blob-1"></div>
@@ -458,13 +475,13 @@
       <div class="login-blob blob-3"></div>
       <div class="login-blob blob-4"></div>
       <!-- Subtle dot mesh overlay -->
-      <div class="absolute inset-0 login-mesh-grid opacity-35"></div>
+      <div class="absolute inset-0 login-mesh-grid opacity-25 dark:opacity-35"></div>
       <!-- Soft ambient vignette -->
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(2,6,23,0.65)_100%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(241,245,249,0.7)_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(2,6,23,0.65)_100%)]"></div>
     </div>
 
     <!-- Login Card with Glassmorphic Effect & Entrance Animation -->
-    <div class="max-w-md w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl p-8 space-y-6 relative z-10 overflow-hidden login-card-animated border border-white/40 dark:border-slate-800">
+    <div class="max-w-md w-full bg-white dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl p-8 space-y-6 relative z-10 overflow-hidden login-card-animated border border-slate-200/90 dark:border-slate-800 shadow-2xl shadow-indigo-100/50 dark:shadow-none">
       <!-- Animated Shimmering Top Rainbow Bar -->
       <div class="absolute top-0 left-0 right-0 h-1.5 shimmer-bar"></div>
 
@@ -1933,7 +1950,7 @@
   </main>
 
   <!-- Fixed Bottom Navigation Bar (Mobile only, < 768px) -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-2xl no-print" aria-label="Navegación móvil rápida">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around shadow-2xl no-print" aria-label="Navegación móvil rápida">
     <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-indigo-600 dark:text-indigo-400 font-bold scale-105 cursor-pointer">
       <span class="text-lg">📋</span>
       <span class="text-[10px] tracking-tight">Cotizar</span>
@@ -2809,6 +2826,12 @@
       document.documentElement.classList.toggle('dark', isDark);
       document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.setAttribute('content', isDark ? '#0f172a' : '#ffffff');
+
+      const statusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (statusMeta) statusMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+
       const themeIcon = document.getElementById('theme-icon');
       if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
 
@@ -2848,6 +2871,10 @@
       const isCurrentlyDark = document.documentElement.classList.contains('dark');
       const nextTheme = isCurrentlyDark ? 'light' : 'dark';
       applyTheme(nextTheme);
+      try {
+        localStorage.setItem('eq_theme', nextTheme);
+        localStorage.setItem('eq_theme_forced_light_v1', 'true');
+      } catch (e) {}
       showToast(nextTheme === 'dark' ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
     }
     window.toggleTheme = toggleTheme;
@@ -4026,11 +4053,21 @@
 
     function initSidebar() {
       try {
-        const isCollapsed = localStorage.getItem('eq_sidebar_collapsed') === 'true';
-        if (isCollapsed) {
-          document.body.classList.add('sidebar-collapsed');
+        if (window.innerWidth >= 1024) {
+          const isCollapsed = localStorage.getItem('eq_sidebar_collapsed') === 'true';
+          if (isCollapsed) {
+            document.body.classList.add('sidebar-collapsed');
+          }
+        } else {
+          document.body.classList.remove('sidebar-collapsed');
         }
       } catch (e) {}
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth < 1024) {
+          document.body.classList.remove('sidebar-collapsed');
+        }
+      });
     }
 
     function toggleSidebarDesktop() {
@@ -5394,7 +5431,19 @@ ${state.company.phone}`;
       // Register PWA Service Worker (active on secure origins like Vercel or localhost)
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         const regSW = () => {
-          navigator.serviceWorker.register('./sw.js').catch(err => {
+          navigator.serviceWorker.register('./sw.js').then(reg => {
+            reg.update().catch(() => {});
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    newWorker.postMessage({ action: 'skipWaiting' });
+                  }
+                });
+              }
+            });
+          }).catch(err => {
             console.log('SW registration note:', err);
           });
         };
@@ -5502,9 +5551,25 @@ ${state.company.phone}`;
     // Initialize Application
     window.addEventListener('DOMContentLoaded', () => {
       loadState();
-      const savedTheme = localStorage.getItem('eq_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+      // 1. Force Pure White / Light Mode by default across all devices (PC, Mac, iPhone)
+      let savedTheme = localStorage.getItem('eq_theme');
+      if (!savedTheme || localStorage.getItem('eq_theme_forced_light_v1') !== 'true') {
+        savedTheme = 'light';
+        try {
+          localStorage.setItem('eq_theme', 'light');
+          localStorage.setItem('eq_theme_forced_light_v1', 'true');
+        } catch (e) {}
+      }
       applyTheme(savedTheme);
+
+      // 2. Validate session immediately to prevent mobile layout stutter or visual flash
+      checkActiveSession();
+
+      // 3. Initialize responsive sidebar
       initSidebar();
+
+      // 4. Setup listeners and render initial views
       setupEventListeners();
       populateEventTypeSelect();
       renderEventTypesPills();
@@ -5517,7 +5582,6 @@ ${state.company.phone}`;
       renderClientsGrid();
       renderFinancesView();
       loadCompanyFormInputs();
-      checkActiveSession();
     });
   </script>
 </body>
