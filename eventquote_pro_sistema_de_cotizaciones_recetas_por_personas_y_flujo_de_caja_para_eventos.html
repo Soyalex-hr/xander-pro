@@ -979,7 +979,12 @@
                 </select>
               </div>
               <div class="sm:col-span-7">
-                <label for="picker-product-select" class="block text-xs font-semibold text-slate-600 mb-1">Seleccionar Producto o Receta</label>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="picker-product-select" class="block text-xs font-semibold text-slate-600">Seleccionar Producto o Receta</label>
+                  <button type="button" id="btn-picker-edit-product" class="text-[11px] font-bold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded transition cursor-pointer flex items-center gap-1" title="Modificar el producto o receta seleccionado en el catálogo">
+                    <span>✏️</span> Modificar en Catálogo
+                  </button>
+                </div>
                 <select id="picker-product-select" class="w-full rounded-lg border border-indigo-300 bg-indigo-50/30 px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"></select>
               </div>
             </div>
@@ -1528,6 +1533,9 @@
           <p class="text-xs text-slate-500 dark:text-slate-400">Calcula la explosión exacta de insumos, costo unitario por persona, margen comercial y precio de venta recomendado para cualquier volumen de asistentes.</p>
         </div>
         <div class="flex items-center gap-2">
+          <button type="button" id="btn-sim-edit-recipe" class="px-3.5 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Modificar insumos o precio de esta receta">
+            <span>✏️</span> Modificar Receta
+          </button>
           <button type="button" id="btn-sim-print-sheet" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
             <span>🖨️</span> Imprimir Ficha de Insumos
           </button>
@@ -1984,7 +1992,7 @@
   <div id="modal-simple-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-base font-bold text-slate-900">📦 Crear / Editar Producto Simple o Insumo</h3>
+        <h3 id="modal-sp-title" class="text-base font-bold text-slate-900">📦 Crear / Editar Producto Simple o Insumo</h3>
         <button type="button" data-close-modal="modal-simple-product" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
       </div>
       <input type="hidden" id="sp-id" />
@@ -2044,7 +2052,7 @@
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4 my-8">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <div>
-          <h3 class="text-base font-bold text-slate-900">🍹 Constructor de Producto Compuesto / Receta por Personas</h3>
+          <h3 id="modal-rec-title" class="text-base font-bold text-slate-900">🍹 Constructor de Producto Compuesto / Receta por Personas</h3>
           <p class="text-xs text-slate-500">Combina insumos en Onzas, Litros, Gramos o Unidades y calcula el costo por persona automáticamente.</p>
         </div>
         <button type="button" data-close-modal="modal-recipe-product" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
@@ -3693,12 +3701,15 @@
             <td class="py-3 px-4">${stockHtml}</td>
             <td class="py-3 px-4 text-right font-medium text-slate-600 tabular-nums">${formatCurrency(unitCost)}</td>
             <td class="py-3 px-4 text-right font-extrabold text-emerald-700 tabular-nums">${formatCurrency(p.price)}</td>
-            <td class="py-3 px-4 text-right space-x-1">
-              <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold">
-                + Cotizar
+            <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+              <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Llevar a Cotización Activa">
+                <span>➕</span> Cotizar
               </button>
-              <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2 py-1 rounded-lg text-rose-500 hover:bg-rose-50 font-bold">
-                ✕
+              <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Modificar Producto o Receta">
+                <span>✏️</span> Modificar
+              </button>
+              <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Eliminar del Catálogo">
+                <span>🗑️</span> Eliminar
               </button>
             </td>
           </tr>
@@ -3707,6 +3718,58 @@
 
       populateRecipeSimulator();
     }
+
+    function openEditProductModal(prodId) {
+      const prod = state.products.find(p => p.id === prodId);
+      if (!prod) {
+        showToast('❌ Producto no encontrado');
+        return;
+      }
+
+      if (prod.type === 'compuesto') {
+        // Modo Edición de Receta Compuesta
+        document.getElementById('rec-id').value = prod.id;
+        const titleEl = document.getElementById('modal-rec-title');
+        if (titleEl) titleEl.textContent = '✏️ Modificar Receta Compuesta / Menú por Personas';
+        const btnSave = document.getElementById('btn-save-recipe-product');
+        if (btnSave) btnSave.textContent = 'Guardar Cambios de la Receta';
+
+        document.getElementById('rec-name').value = prod.name || '';
+        document.getElementById('rec-base-pax').value = prod.basePax || 1;
+        document.getElementById('rec-price').value = prod.price || 0;
+        document.getElementById('rec-desc').value = prod.desc || '';
+
+        const ingSel = document.getElementById('rec-ing-select');
+        const simples = state.products.filter(p => p.type === 'simple');
+        if (ingSel) {
+          ingSel.innerHTML = simples.map(s => `<option value="${s.id}">${s.name} (Base: ${formatCurrency(s.cost)} / ${s.unit})</option>`).join('');
+        }
+
+        tempRecipeIngredients = Array.isArray(prod.ingredients) ? JSON.parse(JSON.stringify(prod.ingredients)) : [];
+        renderTempRecipeIngredients();
+        document.getElementById('modal-recipe-product')?.classList.remove('hidden');
+        document.getElementById('rec-name')?.focus();
+      } else {
+        // Modo Edición de Producto Simple o Insumo
+        document.getElementById('sp-id').value = prod.id;
+        const titleEl = document.getElementById('modal-sp-title');
+        if (titleEl) titleEl.textContent = '✏️ Modificar Producto Simple o Insumo';
+        const btnSave = document.getElementById('btn-save-simple-product');
+        if (btnSave) btnSave.textContent = 'Guardar Cambios del Producto';
+
+        document.getElementById('sp-name').value = prod.name || '';
+        document.getElementById('sp-unit').value = prod.unit || 'und';
+        document.getElementById('sp-track-stock').value = prod.trackStock ? 'true' : 'false';
+        document.getElementById('sp-stock').value = prod.stock !== undefined ? prod.stock : 0;
+        document.getElementById('sp-cost').value = prod.cost !== undefined ? prod.cost : 0;
+        document.getElementById('sp-price').value = prod.price !== undefined ? prod.price : 0;
+        document.getElementById('sp-desc').value = prod.desc || '';
+
+        document.getElementById('modal-simple-product')?.classList.remove('hidden');
+        document.getElementById('sp-name')?.focus();
+      }
+    }
+    window.openEditProductModal = openEditProductModal;
 
     function populateRecipeSimulator() {
       const sel = document.getElementById('sim-recipe-select');
@@ -4999,51 +5062,128 @@ ${state.company.phone}`;
           showToast('Producto cargado en el pre-configurador de cotización');
           return;
         }
+        const editBtn = e.target.closest('.edit-prod-btn');
+        if (editBtn) {
+          const prodId = editBtn.getAttribute('data-edit-prod');
+          openEditProductModal(prodId);
+          return;
+        }
         const delBtn = e.target.closest('.delete-prod-btn');
         if (delBtn) {
           const prodId = delBtn.getAttribute('data-delete-prod');
+          const prod = state.products.find(p => p.id === prodId);
+          const prodName = prod ? prod.name : 'este producto';
+          if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente "${prodName}" del catálogo?\n\nEsta acción no se puede deshacer.`)) {
+            return;
+          }
           state.products = state.products.filter(p => p.id !== prodId);
           saveState();
           renderProductsCatalog();
-          showToast('Producto eliminado del catálogo');
+          populatePickerProducts();
+          populateRecipeSimulator();
+          renderQuoteEditorAndPdf();
+          showToast(`🗑️ "${prodName}" eliminado del catálogo`);
+          return;
+        }
+      });
+
+      // Shortcut to edit product from the Quote Builder picker
+      document.getElementById('btn-picker-edit-product')?.addEventListener('click', () => {
+        const sel = document.getElementById('picker-product-select');
+        if (sel && sel.value) {
+          openEditProductModal(sel.value);
+        } else {
+          showToast('Selecciona un producto o receta en la lista para modificar');
+        }
+      });
+
+      // Shortcut to edit recipe from the Simulator screen
+      document.getElementById('btn-sim-edit-recipe')?.addEventListener('click', () => {
+        const sel = document.getElementById('sim-recipe-select');
+        if (sel && sel.value) {
+          openEditProductModal(sel.value);
+        } else {
+          showToast('Selecciona una receta en el simulador para modificar');
         }
       });
 
       // Simple Product Modal
       document.getElementById('btn-open-simple-product-modal')?.addEventListener('click', () => {
+        document.getElementById('sp-id').value = '';
+        const titleEl = document.getElementById('modal-sp-title');
+        if (titleEl) titleEl.textContent = '📦 Crear Nuevo Producto Simple o Insumo';
+        const btnSave = document.getElementById('btn-save-simple-product');
+        if (btnSave) btnSave.textContent = 'Crear Producto';
+
         document.getElementById('sp-name').value = '';
+        document.getElementById('sp-unit').value = 'und';
+        document.getElementById('sp-track-stock').value = 'true';
         document.getElementById('sp-stock').value = 0;
         document.getElementById('sp-cost').value = 20000;
         document.getElementById('sp-price').value = 45000;
         document.getElementById('sp-desc').value = '';
         document.getElementById('modal-simple-product')?.classList.remove('hidden');
+        document.getElementById('sp-name')?.focus();
       });
 
       document.getElementById('btn-save-simple-product')?.addEventListener('click', () => {
+        const id = document.getElementById('sp-id')?.value;
         const name = document.getElementById('sp-name').value.trim();
         if (!name) {
-          showToast('Ingresa el nombre del producto o servicio');
+          showToast('❌ Ingresa el nombre del producto o servicio');
           return;
         }
-        state.products.unshift({
-          id: 'p-' + Date.now(),
-          name,
-          type: 'simple',
-          unit: document.getElementById('sp-unit').value,
-          trackStock: document.getElementById('sp-track-stock').value === 'true',
-          stock: Number(document.getElementById('sp-stock').value) || 0,
-          cost: Number(document.getElementById('sp-cost').value) || 0,
-          price: Number(document.getElementById('sp-price').value) || 0,
-          desc: document.getElementById('sp-desc').value.trim()
-        });
+        const unit = document.getElementById('sp-unit').value;
+        const trackStock = document.getElementById('sp-track-stock').value === 'true';
+        const stock = Number(document.getElementById('sp-stock').value) || 0;
+        const cost = Number(document.getElementById('sp-cost').value) || 0;
+        const price = Number(document.getElementById('sp-price').value) || 0;
+        const desc = document.getElementById('sp-desc').value.trim();
+
+        if (id) {
+          // Modificar existente
+          const prod = state.products.find(p => p.id === id);
+          if (prod) {
+            prod.name = name;
+            prod.unit = unit;
+            prod.trackStock = trackStock;
+            prod.stock = stock;
+            prod.cost = cost;
+            prod.price = price;
+            prod.desc = desc;
+          }
+          showToast(`✅ Producto "${name}" modificado exitosamente`);
+        } else {
+          // Crear nuevo
+          state.products.unshift({
+            id: 'p-' + Date.now(),
+            name,
+            type: 'simple',
+            unit,
+            trackStock,
+            stock,
+            cost,
+            price,
+            desc
+          });
+          showToast(`✅ Producto "${name}" creado exitosamente`);
+        }
         saveState();
         document.getElementById('modal-simple-product')?.classList.add('hidden');
         renderProductsCatalog();
-        showToast(`Producto "${name}" creado correctamente`);
+        populatePickerProducts();
+        populateRecipeSimulator();
+        renderQuoteEditorAndPdf();
       });
 
       // Recipe Modal
       document.getElementById('btn-open-recipe-modal')?.addEventListener('click', () => {
+        document.getElementById('rec-id').value = '';
+        const titleEl = document.getElementById('modal-rec-title');
+        if (titleEl) titleEl.textContent = '🍹 Nueva Receta / Menú Compuesto por Personas';
+        const btnSave = document.getElementById('btn-save-recipe-product');
+        if (btnSave) btnSave.textContent = 'Guardar Receta Compuesta';
+
         tempRecipeIngredients = [];
         document.getElementById('rec-name').value = '';
         document.getElementById('rec-base-pax').value = 1;
@@ -5052,10 +5192,13 @@ ${state.company.phone}`;
 
         const ingSel = document.getElementById('rec-ing-select');
         const simples = state.products.filter(p => p.type === 'simple');
-        ingSel.innerHTML = simples.map(s => `<option value="${s.id}">${s.name} (Base: ${formatCurrency(s.cost)} / ${s.unit})</option>`).join('');
+        if (ingSel) {
+          ingSel.innerHTML = simples.map(s => `<option value="${s.id}">${s.name} (Base: ${formatCurrency(s.cost)} / ${s.unit})</option>`).join('');
+        }
 
         renderTempRecipeIngredients();
         document.getElementById('modal-recipe-product')?.classList.remove('hidden');
+        document.getElementById('rec-name')?.focus();
       });
 
       document.getElementById('btn-add-ing-to-recipe')?.addEventListener('click', () => {
@@ -5078,34 +5221,53 @@ ${state.company.phone}`;
       });
 
       document.getElementById('btn-save-recipe-product')?.addEventListener('click', () => {
+        const id = document.getElementById('rec-id')?.value;
         const name = document.getElementById('rec-name').value.trim();
         if (!name) {
-          showToast('Escribe el nombre de la receta o menú compuesto');
+          showToast('❌ Escribe el nombre de la receta o menú compuesto');
           return;
         }
         const basePax = Math.max(1, Number(document.getElementById('rec-base-pax').value) || 1);
         const price = Number(document.getElementById('rec-price').value) || 0;
         const desc = document.getElementById('rec-desc').value.trim();
 
-        const newRec = {
-          id: 'rec-' + Date.now(),
-          name,
-          type: 'compuesto',
-          unit: 'Personas (Pax)',
-          basePax,
-          trackStock: false,
-          stock: 0,
-          cost: 0,
-          price,
-          desc,
-          ingredients: [...tempRecipeIngredients]
-        };
-        newRec.cost = Math.round(calculateRecipeUnitCost(newRec));
-        state.products.unshift(newRec);
+        if (id) {
+          // Modificar receta existente
+          const rec = state.products.find(p => p.id === id);
+          if (rec) {
+            rec.name = name;
+            rec.basePax = basePax;
+            rec.price = price;
+            rec.desc = desc;
+            rec.ingredients = [...tempRecipeIngredients];
+            rec.cost = Math.round(calculateRecipeUnitCost(rec));
+          }
+          showToast(`✅ Receta "${name}" modificada exitosamente`);
+        } else {
+          // Crear nueva receta
+          const newRec = {
+            id: 'rec-' + Date.now(),
+            name,
+            type: 'compuesto',
+            unit: 'Personas (Pax)',
+            basePax,
+            trackStock: false,
+            stock: 0,
+            cost: 0,
+            price,
+            desc,
+            ingredients: [...tempRecipeIngredients]
+          };
+          newRec.cost = Math.round(calculateRecipeUnitCost(newRec));
+          state.products.unshift(newRec);
+          showToast(`✅ Receta compuesta "${name}" guardada en el catálogo`);
+        }
         saveState();
         document.getElementById('modal-recipe-product')?.classList.add('hidden');
         renderProductsCatalog();
-        showToast(`Receta compuesta "${name}" guardada en el catálogo`);
+        populatePickerProducts();
+        populateRecipeSimulator();
+        renderQuoteEditorAndPdf();
       });
 
       // Client Modal (from CRM or Quick Button in Quote)
