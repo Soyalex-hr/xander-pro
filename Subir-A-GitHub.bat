@@ -1,49 +1,40 @@
 @echo off
-title Subir Xander Pro a GitHub
+title Subir Xander Pro a GitHub y Vercel
 color 0b
 echo ========================================================
-echo         PUBLICAR XANDER PRO EN GITHUB
+echo         PUBLICAR XANDER PRO EN GITHUB Y VERCEL
 echo ========================================================
 echo.
-echo 1. En tu navegador entra a: https://github.com/new
-echo 2. Escribe el nombre del repositorio (ejemplo: xander-pro)
-echo 3. NO marques "Add a README" ni .gitignore (ya estan listos)
-echo 4. Haz clic en el boton verde "Create repository"
-echo 5. Copia la direccion URL HTTPS de tu repositorio
-echo    (Ejemplo: https://github.com/tu-usuario/xander-pro.git)
+echo Repositorio destino: https://github.com/Soyalex-hr/xander-pro.git
 echo.
-set /p REPO_URL="Pega aqui la URL de tu repositorio de GitHub y presiona Enter: "
-if "%REPO_URL%"=="" goto error
-
+echo [1/2] Conectando y subiendo archivos a GitHub...
 echo.
-echo [1/3] Conectando con el repositorio remoto...
-"C:\Users\Soporte Alx\AppData\Local\GitHubDesktop\app-3.5.4\resources\app\git\cmd\git.exe" -C "e:\SISTEMA DE COTIZACION" remote remove origin 2>nul
-"C:\Users\Soporte Alx\AppData\Local\GitHubDesktop\app-3.5.4\resources\app\git\cmd\git.exe" -C "e:\SISTEMA DE COTIZACION" remote add origin %REPO_URL%
-"C:\Users\Soporte Alx\AppData\Local\GitHubDesktop\app-3.5.4\resources\app\git\cmd\git.exe" -C "e:\SISTEMA DE COTIZACION" branch -M main
-
-echo [2/3] Subiendo todos los archivos a GitHub...
+echo NOTA: Se abrira una ventana en tu navegador pidiendo autorizar
+echo a GitHub. Haz clic en el boton verde "Authorize git-ecosystem"
+echo (o inicia sesion con tu cuenta Soyalex-hr).
+echo.
 "C:\Users\Soporte Alx\AppData\Local\GitHubDesktop\app-3.5.4\resources\app\git\cmd\git.exe" -C "e:\SISTEMA DE COTIZACION" push -u origin main
 
 if %ERRORLEVEL% EQU 0 (
     echo.
     echo ========================================================
-    echo   [EXITO] Tu proyecto ya esta subido a GitHub!
+    echo   [EXITO TOTAL] Tus archivos ya estan en GitHub!
     echo ========================================================
-    echo Siguiente paso para desplegar en Vercel (1 minuto):
-    echo 1. Entra a: https://vercel.com/new
-    echo 2. Haz clic en "Continue with GitHub"
-    echo 3. Haz clic en "Import" al lado de tu repositorio
-    echo 4. Haz clic en el boton azul "Deploy"
     echo.
-    echo Tu app tendra link publico HTTPS con instalador PWA automatico!
+    echo Vercel detectara esta subida automaticamente y tu app
+    echo estara en vivo en menos de 30 segundos.
+    echo.
+    echo Solo ve a tu navegador y recarga tu enlace de Vercel:
+    echo https://xander-pro-o33o.vercel.app
+    echo.
 ) else (
     echo.
-    echo Nota: Si te pidio iniciar sesion en el navegador, autoriza a GitHub y vuelve a presionar la tecla para reintentar.
+    echo ========================================================
+    echo Si fallo la autenticacion, puedes subirlo con GitHub Desktop:
+    echo 1. Abre la app "GitHub Desktop" en tu PC
+    echo 2. Inicia sesion con Soyalex-hr
+    echo 3. Haz clic en "Publish repository" o "Push origin"
+    echo ========================================================
 )
 echo.
-pause
-exit
-
-:error
-echo No ingresaste la URL del repositorio. Ejecuta el archivo nuevamente.
 pause
