@@ -308,6 +308,16 @@
     #pdf-render-clone .border-slate-100 {
       border-color: #e2e8f0 !important;
     }
+    #pdf-document-sheet #pdf-valid-until-badge,
+    #pdf-render-clone #pdf-valid-until-badge {
+      background-color: #fef3c7 !important;
+      border: 1px solid #fcd34d !important;
+      color: #78350f !important;
+    }
+    #pdf-document-sheet #pdf-valid-until,
+    #pdf-render-clone #pdf-valid-until {
+      color: #451a03 !important;
+    }
     /* Print styles so printing produces a clean multi-page A4 document on PC, Mac and iPhone */
     @page {
       size: A4 portrait;
@@ -1204,7 +1214,8 @@
                 ⬇️ Descargar PDF
               </button>
               <button type="button" id="btn-open-cuenta-cobro" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-amber-600 text-white hover:bg-amber-500 shadow-sm transition flex items-center gap-1.5">
-                <span>&#129534;</span> Cuenta de Cobro
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Cuenta de Cobro</span>
               </button>
               <button type="button" id="btn-print-pdf" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition">
                 🖨️ Imprimir
@@ -1252,9 +1263,9 @@
                   Fecha de emisión: <strong id="pdf-issue-date" class="text-slate-700">01 Nov 2026</strong>
                 </div>
                 <!-- Professional Expiration Callout -->
-                <div style="margin-top: 4px; display: inline-block; padding: 4px 10px; border-radius: 8px; background-color: #fef3c7; border: 1px solid #fcd34d; text-align: right;">
-                  <span style="font-size: 10px; font-weight: 700; color: #92400e; text-transform: uppercase;">Oferta Válida Hasta:</span>
-                  <span id="pdf-valid-until" style="font-size: 11px; font-weight: 800; color: #451a03; margin-left: 4px;">16 Nov 2026</span>
+                <div id="pdf-valid-until-badge" class="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold">
+                  <span class="text-[10px] uppercase font-bold text-amber-800">Oferta Válida Hasta:</span>
+                  <span id="pdf-valid-until" class="font-extrabold text-amber-950">16 Nov 2026</span>
                 </div>
               </div>
             </div>
@@ -1264,7 +1275,7 @@
               <div class="space-y-1">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cotizado Para (Cliente)</div>
                 <div id="pdf-client-name" class="font-bold text-slate-900 text-sm">Camila Restrepo & Andrés Mejía</div>
-                <div id="pdf-client-doc" class="text-slate-600 text-[11px]">CC/NIT: 1.037.612.890</div>
+                <div id="pdf-client-doc" class="hidden"></div>
                 <div id="pdf-client-contact" class="text-slate-600 text-[11px]">camila.boda@email.com · +57 310 555 0192</div>
                 <div id="pdf-client-city" class="text-slate-500 text-[11px]">Medellín, Antioquia</div>
               </div>
@@ -1284,9 +1295,10 @@
                   📍 <strong>Lugar:</strong> <span id="pdf-event-venue">Hacienda Fizebad, El Retiro</span>
                 </div>
                 <div class="pt-0.5">
-                  <span class="inline-block px-2.5 py-1 rounded-md bg-indigo-600 text-white text-[11px] font-extrabold">
-                    👥 Cantidad de Personas: <span id="pdf-event-pax" class="font-bold text-white">120 Invitados (Pax)</span>
-                  </span>
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-600 text-white text-xs font-bold">
+                    <span>👥 Cantidad de Personas:</span>
+                    <strong id="pdf-event-pax" class="text-white font-extrabold">120 Invitados (Pax)</strong>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1437,83 +1449,69 @@
     <!-- ==========================================
          VIEW 3: MÓDULO DE PRODUCTOS, INVENTARIO Y RECETAS COMPUESTAS
          ========================================== -->
-    <section id="view-productos" class="hidden space-y-6">
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <section id="view-productos" class="hidden space-y-5">
+      <!-- Header Banner -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Catálogo de Productos, Unidades de Medida y Recetas por Personas</h2>
-          <p class="text-xs text-slate-500">
-            Crea insumos (Litros, Onzas, Kilos, Unidades), productos simples con o sin inventario y recetas compuestas escalables por número de invitados.
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Catálogo de Productos, Insumos y Recetas</h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Crea insumos (Litros, Onzas, Kilos, Unidades), productos simples y recetas compuestas por persona (Pax).
           </p>
         </div>
-        <div class="flex items-center gap-2">
-          <button type="button" id="btn-open-simple-product-modal" class="px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900">
-            + Nuevo Producto Simple / Insumo
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="btn-open-simple-product-modal" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition flex items-center justify-center gap-1.5">
+            <span>+</span> Nuevo Insumo
           </button>
-          <button type="button" id="btn-open-recipe-modal" class="px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-sm">
-            🍹 + Nueva Receta / Producto Compuesto
+          <button type="button" id="btn-open-recipe-modal" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
+            <span>🍹</span> + Nueva Receta
           </button>
         </div>
       </div>
 
-      <!-- Shortcut Banner to Dedicated Simulator Screen -->
-      <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 text-white rounded-2xl p-4 sm:p-5 shadow-sm flex flex-wrap items-center justify-between gap-3 border border-indigo-900/40">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-2xl">
-            🧪
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
-                Pantalla Dedicada
-              </span>
-            </div>
-            <h3 class="text-sm sm:text-base font-bold mt-0.5">Simulador de Recetas, Escalamiento de Pax y Costos</h3>
-            <p class="text-xs text-indigo-200">Escala recetas a cualquier número de invitados y calcula la explosión exacta de insumos en pantalla completa.</p>
-          </div>
-        </div>
-        <button type="button" id="btn-goto-simulador-screen" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2 shrink-0">
-          <span>Abrir Pantalla Simulador</span>
-          <span class="text-sm">➔</span>
-        </button>
-      </div>
-
-      <!-- Filter Tabs for Products -->
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-1.5 bg-white p-1.5 rounded-xl border border-slate-200">
-          <button type="button" data-prod-filter="all" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">
+      <!-- Filter Tabs and Search Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 overflow-x-auto no-scrollbar max-w-full">
+          <button type="button" data-prod-filter="all" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white whitespace-nowrap">
             Todos
           </button>
-          <button type="button" data-prod-filter="compuesto" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">
-            🍹 Recetas / Productos Compuestos
+          <button type="button" data-prod-filter="compuesto" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
+            🍹 Recetas Compuestas
           </button>
-          <button type="button" data-prod-filter="simple" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">
-            📦 Productos Simples e Insumos
+          <button type="button" data-prod-filter="simple" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
+            📦 Insumos / Simples
           </button>
-          <button type="button" data-prod-filter="no_stock" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">
-            ⚡ Sin Inventario / Bajo Pedido
+          <button type="button" data-prod-filter="no_stock" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
+            ⚡ Bajo Pedido
           </button>
         </div>
 
-        <input id="prod-search-input" type="text" placeholder="Buscar producto, insumo o receta..." class="w-full sm:w-72 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div class="relative w-full sm:w-72">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+          <input id="prod-search-input" type="text" placeholder="Buscar por nombre, insumo o receta..." class="w-full rounded-xl border border-slate-300 bg-white pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
       </div>
 
-      <!-- Products Table -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                <th class="py-3 px-4">Producto / Receta (Modificar · Eliminar)</th>
-                <th class="py-3 px-4">Tipo</th>
-                <th class="py-3 px-4">Unidad Base</th>
-                <th class="py-3 px-4">Inventario / Stock</th>
-                <th class="py-3 px-4 text-right">Costo Unit/Pax</th>
-                <th class="py-3 px-4 text-right">Precio Venta</th>
-              </tr>
-            </thead>
-            <tbody id="products-catalog-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
-          </table>
-        </div>
+      <!-- Desktop Products Table (visible on md+) -->
+      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
+              <th class="py-3 px-4">Producto / Receta</th>
+              <th class="py-3 px-4">Tipo</th>
+              <th class="py-3 px-4">Unidad</th>
+              <th class="py-3 px-4">Stock / Estado</th>
+              <th class="py-3 px-4 text-right">Costo Unit/Pax</th>
+              <th class="py-3 px-4 text-right">Precio Venta</th>
+              <th class="py-3 px-4 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="products-catalog-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Products Responsive Cards (visible on mobile < md, NO horizontal scroll!) -->
+      <div id="products-catalog-cards" class="md:hidden space-y-3">
+        <!-- Rendered dynamically without horizontal scroll -->
       </div>
     </section>
 
@@ -1666,7 +1664,7 @@
               </div>
               <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-700">
                 <span class="text-slate-500">Cristalería / Montaje:</span>
-                <strong class="text-slate-800 dark:text-slate-200" id="sim-spec-glassware">>Copa Balón / Vaso Largo</strong>
+                <strong class="text-slate-800 dark:text-slate-200" id="sim-spec-glassware">Copa Balón / Vaso Largo</strong>
               </div>
               <div class="flex items-center justify-between py-1">
                 <span class="text-slate-500">Merma estándar estimada:</span>
@@ -2078,11 +2076,11 @@
           <input id="rec-desc" type="text" placeholder="Ej. Incluye 3 cócteles de autor por persona, cristalería, hielo y fruta deshidratada." class="w-full rounded-lg border border-slate-300 px-3 py-2" />
         </div>
         <div class="sm:col-span-7">
-          <label for="rec-glassware" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">CristalerÃ­a / Montaje Recomendado</label>
-          <input id="rec-glassware" type="text" placeholder="Ej. Copa BalÃ³n / Vaso Largo / Vajilla de Lujo" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
+          <label for="rec-glassware" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Cristalería / Montaje Recomendado</label>
+          <input id="rec-glassware" type="text" placeholder="Ej. Copa Balón / Vaso Largo / Vajilla de Lujo" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
         </div>
         <div class="sm:col-span-5">
-          <label for="rec-waste" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Merma EstÃ¡ndar Estimada</label>
+          <label for="rec-waste" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Merma Estándar Estimada</label>
           <input id="rec-waste" type="text" placeholder="Ej. 3% - 5%" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
         </div>
       </div>
@@ -2276,7 +2274,7 @@
         <!-- Left: Icon & Title & Short Quote Badge -->
         <div class="flex items-center gap-2 sm:gap-3 min-w-0">
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-base sm:text-xl shadow-sm shrink-0">
-            &#129534;
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           </div>
           <div class="min-w-0">
             <h3 class="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
@@ -2621,12 +2619,12 @@
               <!-- Optional Items Summary Table -->
               <div id="cdc-pv-items-wrapper" style="margin-top: 10px;">
                 <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; margin-bottom: 6px;">
-                  DETALLE DE SERVICIOS / ÃTEMS RELACIONADOS:
+                  DETALLE DE SERVICIOS / ÍTEMS RELACIONADOS:
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #e2e8f0;">
                   <thead>
                     <tr style="background-color: #f1f5f9; color: #334155; font-size: 10px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #cbd5e1;">
-                      <th style="padding: 7px 10px; text-align: left;">DescripciÃ³n</th>
+                      <th style="padding: 7px 10px; text-align: left;">Descripción</th>
                       <th style="padding: 7px 8px; text-align: center; width: 80px;">Cant.</th>
                       <th style="padding: 7px 8px; text-align: right; width: 100px;">Valor Unit.</th>
                       <th style="padding: 7px 10px; text-align: right; width: 110px;">Subtotal</th>
@@ -2639,7 +2637,7 @@
               <!-- Bank Accounts & Payment Methods -->
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px;">
                 <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; letter-spacing: 0.5px; margin-bottom: 5px;">
-                  &#127974; FORMA DE PAGO / TRANSFERENCIA O CONSIGNACIÃ“N:
+                  &#127974; FORMA DE PAGO / TRANSFERENCIA O CONSIGNACIÓN:
                 </div>
                 <div id="cdc-pv-bank" style="font-size: 12px; color: #334155; line-height: 1.5; white-space: pre-line;">
                   Bancolombia Ahorros: 412-000981-23
@@ -2651,7 +2649,7 @@
               <!-- Tax Exemption / Legal Declaration -->
               <div id="cdc-pv-tax-wrapper" style="border-left: 3px solid #94a3b8; padding-left: 12px; margin-top: 10px;">
                 <p id="cdc-pv-tax-clause" style="font-size: 10px; color: #64748b; line-height: 1.4; margin: 0; font-style: italic;">
-                  Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el ArtÃ­culo 437 del Estatuto Tributario nacional.
+                  Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el Artículo 437 del Estatuto Tributario nacional.
                 </p>
               </div>
 
@@ -3062,6 +3060,8 @@
             stock: 0,
             cost: 15850,
             price: 38000,
+            glassware: 'Copa Balón / Vaso Largo',
+            waste: '3% - 5%',
             desc: 'Receta por persona: incluye 2 cócteles de autor (4 oz de licor premium, 2 oz de syrup artesanal, garnish fresco y cristalería).',
             ingredients: [
               { productId: 'p-ron', qty: 4, unit: 'oz' },     // 4 oz de Ron por persona
@@ -3079,6 +3079,8 @@
             stock: 0,
             cost: 14200,
             price: 45000,
+            glassware: 'Vajilla de Lujo / Plato Base',
+            waste: '2% - 4%',
             desc: 'Menú servido a la mesa por persona (250 g de proteína en crudo, reducción de frutos rojos, vegetales glaseados y vajilla).',
             ingredients: [
               { productId: 'p-lomo', qty: 250, unit: 'g' },
@@ -3406,13 +3408,15 @@
     }
 
     function checkActiveSession() {
+      const isRemembered = localStorage.getItem('eq_session_remember') === 'true';
       const token = sessionStorage.getItem('eq_session_token') || localStorage.getItem('eq_session_token');
       const tokenTime = sessionStorage.getItem('eq_session_time') || localStorage.getItem('eq_session_time');
 
-      const timeoutMs = (Number(state.auth?.sessionTimeoutMins) || 15) * 60 * 1000;
       if (token && tokenTime) {
         const elapsed = Date.now() - Number(tokenTime);
-        if (timeoutMs === 0 || elapsed < timeoutMs) {
+        // If "Recordarme" is active, session persists for 30 days without unexpected lockouts
+        const maxDuration = isRemembered ? (30 * 24 * 60 * 60 * 1000) : ((Number(state.auth?.sessionTimeoutMins) || 15) * 60 * 1000);
+        if (maxDuration === 0 || elapsed < maxDuration) {
           // Valid session!
           setAuthenticated(true);
           return;
@@ -3428,6 +3432,7 @@
       const errorMsg = document.getElementById('auth-error-msg');
       const usernameInput = document.getElementById('login-username');
       const passwordInput = document.getElementById('login-password');
+      const rememberCheckbox = document.getElementById('login-remember');
       const headerUserName = document.getElementById('header-user-name');
       const popoverUserName = document.getElementById('popover-user-name');
       const avatarInitial = document.getElementById('user-avatar-initial');
@@ -3457,13 +3462,18 @@
         document.getElementById('app-sidebar')?.classList.add('hidden');
         document.getElementById('dashboard-wrapper')?.classList.add('hidden');
         closeMobileSidebar();
+        const rememberedUser = localStorage.getItem('eq_remember_username') || state.auth?.user || 'admin';
+        const isRemembered = localStorage.getItem('eq_session_remember') === 'true';
         if (usernameInput) {
-          usernameInput.value = isLockedNotice ? currentUsr : '';
-          if (!isLockedNotice) usernameInput.focus();
+          usernameInput.value = isLockedNotice ? currentUsr : rememberedUser;
+          if (!isLockedNotice && !rememberedUser) usernameInput.focus();
+        }
+        if (rememberCheckbox) {
+          rememberCheckbox.checked = isRemembered;
         }
         if (passwordInput) {
           passwordInput.value = '';
-          if (isLockedNotice) passwordInput.focus();
+          passwordInput.focus();
         }
         if (isLockedNotice && lockedNotice) {
           lockedNotice.classList.remove('hidden');
@@ -3477,6 +3487,13 @@
     function resetInactivityTimer() {
       if (inactivityTimer) clearTimeout(inactivityTimer);
       if (!isAuthenticated) return;
+
+      const isRemembered = localStorage.getItem('eq_session_remember') === 'true';
+      if (isRemembered) {
+        // Refresh token time so 30-day session remains active on user activity
+        localStorage.setItem('eq_session_time', Date.now().toString());
+        return; // Do not auto-lock session if user chose "Recordarme"
+      }
 
       const timeoutMins = Number(state.auth?.sessionTimeoutMins) ?? 15;
       if (timeoutMins === 0) return; // Disabled
@@ -3500,6 +3517,7 @@
       sessionStorage.removeItem('eq_session_time');
       localStorage.removeItem('eq_session_token');
       localStorage.removeItem('eq_session_time');
+      localStorage.removeItem('eq_session_remember');
       setAuthenticated(false);
       showToast('Sesión cerrada con éxito.');
     }
@@ -3542,9 +3560,12 @@
         if (remember) {
           localStorage.setItem('eq_session_token', token);
           localStorage.setItem('eq_session_time', now);
+          localStorage.setItem('eq_session_remember', 'true');
+          localStorage.setItem('eq_remember_username', username);
         } else {
           sessionStorage.setItem('eq_session_token', token);
           sessionStorage.setItem('eq_session_time', now);
+          localStorage.removeItem('eq_session_remember');
         }
 
         setAuthenticated(true);
@@ -3705,7 +3726,7 @@
       const sel = document.getElementById('q-client-select');
       if (!sel) return;
       sel.innerHTML = state.clients.map(c =>
-        `<option value="${c.id}" ${c.id === state.activeQuote.clientId ? 'selected' : ''}>${c.name} (${c.doc})</option>`
+        `<option value="${c.id}" ${c.id === state.activeQuote.clientId ? 'selected' : ''}>${c.name}</option>`
       ).join('');
     }
 
@@ -3937,7 +3958,11 @@
       document.getElementById('pdf-issue-date').textContent = formatDateHuman(q.issueDate);
       document.getElementById('pdf-valid-until').textContent = formatDateHuman(q.validUntil);
       document.getElementById('pdf-client-name').textContent = client.name;
-      document.getElementById('pdf-client-doc').textContent = client.doc ? `CC / NIT: ${client.doc}` : 'CC / NIT: —';
+      const pdfClientDocEl = document.getElementById('pdf-client-doc');
+      if (pdfClientDocEl) {
+        pdfClientDocEl.textContent = '';
+        pdfClientDocEl.classList.add('hidden');
+      }
       document.getElementById('pdf-client-contact').textContent = [client.email, client.phone].filter(Boolean).join(' · ') || 'Sin teléfono o correo registrado';
       document.getElementById('pdf-client-city').textContent = client.city;
 
@@ -4100,7 +4125,7 @@
 
       const searchVal = (document.getElementById('prod-search-input')?.value || '').toLowerCase();
       const tbody = document.getElementById('products-catalog-tbody');
-      if (!tbody) return;
+      const cardsContainer = document.getElementById('products-catalog-cards');
 
       const list = state.products.filter(p => {
         if (activeFilter === 'compuesto' && p.type !== 'compuesto') return false;
@@ -4110,48 +4135,129 @@
         return true;
       });
 
-      tbody.innerHTML = list.map(p => {
-        const unitCost = calculateRecipeUnitCost(p);
-        const typeHtml = p.type === 'compuesto'
-          ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">🍹 Receta (Base ${p.basePax || 1} Pax)</span>`
-          : `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700">📦 Simple / Insumo</span>`;
-
-        let stockHtml = '';
-        if (p.type === 'compuesto') {
-          stockHtml = `<span class="text-indigo-700 font-medium">Según insumos de receta</span>`;
-        } else if (!p.trackStock) {
-          stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">⚡ Sin inventario / Bajo pedido</span>`;
-        } else if (Number(p.stock) <= 0) {
-          stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">0 ${p.unit} (Cotizable)</span>`;
+      // 1. Render Desktop Table
+      if (tbody) {
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No se encontraron productos con el filtro seleccionado.</td></tr>`;
         } else {
-          stockHtml = `<span class="font-bold text-slate-800 tabular-nums">${p.stock} ${p.unit}</span>`;
-        }
+          tbody.innerHTML = list.map(p => {
+            const unitCost = calculateRecipeUnitCost(p);
+            const typeHtml = p.type === 'compuesto'
+              ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">🍹 Receta (Base ${p.basePax || 1} Pax)</span>`
+              : `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700">📦 Simple / Insumo</span>`;
 
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="py-3 px-4">
-              <div class="font-bold text-slate-900">${p.name}</div>
-              <div class="text-[11px] text-slate-500">${p.desc || ''}</div>
-              <div class="flex flex-wrap gap-1.5 mt-2">
-                <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-amber-300" title="Modificar Producto o Receta">
-                  ✏️ Modificar
-                </button>
-                <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-rose-300" title="Eliminar del Catálogo">
-                  🗑️ Eliminar
-                </button>
-                <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-indigo-300" title="Llevar a Cotización Activa">
-                  ➕ Cotizar
-                </button>
+            let stockHtml = '';
+            if (p.type === 'compuesto') {
+              stockHtml = `<span class="text-indigo-700 font-medium">Según insumos</span>`;
+            } else if (!p.trackStock) {
+              stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">⚡ Bajo pedido</span>`;
+            } else if (Number(p.stock) <= 0) {
+              stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">0 ${p.unit}</span>`;
+            } else {
+              stockHtml = `<span class="font-bold text-slate-800 tabular-nums">${p.stock} ${p.unit}</span>`;
+            }
+
+            return `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-900">${p.name}</div>
+                  ${p.desc ? `<div class="text-[11px] text-slate-500 line-clamp-1">${p.desc}</div>` : ''}
+                </td>
+                <td class="py-3 px-4">${typeHtml}</td>
+                <td class="py-3 px-4 font-semibold text-slate-700">${p.unit}</td>
+                <td class="py-3 px-4">${stockHtml}</td>
+                <td class="py-3 px-4 text-right font-medium text-slate-600 tabular-nums">${formatCurrency(unitCost)}</td>
+                <td class="py-3 px-4 text-right font-extrabold text-emerald-700 tabular-nums">${formatCurrency(p.price)}</td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold transition text-xs border border-amber-200" title="Modificar Producto">
+                      ✏️ Modificar
+                    </button>
+                    <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition text-xs border border-rose-200" title="Eliminar Producto">
+                      🗑️
+                    </button>
+                    <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold transition text-xs border border-indigo-200" title="Llevar a Cotización">
+                      ➕ Cotizar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. Render Mobile Responsive Cards (Zero Horizontal Scroll!)
+      if (cardsContainer) {
+        if (list.length === 0) {
+          cardsContainer.innerHTML = `
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center text-slate-500 text-xs">
+              No se encontraron productos con el filtro seleccionado.
+            </div>
+          `;
+        } else {
+          cardsContainer.innerHTML = list.map(p => {
+            const unitCost = calculateRecipeUnitCost(p);
+            const typeBadge = p.type === 'compuesto'
+              ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">🍹 Receta (${p.basePax || 1} Pax)</span>`
+              : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">📦 Insumo</span>`;
+
+            let stockText = '';
+            if (p.type === 'compuesto') {
+              stockText = 'Según insumos';
+            } else if (!p.trackStock) {
+              stockText = '⚡ Bajo pedido';
+            } else if (Number(p.stock) <= 0) {
+              stockText = `0 ${p.unit}`;
+            } else {
+              stockText = `${p.stock} ${p.unit}`;
+            }
+
+            return `
+              <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-extrabold text-slate-900 text-sm leading-tight">${p.name}</span>
+                      ${typeBadge}
+                    </div>
+                    ${p.desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.desc}</p>` : ''}
+                  </div>
+                </div>
+
+                <!-- 3 Stats Pills -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-center text-xs border border-slate-100">
+                  <div>
+                    <span class="text-[10px] text-slate-400 block font-semibold uppercase">Stock / Und</span>
+                    <strong class="text-slate-800 text-[11px] block mt-0.5 truncate">${stockText}</strong>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-400 block font-semibold uppercase">Costo Unit</span>
+                    <strong class="text-slate-600 text-[11px] block mt-0.5 tabular-nums">${formatCurrency(unitCost)}</strong>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-emerald-600 block font-bold uppercase">Precio Venta</span>
+                    <strong class="text-emerald-700 text-xs block mt-0.5 font-extrabold tabular-nums">${formatCurrency(p.price)}</strong>
+                  </div>
+                </div>
+
+                <!-- Touch Action Buttons -->
+                <div class="flex items-center gap-1.5 pt-1">
+                  <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn flex-1 py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs border border-amber-200 flex items-center justify-center gap-1 transition">
+                    <span>✏️</span> Modificar
+                  </button>
+                  <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn flex-1 py-2 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1 transition">
+                    <span>➕</span> Cotizar
+                  </button>
+                  <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition" title="Eliminar">
+                    <span>🗑️</span>
+                  </button>
+                </div>
               </div>
-            </td>
-            <td class="py-3 px-4">${typeHtml}</td>
-            <td class="py-3 px-4 font-medium text-slate-700">${p.unit}</td>
-            <td class="py-3 px-4">${stockHtml}</td>
-            <td class="py-3 px-4 text-right font-medium text-slate-600 tabular-nums">${formatCurrency(unitCost)}</td>
-            <td class="py-3 px-4 text-right font-extrabold text-emerald-700 tabular-nums">${formatCurrency(p.price)}</td>
-          </tr>
-        `;
-      }).join('');
+            `;
+          }).join('');
+        }
+      }
 
       populateRecipeSimulator();
     }
@@ -4258,7 +4364,7 @@
       if (descEl) descEl.textContent = rec.desc || 'Receta gastronómica / coctelería para eventos.';
       if (specUnit) specUnit.textContent = `${rec.unit || 'Por Persona'} (Base ${rec.basePax || 1} Pax)`;
       const specGlass = document.getElementById('sim-spec-glassware');
-      if (specGlass) specGlass.textContent = rec.glassware || 'Copa BalÃ³n / Vaso Largo';
+      if (specGlass) specGlass.textContent = rec.glassware || 'Copa Balón / Vaso Largo';
       const specWaste = document.getElementById('sim-spec-waste');
       if (specWaste) specWaste.textContent = rec.waste ? (rec.waste + (rec.waste.includes('%') ? '' : '%')) : '3% - 5%';
 
@@ -4650,7 +4756,7 @@
       // Tax clause
       const cdcTax = document.getElementById('cdc-input-tax-clause');
       if (cdcTax) {
-        cdcTax.value = 'Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el Artículo 437 del Estatuto Tributario nacional.';
+                  Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el Artículo 437 del Estatuto Tributario nacional.
       }
 
       // Default amount: 100% Total
@@ -4789,12 +4895,12 @@
 
       const sandbox = document.createElement('div');
       sandbox.id = 'cdc-render-sandbox';
-      sandbox.style.cssText = 'position:absolute;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:-1;pointer-events:none;overflow:visible;';
+      sandbox.style.cssText = 'position:fixed;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:999998;pointer-events:none;overflow:visible;';
       sandbox.appendChild(clone);
       document.body.appendChild(sandbox);
 
       const veil = document.createElement('div');
-      veil.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#d97706;';
+      veil.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#d97706;';
       veil.textContent = '📄 Generando Cuenta de Cobro en PDF...';
       document.body.appendChild(veil);
 
@@ -4827,9 +4933,7 @@
           width: 794,
           windowWidth: 794,
           scrollX: 0,
-          scrollY: 0,
-          x: 0,
-          y: 0
+          scrollY: 0
         }).then(canvas => {
           const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
           const pageWmm = 210;
@@ -4920,12 +5024,15 @@
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusColor}">${sq.status}</span>
             </td>
             <td class="py-3 px-4 text-right">
-              <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition">
-                Abrir / PDF
-              </button>
-                <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold transition inline-flex items-center gap-1">
-                  <span>&#129534;</span> Cobro
+              <div class="inline-flex items-center gap-1.5 justify-end">
+                <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition inline-flex items-center gap-1" title="Abrir y editar cotización">
+                  <span>Abrir / PDF</span>
                 </button>
+                <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition inline-flex items-center gap-1 border border-amber-200" title="Generar Cuenta de Cobro">
+                  <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  <span>Cobro</span>
+                </button>
+              </div>
             </td>
           </tr>
         `;
@@ -5756,16 +5863,16 @@
           el.style.fontFeatureSettings = 'normal';
         });
 
-        // Off-screen sandbox in normal document flow at absolute (0,0) — no fixed overlay, no centering
+        // Off-screen sandbox in normal document flow fixed at (0,0) — pure clean canvas capture
         const sandbox = document.createElement('div');
         sandbox.id = 'pdf-render-sandbox';
-        sandbox.style.cssText = 'position:absolute;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:-1;pointer-events:none;overflow:visible;';
+        sandbox.style.cssText = 'position:fixed;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:999998;pointer-events:none;overflow:visible;';
         sandbox.appendChild(clone);
         document.body.appendChild(sandbox);
 
         // White loading veil so the user never sees the sandbox
         const veil = document.createElement('div');
-        veil.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#4f46e5;';
+        veil.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#4f46e5;';
         veil.textContent = '📄 Generando PDF en blanco...';
         document.body.appendChild(veil);
 
@@ -5815,9 +5922,7 @@
             width: 794,
             windowWidth: 794,
             scrollX: 0,
-            scrollY: 0,
-            x: 0,
-            y: 0
+            scrollY: 0
           }).then(canvas => {
             const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
             const pageWmm = 210;
@@ -6060,42 +6165,44 @@ ${state.company.phone}`;
         window.print();
       });
 
-      // Products Table Actions (+ Cotizar / Delete)
-      document.getElementById('products-catalog-tbody')?.addEventListener('click', e => {
-        const quoteBtn = e.target.closest('.send-prod-to-quote-btn');
-        if (quoteBtn) {
-          const prodId = quoteBtn.getAttribute('data-quote-prod');
-          switchView('cotizador');
-          document.getElementById('picker-filter-type').value = 'all';
-          populatePickerProducts();
-          document.getElementById('picker-product-select').value = prodId;
-          loadSelectedProductIntoStaging();
-          showToast('Producto cargado en el pre-configurador de cotización');
-          return;
-        }
-        const editBtn = e.target.closest('.edit-prod-btn');
-        if (editBtn) {
-          const prodId = editBtn.getAttribute('data-edit-prod');
-          openEditProductModal(prodId);
-          return;
-        }
-        const delBtn = e.target.closest('.delete-prod-btn');
-        if (delBtn) {
-          const prodId = delBtn.getAttribute('data-delete-prod');
-          const prod = state.products.find(p => p.id === prodId);
-          const prodName = prod ? prod.name : 'este producto';
-          if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente "${prodName}" del catálogo?\n\nEsta acción no se puede deshacer.`)) {
+      // Products Table and Mobile Cards Actions (+ Cotizar / Modificar / Eliminar)
+      ['products-catalog-tbody', 'products-catalog-cards'].forEach(containerId => {
+        document.getElementById(containerId)?.addEventListener('click', e => {
+          const quoteBtn = e.target.closest('.send-prod-to-quote-btn');
+          if (quoteBtn) {
+            const prodId = quoteBtn.getAttribute('data-quote-prod');
+            switchView('cotizador');
+            document.getElementById('picker-filter-type').value = 'all';
+            populatePickerProducts();
+            document.getElementById('picker-product-select').value = prodId;
+            loadSelectedProductIntoStaging();
+            showToast('Producto cargado en el pre-configurador de cotización');
             return;
           }
-          state.products = state.products.filter(p => p.id !== prodId);
-          saveState();
-          renderProductsCatalog();
-          populatePickerProducts();
-          populateRecipeSimulator();
-          renderQuoteEditorAndPdf();
-          showToast(`🗑️ "${prodName}" eliminado del catálogo`);
-          return;
-        }
+          const editBtn = e.target.closest('.edit-prod-btn');
+          if (editBtn) {
+            const prodId = editBtn.getAttribute('data-edit-prod');
+            openEditProductModal(prodId);
+            return;
+          }
+          const delBtn = e.target.closest('.delete-prod-btn');
+          if (delBtn) {
+            const prodId = delBtn.getAttribute('data-delete-prod');
+            const prod = state.products.find(p => p.id === prodId);
+            const prodName = prod ? prod.name : 'este producto';
+            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente "${prodName}" del catálogo?\n\nEsta acción no se puede deshacer.`)) {
+              return;
+            }
+            state.products = state.products.filter(p => p.id !== prodId);
+            saveState();
+            renderProductsCatalog();
+            populatePickerProducts();
+            populateRecipeSimulator();
+            renderQuoteEditorAndPdf();
+            showToast(`🗑️ "${prodName}" eliminado del catálogo`);
+            return;
+          }
+        });
       });
 
       // Shortcut to edit product from the Quote Builder picker
