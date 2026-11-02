@@ -1204,7 +1204,7 @@
                 ⬇️ Descargar PDF
               </button>
               <button type="button" id="btn-open-cuenta-cobro" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-amber-600 text-white hover:bg-amber-500 shadow-sm transition flex items-center gap-1.5">
-                <span>ðŸ§¾</span> Cuenta de Cobro
+                <span>&#129534;</span> Cuenta de Cobro
               </button>
               <button type="button" id="btn-print-pdf" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition">
                 🖨️ Imprimir
@@ -2290,24 +2290,31 @@
         </div>
         
         <div class="flex items-center gap-2">
-          <!-- Mobile tab switchers: only shown on small screens -->
-          <div class="inline-flex lg:hidden bg-slate-100 dark:bg-slate-700 p-0.5 rounded-xl text-xs font-bold">
-            <button type="button" id="btn-cdc-tab-edit" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white">✏️ Editar</button>
-            <button type="button" id="btn-cdc-tab-preview" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white">👁️ Vista A4</button>
+          <!-- Universal View Mode Switcher: Full Editor, Full Preview, or Split Screen -->
+          <div class="inline-flex bg-slate-200/90 dark:bg-slate-700/80 p-1 rounded-xl text-xs font-bold gap-1 shadow-inner">
+            <button type="button" id="btn-cdc-mode-edit" class="px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center gap-1.5 font-extrabold">
+              <span>&#9998;</span> Modificar Datos
+            </button>
+            <button type="button" id="btn-cdc-mode-preview" class="px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5 font-extrabold">
+              <span>&#128065;</span> Vista Previa A4
+            </button>
+            <button type="button" id="btn-cdc-mode-split" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition hidden md:flex items-center gap-1.5 font-bold" title="Dividir pantalla en dos columnas">
+              <span>&#9707;</span> Dividir
+            </button>
           </div>
           
           <button type="button" id="btn-download-cdc-pdf" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm transition flex items-center gap-1.5">
-            <span>⬇️</span> Descargar PDF A4
+            <span>&#11015;</span> Descargar PDF A4
           </button>
           <button type="button" id="btn-print-cdc" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition hidden sm:inline-flex items-center gap-1.5">
-            <span>🖨️</span> Imprimir
+            <span>&#128424;</span> Imprimir
           </button>
-          <button type="button" id="btn-close-modal-cdc" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold ml-2">✕</button>
+          <button type="button" id="btn-close-modal-cdc" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold ml-2">&times;</button>
         </div>
       </div>
 
       <!-- Main Body: Split-Screen on lg+ screens -->
-      <div class="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
+      <div id="cdc-main-body" class="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
         
         <!-- LEFT PANEL: Editor & Configuration Form -->
         <div id="cdc-panel-editor" class="lg:col-span-6 p-4 sm:p-6 space-y-5 overflow-y-auto bg-white dark:bg-slate-900">
@@ -2478,10 +2485,34 @@
             <textarea id="cdc-input-tax-clause" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[11px] leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
           </div>
 
+          <!-- Bottom Navigation Button to Jump to Full Preview -->
+          <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
+            <button type="button" id="btn-cdc-bottom-close" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white transition">
+              &times; Cerrar
+            </button>
+            <button type="button" id="btn-cdc-jump-preview" class="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-amber-600 hover:bg-amber-500 text-white shadow-sm transition flex items-center gap-2">
+              <span>&#128065;</span> Ver Vista Previa Hoja A4 Completa &rarr;
+            </button>
+          </div>
+
         </div>
 
         <!-- RIGHT PANEL: Live Interactive A4 Document Preview -->
         <div id="cdc-panel-preview" class="lg:col-span-6 p-4 sm:p-6 bg-slate-200/60 dark:bg-slate-950 flex flex-col items-center overflow-y-auto">
+          <!-- Quick Navigation Bar in Full Preview Mode -->
+          <div class="w-full flex flex-wrap items-center justify-between gap-3 pb-3 text-xs font-semibold max-w-[794px]">
+            <button type="button" id="btn-cdc-jump-edit" class="px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5 shadow-xs">
+              <span>&#9998;</span> Modificar Datos del Cobro
+            </button>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">&#9679; Hoja A4 Oficial</span>
+              <button type="button" id="btn-cdc-pv-dl-pdf" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                <span>&#11015;</span> Descargar PDF
+              </button>
+            </div>
+          </div>
+          </div>
+          </div>
           <div class="w-full flex items-center justify-between pb-3 text-xs text-slate-500 dark:text-slate-400 font-semibold max-w-[794px]">
             <span>Vista Previa del Documento Oficial (Hoja A4):</span>
             <span class="text-emerald-600 dark:text-emerald-400 font-bold">● Sincronizado en tiempo real</span>
@@ -4432,7 +4463,60 @@
     // =====================================================
     let currentCDCQuote = null;
 
-    function openCuentaCobroModal(quoteObj) {
+        // View Mode Controller for Cuenta de Cobro: 'edit' (full width), 'preview' (full A4 sheet), or 'split'
+    function setCDCViewMode(mode) {
+      const editorPanel = document.getElementById('cdc-panel-editor');
+      const previewPanel = document.getElementById('cdc-panel-preview');
+      const grid = document.getElementById('cdc-main-body');
+      const btnEdit = document.getElementById('btn-cdc-mode-edit');
+      const btnPrev = document.getElementById('btn-cdc-mode-preview');
+      const btnSplit = document.getElementById('btn-cdc-mode-split');
+
+      const activeClasses = ['bg-white', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white', 'shadow-sm'];
+      const inactiveClasses = ['text-slate-600', 'dark:text-slate-300'];
+
+      const setBtnActive = (btn, isActive) => {
+        if (!btn) return;
+        if (isActive) {
+          btn.classList.add(...activeClasses);
+          btn.classList.remove(...inactiveClasses);
+        } else {
+          btn.classList.remove(...activeClasses);
+          btn.classList.add(...inactiveClasses);
+        }
+      };
+
+      setBtnActive(btnEdit, mode === 'edit');
+      setBtnActive(btnPrev, mode === 'preview');
+      setBtnActive(btnSplit, mode === 'split');
+
+      if (mode === 'preview') {
+        // FULL WIDTH PREVIEW (no split, complete centered A4 document)
+        editorPanel?.classList.add('hidden');
+        previewPanel?.classList.remove('hidden', 'lg:col-span-6');
+        previewPanel?.classList.add('col-span-12', 'w-full', 'py-6');
+        grid?.classList.remove('lg:grid-cols-12');
+        grid?.classList.add('grid-cols-1');
+        previewPanel?.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (mode === 'edit') {
+        // FULL WIDTH EDITOR (comfortable form layout)
+        previewPanel?.classList.add('hidden');
+        editorPanel?.classList.remove('hidden', 'lg:col-span-6');
+        editorPanel?.classList.add('col-span-12', 'w-full');
+        grid?.classList.remove('lg:grid-cols-12');
+        grid?.classList.add('grid-cols-1');
+        editorPanel?.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // SPLIT SCREEN (side-by-side for widescreen)
+        editorPanel?.classList.remove('hidden', 'col-span-12');
+        editorPanel?.classList.add('lg:col-span-6');
+        previewPanel?.classList.remove('hidden', 'col-span-12', 'py-6');
+        previewPanel?.classList.add('lg:col-span-6');
+        grid?.classList.remove('grid-cols-1');
+        grid?.classList.add('lg:grid-cols-12');
+      }
+    }
+function openCuentaCobroModal(quoteObj) {
       const q = quoteObj || state.activeQuote;
       if (!q) {
         showToast('No hay cotización activa para generar cuenta de cobro.');
@@ -4440,14 +4524,24 @@
       }
       currentCDCQuote = q;
 
-      // Calculate totals
-      const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-      const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+      // Calculate totals (handles both detailed items quotes and summary quotes)
+      let total = Number(q.total) || 0;
+      let subtotal = 0;
+      if (q.items && q.items.length > 0) {
+        subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+        if (!total) {
+          total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        }
+      } else {
+        subtotal = total;
+      }
+      if (total <= 0 && state.activeQuote && state.activeQuote.total) {
+        total = Number(state.activeQuote.total) || 0;
+      }
       const anticipoPct = Number(q.depositPct) || 50;
       const anticipoVal = Math.round(total * (anticipoPct / 100));
       const saldoVal = Math.max(0, total - anticipoVal);
-
-      // Quote badge & total ref
+// Quote badge & total ref
       const badge = document.getElementById('cdc-header-quote-badge');
       if (badge) badge.textContent = `${q.number || 'COT-001'} · ${q.eventTitle || 'Evento'}`;
       const totalRef = document.getElementById('cdc-quote-total-ref');
@@ -4539,6 +4633,8 @@
 
       const modal = document.getElementById('modal-cuenta-cobro');
       if (modal) modal.classList.remove('hidden');
+      // Default to full edit mode so screen is never squished/cut off
+      setCDCViewMode('edit');
     }
 
     function highlightCDCPreset(btnId) {
@@ -4795,7 +4891,7 @@
                 Abrir / PDF
               </button>
                 <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold transition flex items-center gap-1">
-                  ðŸ§¾ Cobro
+                  <span>&#129534;</span> Cuenta Cobro
                 </button>
             </td>
           </tr>
@@ -6634,22 +6730,15 @@ ${state.company.phone}`;
       document.getElementById('btn-download-cdc-pdf')?.addEventListener('click', downloadCuentaCobroPDF);
       document.getElementById('btn-print-cdc')?.addEventListener('click', () => window.print());
 
-      // Mobile tab switches
-      document.getElementById('btn-cdc-tab-edit')?.addEventListener('click', () => {
-        document.getElementById('cdc-panel-editor')?.classList.remove('hidden');
-        document.getElementById('cdc-panel-preview')?.classList.add('hidden');
-        document.getElementById('btn-cdc-tab-edit')?.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
-        document.getElementById('btn-cdc-tab-preview')?.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
-      });
-
-      document.getElementById('btn-cdc-tab-preview')?.addEventListener('click', () => {
-        document.getElementById('cdc-panel-editor')?.classList.add('hidden');
-        document.getElementById('cdc-panel-preview')?.classList.remove('hidden');
-        document.getElementById('btn-cdc-tab-preview')?.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
-        document.getElementById('btn-cdc-tab-edit')?.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
-      });
-
-      // Amount Preset buttons
+      // Universal CDC View Mode Switches (Full Edit, Full Preview, or Split)
+      document.getElementById('btn-cdc-mode-edit')?.addEventListener('click', () => setCDCViewMode('edit'));
+      document.getElementById('btn-cdc-mode-preview')?.addEventListener('click', () => setCDCViewMode('preview'));
+      document.getElementById('btn-cdc-mode-split')?.addEventListener('click', () => setCDCViewMode('split'));
+      document.getElementById('btn-cdc-jump-preview')?.addEventListener('click', () => setCDCViewMode('preview'));
+      document.getElementById('btn-cdc-jump-edit')?.addEventListener('click', () => setCDCViewMode('edit'));
+      document.getElementById('btn-cdc-bottom-close')?.addEventListener('click', () => document.getElementById('modal-cuenta-cobro')?.classList.add('hidden'));
+      document.getElementById('btn-cdc-pv-dl-pdf')?.addEventListener('click', downloadCuentaCobroPDF);
+// Amount Preset buttons
       document.getElementById('btn-cdc-preset-total')?.addEventListener('click', () => {
         const q = currentCDCQuote || state.activeQuote || {};
         const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
