@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="light" style="color-scheme: light;">
 <head>
   <meta charset="UTF-8" />
@@ -1203,6 +1203,9 @@
               <button type="button" id="btn-download-pdf" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm transition">
                 ⬇️ Descargar PDF
               </button>
+              <button type="button" id="btn-open-cuenta-cobro" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-amber-600 text-white hover:bg-amber-500 shadow-sm transition flex items-center gap-1.5">
+                <span>ðŸ§¾</span> Cuenta de Cobro
+              </button>
               <button type="button" id="btn-print-pdf" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition">
                 🖨️ Imprimir
               </button>
@@ -1663,11 +1666,11 @@
               </div>
               <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-700">
                 <span class="text-slate-500">Cristalería / Montaje:</span>
-                <strong class="text-slate-800 dark:text-slate-200">Copa Balón / Vaso Largo</strong>
+                <strong class="text-slate-800 dark:text-slate-200" id="sim-spec-glassware">>Copa Balón / Vaso Largo</strong>
               </div>
               <div class="flex items-center justify-between py-1">
                 <span class="text-slate-500">Merma estándar estimada:</span>
-                <strong class="text-amber-600 dark:text-amber-400">3% - 5%</strong>
+                <strong class="text-amber-600 dark:text-amber-400" id="sim-spec-waste">3% - 5%</strong>
               </div>
             </div>
           </div>
@@ -2074,6 +2077,14 @@
           <label for="rec-desc" class="block font-semibold text-slate-700 mb-1">Descripción Comercial para el PDF</label>
           <input id="rec-desc" type="text" placeholder="Ej. Incluye 3 cócteles de autor por persona, cristalería, hielo y fruta deshidratada." class="w-full rounded-lg border border-slate-300 px-3 py-2" />
         </div>
+        <div class="sm:col-span-7">
+          <label for="rec-glassware" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">CristalerÃ­a / Montaje Recomendado</label>
+          <input id="rec-glassware" type="text" placeholder="Ej. Copa BalÃ³n / Vaso Largo / Vajilla de Lujo" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
+        </div>
+        <div class="sm:col-span-5">
+          <label for="rec-waste" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Merma EstÃ¡ndar Estimada</label>
+          <input id="rec-waste" type="text" placeholder="Ej. 3% - 5%" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
+        </div>
       </div>
 
       <!-- Ingredients Builder -->
@@ -2250,6 +2261,390 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+    <!-- ==========================================
+       MODAL: GENERADOR Y MODIFICADOR DE CUENTA DE COBRO
+       ========================================== -->
+  <div id="modal-cuenta-cobro" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-100 dark:bg-slate-900 rounded-3xl max-w-7xl w-full shadow-2xl border border-slate-300 dark:border-slate-800 flex flex-col max-h-[96vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Top Modal Header -->
+      <div class="bg-white dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 px-5 py-3.5 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+            🧾
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              Generador de Cuenta de Cobro
+              <span id="cdc-header-quote-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                COT-2026-0001
+              </span>
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              Personaliza montos, datos del acreedor, deudor, cuentas bancarias y exporta el PDF oficial en fondo blanco.
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <!-- Mobile tab switchers: only shown on small screens -->
+          <div class="inline-flex lg:hidden bg-slate-100 dark:bg-slate-700 p-0.5 rounded-xl text-xs font-bold">
+            <button type="button" id="btn-cdc-tab-edit" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white">✏️ Editar</button>
+            <button type="button" id="btn-cdc-tab-preview" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white">👁️ Vista A4</button>
+          </div>
+          
+          <button type="button" id="btn-download-cdc-pdf" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm transition flex items-center gap-1.5">
+            <span>⬇️</span> Descargar PDF A4
+          </button>
+          <button type="button" id="btn-print-cdc" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition hidden sm:inline-flex items-center gap-1.5">
+            <span>🖨️</span> Imprimir
+          </button>
+          <button type="button" id="btn-close-modal-cdc" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold ml-2">✕</button>
+        </div>
+      </div>
+
+      <!-- Main Body: Split-Screen on lg+ screens -->
+      <div class="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
+        
+        <!-- LEFT PANEL: Editor & Configuration Form -->
+        <div id="cdc-panel-editor" class="lg:col-span-6 p-4 sm:p-6 space-y-5 overflow-y-auto bg-white dark:bg-slate-900">
+          
+          <!-- Preset Amount Selector -->
+          <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                <span>💰</span> Tipo de Cobro / Monto a Facturar
+              </span>
+              <span id="cdc-quote-total-ref" class="text-xs font-bold text-slate-500 dark:text-slate-400">Total Cotización: $10.510.000</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button type="button" id="btn-cdc-preset-total" class="cdc-preset-btn px-2.5 py-2 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 hover:bg-amber-100 text-slate-800 dark:text-slate-100 transition text-center shadow-xs">
+                <div>100% Total</div>
+                <div id="cdc-preset-total-val" class="text-[11px] font-extrabold text-amber-700 dark:text-amber-400">$10.510.000</div>
+              </button>
+              <button type="button" id="btn-cdc-preset-anticipo" class="cdc-preset-btn px-2.5 py-2 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 hover:bg-amber-100 text-slate-800 dark:text-slate-100 transition text-center shadow-xs">
+                <div>Anticipo (50%)</div>
+                <div id="cdc-preset-anticipo-val" class="text-[11px] font-extrabold text-amber-700 dark:text-amber-400">$5.255.000</div>
+              </button>
+              <button type="button" id="btn-cdc-preset-saldo" class="cdc-preset-btn px-2.5 py-2 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 hover:bg-amber-100 text-slate-800 dark:text-slate-100 transition text-center shadow-xs">
+                <div>Saldo (50%)</div>
+                <div id="cdc-preset-saldo-val" class="text-[11px] font-extrabold text-amber-700 dark:text-amber-400">$5.255.000</div>
+              </button>
+              <button type="button" id="btn-cdc-preset-custom" class="cdc-preset-btn px-2.5 py-2 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 hover:bg-amber-100 text-slate-800 dark:text-slate-100 transition text-center shadow-xs">
+                <div>Personalizado</div>
+                <div class="text-[11px] font-semibold text-slate-500">Monto Libre</div>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label for="cdc-input-amount" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Valor a Cobrar ($ COP)
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center font-bold text-slate-400">$</span>
+                  <input type="number" id="cdc-input-amount" step="1000" class="w-full pl-7 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-extrabold text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+                </div>
+              </div>
+              <div>
+                <label for="cdc-input-number" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Número de Cuenta de Cobro
+                </label>
+                <input type="text" id="cdc-input-number" placeholder="CDC-2026-0001" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label for="cdc-input-amount-words" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                <span>Valor en Letras (Automático)</span>
+                <span class="text-[10px] text-slate-400 font-normal">Editable</span>
+              </label>
+              <textarea id="cdc-input-amount-words" rows="2" class="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs uppercase focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Fechas de Expedición y Límite de Pago -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="cdc-input-date" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                📅 Fecha de Expedición
+              </label>
+              <input type="date" id="cdc-input-date" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            </div>
+            <div>
+              <label for="cdc-input-due-date" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                ⏳ Fecha Límite de Pago
+              </label>
+              <input type="date" id="cdc-input-due-date" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Datos del Acreedor (Quien cobra) -->
+          <div class="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400">
+                🏢 Datos del Acreedor (Beneficiario del Cobro)
+              </span>
+              <span class="text-[10px] text-slate-400">Tu empresa / Nombre</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="cdc-creditor-name" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Nombre o Razón Social</label>
+                <input type="text" id="cdc-creditor-name" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-creditor-doc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">NIT o C.C.</label>
+                <input type="text" id="cdc-creditor-doc" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-creditor-phone" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Teléfono / WhatsApp</label>
+                <input type="text" id="cdc-creditor-phone" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-creditor-city" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Ciudad y Dirección</label>
+                <input type="text" id="cdc-creditor-city" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos del Deudor (Cliente que paga) -->
+          <div class="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                👤 Datos del Deudor (Cliente a Quien se Cobra)
+              </span>
+              <span class="text-[10px] text-slate-400">Cliente</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="cdc-debtor-name" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Nombre / Razón Social</label>
+                <input type="text" id="cdc-debtor-name" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-debtor-doc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">NIT / C.C.</label>
+                <input type="text" id="cdc-debtor-doc" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-debtor-contact" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Contacto / Email</label>
+                <input type="text" id="cdc-debtor-contact" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label for="cdc-debtor-city" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Ciudad</label>
+                <input type="text" id="cdc-debtor-city" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Concepto del Cobro -->
+          <div>
+            <label for="cdc-input-concept" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+              <span>📝 Por Concepto De (Detalle Formal del Cobro)</span>
+              <span class="text-[10px] text-slate-400 font-normal">Editable</span>
+            </label>
+            <textarea id="cdc-input-concept" rows="3" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+          </div>
+
+          <!-- Toggle: Incluir desglose de ítems cotizados -->
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="cdc-toggle-items" checked class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer" />
+            <label for="cdc-toggle-items" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              Incluir tabla resumen de ítems y servicios de la cotización
+            </label>
+          </div>
+
+          <!-- Cuentas Bancarias de Transferencia -->
+          <div>
+            <label for="cdc-input-bank" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              🏦 Cuentas Bancarias para Consignación / Transferencia
+            </label>
+            <textarea id="cdc-input-bank" rows="3" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+          </div>
+
+          <!-- Declaración Tributaria -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="cdc-input-tax-clause" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                ⚖️ Declaración / Nota Tributaria
+              </label>
+              <label class="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+                <input type="checkbox" id="cdc-toggle-tax-clause" checked class="w-3.5 h-3.5 rounded text-amber-600" />
+                <span>Mostrar cláusula</span>
+              </label>
+            </div>
+            <textarea id="cdc-input-tax-clause" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[11px] leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+          </div>
+
+        </div>
+
+        <!-- RIGHT PANEL: Live Interactive A4 Document Preview -->
+        <div id="cdc-panel-preview" class="lg:col-span-6 p-4 sm:p-6 bg-slate-200/60 dark:bg-slate-950 flex flex-col items-center overflow-y-auto">
+          <div class="w-full flex items-center justify-between pb-3 text-xs text-slate-500 dark:text-slate-400 font-semibold max-w-[794px]">
+            <span>Vista Previa del Documento Oficial (Hoja A4):</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold">● Sincronizado en tiempo real</span>
+          </div>
+
+          <!-- THE CUENTA DE COBRO PRINTABLE / EXPORTABLE SHEET (Exact 794px A4) -->
+          <div class="cdc-scroll-wrapper w-full overflow-x-auto flex justify-center p-2">
+<div id="cdc-printable-sheet" style="width: 794px; min-width: 794px; max-width: 794px; padding: 40px 45px; box-sizing: border-box; background-color: #ffffff; color: #0f172a; margin: 0 auto; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); border-radius: 8px; font-family: 'Inter', system-ui, sans-serif;" class="space-y-6">
+            
+            <!-- Header Letterhead -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 2px solid #0f172a;">
+              <div>
+                <h1 id="cdc-pv-creditor-name" style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; text-transform: uppercase;">
+                  AURA EVENTOS & CATERING
+                </h1>
+                <p id="cdc-pv-creditor-doc" style="font-size: 12px; color: #475569; margin: 3px 0 0 0; font-weight: 600;">
+                  NIT: 901.482.310-9
+                </p>
+                <p id="cdc-pv-creditor-contact" style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">
+                  📞 +57 300 456 7890 · contacto@auraeventos.co
+                </p>
+                <p id="cdc-pv-creditor-city" style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">
+                  El Poblado, Medellín - Colombia
+                </p>
+              </div>
+
+              <div style="text-align: right;">
+                <div style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px;">
+                  CUENTA DE COBRO
+                </div>
+                <div id="cdc-pv-number" style="font-size: 14px; font-weight: 800; color: #d97706; margin-top: 5px;">
+                  N° CDC-2026-0001
+                </div>
+                <div style="font-size: 11px; color: #475569; margin-top: 4px;">
+                  Fecha de expedición: <strong id="cdc-pv-date">01 Nov 2026</strong>
+                </div>
+                <div style="font-size: 11px; color: #b45309; margin-top: 2px;">
+                  Fecha límite: <strong id="cdc-pv-due-date">16 Nov 2026</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Debtor Box ("DEUDOR / CLIENTE") -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px;">
+              <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 4px;">
+                DEUDOR / A NOMBRE DE:
+              </div>
+              <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <div id="cdc-pv-debtor-name" style="font-size: 15px; font-weight: 800; color: #0f172a;">
+                    Camila Restrepo & Andrés Mejía
+                  </div>
+                  <div id="cdc-pv-debtor-doc" style="font-size: 12px; color: #334155; font-weight: 600; margin-top: 2px;">
+                    C.C. / NIT: 1.037.612.890
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div id="cdc-pv-debtor-contact" style="font-size: 12px; color: #475569;">
+                    camila.boda@email.com · +57 310 555 0192
+                  </div>
+                  <div id="cdc-pv-debtor-city" style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                    Medellín, Antioquia
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- "DEBE A" Central Clause -->
+            <div style="text-align: center; padding: 10px 0; border-top: 1px dashed #cbd5e1; border-bottom: 1px dashed #cbd5e1;">
+              <div style="font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">
+                DEBE A:
+              </div>
+              <div id="cdc-pv-debe-a-name" style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                AURA EVENTOS & CATERING
+              </div>
+              <div id="cdc-pv-debe-a-doc" style="font-size: 12px; font-weight: 600; color: #475569;">
+                NIT / C.C. 901.482.310-9
+              </div>
+            </div>
+
+            <!-- "LA SUMA DE" Highlight Box -->
+            <div style="background-color: #fffbeb; border: 2px solid #fef3c7; border-left: 6px solid #d97706; border-radius: 8px; padding: 16px 20px;">
+              <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #92400e; letter-spacing: 0.5px;">
+                LA SUMA DE:
+              </div>
+              <div id="cdc-pv-amount-num" style="font-size: 26px; font-weight: 900; color: #78350f; margin: 4px 0;">
+                $10.510.000 COP
+              </div>
+              <div style="font-size: 12px; font-weight: 700; color: #92400e; line-height: 1.4;">
+                SON: <span id="cdc-pv-amount-words">DIEZ MILLONES QUINIENTOS DIEZ MIL PESOS M/CTE.</span>
+              </div>
+            </div>
+
+            <!-- "POR CONCEPTO DE" Statement -->
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 18px;">
+              <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; margin-bottom: 6px;">
+                POR CONCEPTO DE:
+              </div>
+              <div id="cdc-pv-concept" style="font-size: 12px; color: #1e293b; line-height: 1.6; white-space: pre-line;">
+                Pago correspondiente a la prestación de servicios...
+              </div>
+            </div>
+
+            <!-- Optional Items Summary Table -->
+            <div id="cdc-pv-items-wrapper" style="margin-top: 10px;">
+              <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; margin-bottom: 6px;">
+                DETALLE DE SERVICIOS / ÍTEMS RELACIONADOS:
+              </div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #e2e8f0;">
+                <thead>
+                  <tr style="background-color: #f1f5f9; color: #334155; font-size: 10px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #cbd5e1;">
+                    <th style="padding: 7px 10px; text-align: left;">Descripción</th>
+                    <th style="padding: 7px 8px; text-align: center; width: 80px;">Cant.</th>
+                    <th style="padding: 7px 8px; text-align: right; width: 100px;">Valor Unit.</th>
+                    <th style="padding: 7px 10px; text-align: right; width: 110px;">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="cdc-pv-items-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Bank Accounts & Payment Methods -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px;">
+              <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; letter-spacing: 0.5px; margin-bottom: 5px;">
+                🏦 FORMA DE PAGO / TRANSFERENCIA O CONSIGNACIÓN:
+              </div>
+              <div id="cdc-pv-bank" style="font-size: 12px; color: #334155; line-height: 1.5; white-space: pre-line;">
+                Bancolombia Ahorros: 412-000981-23
+                Nequi / Daviplata: 300 456 7890
+                Titular: Aura Eventos SAS
+              </div>
+            </div>
+
+            <!-- Tax Exemption / Legal Declaration -->
+            <div id="cdc-pv-tax-wrapper" style="border-left: 3px solid #94a3b8; padding-left: 12px; margin-top: 10px;">
+              <p id="cdc-pv-tax-clause" style="font-size: 10px; color: #64748b; line-height: 1.4; margin: 0; font-style: italic;">
+                Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el Artículo 437 del Estatuto Tributario nacional.
+              </p>
+            </div>
+
+            <!-- Signature Area -->
+            <div style="padding-top: 30px; display: flex; justify-content: flex-end;">
+              <div style="width: 260px; text-align: center;">
+                <div style="border-top: 1.5px solid #0f172a; margin-bottom: 6px;"></div>
+                <div id="cdc-pv-sig-name" style="font-size: 12px; font-weight: 800; color: #0f172a;">
+                  AURA EVENTOS & CATERING
+                </div>
+                <div id="cdc-pv-sig-doc" style="font-size: 11px; color: #475569; font-weight: 600;">
+                  NIT / C.C. 901.482.310-9
+                </div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
+                  Firma del Acreedor / Beneficiario
+                </div>
+</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -3818,6 +4213,10 @@
 
       if (descEl) descEl.textContent = rec.desc || 'Receta gastronómica / coctelería para eventos.';
       if (specUnit) specUnit.textContent = `${rec.unit || 'Por Persona'} (Base ${rec.basePax || 1} Pax)`;
+      const specGlass = document.getElementById('sim-spec-glassware');
+      if (specGlass) specGlass.textContent = rec.glassware || 'Copa BalÃ³n / Vaso Largo';
+      const specWaste = document.getElementById('sim-spec-waste');
+      if (specWaste) specWaste.textContent = rec.waste ? (rec.waste + (rec.waste.includes('%') ? '' : '%')) : '3% - 5%';
 
       const unitCost = calculateRecipeUnitCost(rec);
       const totalCost = unitCost * pax;
@@ -3916,6 +4315,436 @@
     // =====================================================
     // 7. SAVED QUOTES, CLIENTS, FINANCES & COMPANY RENDER
     // =====================================================
+        // =====================================================
+    // NÚMERO A LETRAS FORMAL EN PESOS COLOMBIANOS (M/CTE.)
+    // =====================================================
+    function _cdcUnidades(num) {
+      switch (num) {
+        case 1: return 'UN';
+        case 2: return 'DOS';
+        case 3: return 'TRES';
+        case 4: return 'CUATRO';
+        case 5: return 'CINCO';
+        case 6: return 'SEIS';
+        case 7: return 'SIETE';
+        case 8: return 'OCHO';
+        case 9: return 'NUEVE';
+      }
+      return '';
+    }
+
+    function _cdcDecenasY(strSin, numUnidades) {
+      if (numUnidades > 0) return strSin + ' Y ' + _cdcUnidades(numUnidades);
+      return strSin;
+    }
+
+    function _cdcDecenas(num) {
+      const decena = Math.floor(num / 10);
+      const unidad = num - (decena * 10);
+      switch (decena) {
+        case 1:
+          switch (unidad) {
+            case 0: return 'DIEZ';
+            case 1: return 'ONCE';
+            case 2: return 'DOCE';
+            case 3: return 'TRECE';
+            case 4: return 'CATORCE';
+            case 5: return 'QUINCE';
+            default: return 'DIECI' + _cdcUnidades(unidad);
+          }
+        case 2:
+          switch (unidad) {
+            case 0: return 'VEINTE';
+            default: return 'VEINTI' + _cdcUnidades(unidad);
+          }
+        case 3: return _cdcDecenasY('TREINTA', unidad);
+        case 4: return _cdcDecenasY('CUARENTA', unidad);
+        case 5: return _cdcDecenasY('CINCUENTA', unidad);
+        case 6: return _cdcDecenasY('SESENTA', unidad);
+        case 7: return _cdcDecenasY('SETENTA', unidad);
+        case 8: return _cdcDecenasY('OCHENTA', unidad);
+        case 9: return _cdcDecenasY('NOVENTA', unidad);
+        case 0: return _cdcUnidades(unidad);
+      }
+      return '';
+    }
+
+    function _cdcCentenas(num) {
+      const centenas = Math.floor(num / 100);
+      const decenas = num - (centenas * 100);
+      switch (centenas) {
+        case 1:
+          if (decenas > 0) return 'CIENTO ' + _cdcDecenas(decenas);
+          return 'CIEN';
+        case 2: return 'DOSCIENTOS ' + _cdcDecenas(decenas);
+        case 3: return 'TRESCIENTOS ' + _cdcDecenas(decenas);
+        case 4: return 'CUATROCIENTOS ' + _cdcDecenas(decenas);
+        case 5: return 'QUINIENTOS ' + _cdcDecenas(decenas);
+        case 6: return 'SEISCIENTOS ' + _cdcDecenas(decenas);
+        case 7: return 'SETECIENTOS ' + _cdcDecenas(decenas);
+        case 8: return 'OCHOCIENTOS ' + _cdcDecenas(decenas);
+        case 9: return 'NOVECIENTOS ' + _cdcDecenas(decenas);
+      }
+      return _cdcDecenas(decenas);
+    }
+
+    function _cdcMiles(num) {
+      const divisor = 1000;
+      const cientos = Math.floor(num / divisor);
+      const resto = num - (cientos * divisor);
+      let strMiles = '';
+      if (cientos > 0) {
+        strMiles = cientos === 1 ? 'MIL' : _cdcCentenas(cientos) + ' MIL';
+      }
+      let strCentenas = _cdcCentenas(resto);
+      if (strMiles === '') return strCentenas;
+      return (strMiles + ' ' + strCentenas).trim();
+    }
+
+    function _cdcMillones(num) {
+      const divisor = 1000000;
+      const cientos = Math.floor(num / divisor);
+      const resto = num - (cientos * divisor);
+      let strMillones = '';
+      if (cientos > 0) {
+        strMillones = cientos === 1 ? 'UN MILLÓN' : _cdcCentenas(cientos) + ' MILLONES';
+      }
+      let strMiles = _cdcMiles(resto);
+      if (strMillones === '') return strMiles;
+      return (strMillones + ' ' + strMiles).trim();
+    }
+
+    function numeroALetras(num) {
+      const entero = Math.round(Math.abs(Number(num) || 0));
+      if (entero === 0) return 'CERO PESOS M/CTE.';
+      if (entero === 1) return 'UN PESO M/CTE.';
+      let resultado = _cdcMillones(entero);
+      if (resultado.endsWith('MILLÓN') || resultado.endsWith('MILLONES')) {
+        resultado += ' DE PESOS M/CTE.';
+      } else {
+        resultado += ' PESOS M/CTE.';
+      }
+      return resultado.replace(/\s+/g, ' ').trim();
+    }
+
+    // =====================================================
+    // CUENTA DE COBRO STATE & CONTROLLER
+    // =====================================================
+    let currentCDCQuote = null;
+
+    function openCuentaCobroModal(quoteObj) {
+      const q = quoteObj || state.activeQuote;
+      if (!q) {
+        showToast('No hay cotización activa para generar cuenta de cobro.');
+        return;
+      }
+      currentCDCQuote = q;
+
+      // Calculate totals
+      const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+      const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+      const anticipoPct = Number(q.depositPct) || 50;
+      const anticipoVal = Math.round(total * (anticipoPct / 100));
+      const saldoVal = Math.max(0, total - anticipoVal);
+
+      // Quote badge & total ref
+      const badge = document.getElementById('cdc-header-quote-badge');
+      if (badge) badge.textContent = `${q.number || 'COT-001'} · ${q.eventTitle || 'Evento'}`;
+      const totalRef = document.getElementById('cdc-quote-total-ref');
+      if (totalRef) totalRef.textContent = `Total Cotización: ${formatCurrency(total)}`;
+
+      // Update preset buttons values
+      const pTot = document.getElementById('cdc-preset-total-val');
+      if (pTot) pTot.textContent = formatCurrency(total);
+      const pAnt = document.getElementById('cdc-preset-anticipo-val');
+      if (pAnt) pAnt.textContent = formatCurrency(anticipoVal);
+      const pSal = document.getElementById('cdc-preset-saldo-val');
+      if (pSal) pSal.textContent = formatCurrency(saldoVal);
+
+      // Generate next CDC number
+      const cdcInputNumber = document.getElementById('cdc-input-number');
+      if (cdcInputNumber) {
+        const nextSeq = String((state.savedQuotes || []).length + 1).padStart(4, '0');
+        const defaultNum = `CDC-${new Date().getFullYear()}-${nextSeq}`;
+        cdcInputNumber.value = defaultNum;
+      }
+
+      // Dates: issue today, due date quote expiration or +15 days
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const cdcDate = document.getElementById('cdc-input-date');
+      if (cdcDate) cdcDate.value = todayIso;
+      const cdcDueDate = document.getElementById('cdc-input-due-date');
+      if (cdcDueDate) {
+        if (q.validUntil) {
+          cdcDueDate.value = q.validUntil;
+        } else {
+          const d = new Date();
+          d.setDate(d.getDate() + 15);
+          cdcDueDate.value = d.toISOString().slice(0, 10);
+        }
+      }
+
+      // Creditor info from company state
+      const comp = state.company || {};
+      const cName = document.getElementById('cdc-creditor-name');
+      if (cName) cName.value = comp.name || 'Aura Eventos & Catering';
+      const cDoc = document.getElementById('cdc-creditor-doc');
+      if (cDoc) cDoc.value = comp.nit || 'NIT: 901.482.310-9';
+      const cPhone = document.getElementById('cdc-creditor-phone');
+      if (cPhone) cPhone.value = comp.phone || '+57 300 456 7890';
+      const cCity = document.getElementById('cdc-creditor-city');
+      if (cCity) cCity.value = `${comp.address || 'El Poblado'}, ${comp.city || 'Medellín'}`;
+
+      // Debtor info from client
+      const cl = (state.clients || []).find(c => c.id === q.clientId) || {};
+      const dName = document.getElementById('cdc-debtor-name');
+      if (dName) dName.value = cl.name || q.eventTitle || 'Cliente';
+      const dDoc = document.getElementById('cdc-debtor-doc');
+      if (dDoc) dDoc.value = cl.doc || 'C.C. / NIT';
+      const dContact = document.getElementById('cdc-debtor-contact');
+      if (dContact) dContact.value = `${cl.email || ''} ${cl.phone ? '· ' + cl.phone : ''}`.trim() || 'contacto@cliente.com';
+      const dCity = document.getElementById('cdc-debtor-city');
+      if (dCity) dCity.value = cl.city || comp.city || 'Medellín, Antioquia';
+
+      // Concept prefill
+      const cdcConcept = document.getElementById('cdc-input-concept');
+      if (cdcConcept) {
+        cdcConcept.value = `Prestación de servicios de producción de ${q.eventType || 'evento'} '${q.eventTitle || 'Evento'}' para ${q.guestsPax || 1} personas (Pax), programado para el día ${formatDateHuman(q.eventDate)} en ${q.eventVenue || 'Lugar por definir'}, según las especificaciones acordadas en la Cotización N° ${q.number}.`;
+      }
+
+      // Bank details
+      const cdcBank = document.getElementById('cdc-input-bank');
+      if (cdcBank) {
+        cdcBank.value = comp.bankDetails || 'Bancolombia Ahorros: 412-000981-23\nNequi / Daviplata: 300 456 7890\nTitular: ' + (comp.name || 'Aura Eventos SAS');
+      }
+
+      // Tax clause
+      const cdcTax = document.getElementById('cdc-input-tax-clause');
+      if (cdcTax) {
+        cdcTax.value = 'Para efectos tributarios, manifiesto bajo la gravedad de juramento que no soy responsable del Impuesto sobre las Ventas (IVA), de conformidad con el Artículo 437 del Estatuto Tributario nacional.';
+      }
+
+      // Default amount: 100% Total
+      const amountInput = document.getElementById('cdc-input-amount');
+      if (amountInput) amountInput.value = total;
+
+      const wordsInput = document.getElementById('cdc-input-amount-words');
+      if (wordsInput) wordsInput.value = numeroALetras(total);
+
+      // Highlight total preset button
+      highlightCDCPreset('btn-cdc-preset-total');
+
+      // Update preview and open modal
+      updateCuentaCobroPreview();
+
+      const modal = document.getElementById('modal-cuenta-cobro');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function highlightCDCPreset(btnId) {
+      document.querySelectorAll('.cdc-preset-btn').forEach(b => {
+        b.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-100', 'dark:bg-amber-900/40');
+      });
+      const active = document.getElementById(btnId);
+      if (active) active.classList.add('ring-2', 'ring-amber-500', 'bg-amber-100', 'dark:bg-amber-900/40');
+    }
+
+    function updateCuentaCobroPreview() {
+      const q = currentCDCQuote || state.activeQuote || {};
+      const amount = Number(document.getElementById('cdc-input-amount')?.value) || 0;
+      const num = document.getElementById('cdc-input-number')?.value.trim() || 'CDC-2026-0001';
+      const issueDate = document.getElementById('cdc-input-date')?.value || new Date().toISOString().slice(0, 10);
+      const dueDate = document.getElementById('cdc-input-due-date')?.value || '';
+      const words = document.getElementById('cdc-input-amount-words')?.value.trim() || numeroALetras(amount);
+      const cName = document.getElementById('cdc-creditor-name')?.value.trim() || 'AURA EVENTOS & CATERING';
+      const cDoc = document.getElementById('cdc-creditor-doc')?.value.trim() || 'NIT: 901.482.310-9';
+      const cPhone = document.getElementById('cdc-creditor-phone')?.value.trim() || '';
+      const cCity = document.getElementById('cdc-creditor-city')?.value.trim() || '';
+      const dName = document.getElementById('cdc-debtor-name')?.value.trim() || 'CLIENTE';
+      const dDoc = document.getElementById('cdc-debtor-doc')?.value.trim() || '';
+      const dContact = document.getElementById('cdc-debtor-contact')?.value.trim() || '';
+      const dCity = document.getElementById('cdc-debtor-city')?.value.trim() || '';
+      const concept = document.getElementById('cdc-input-concept')?.value.trim() || '';
+      const bank = document.getElementById('cdc-input-bank')?.value.trim() || '';
+      const taxClause = document.getElementById('cdc-input-tax-clause')?.value.trim() || '';
+      const showItems = document.getElementById('cdc-toggle-items')?.checked;
+      const showTax = document.getElementById('cdc-toggle-tax-clause')?.checked;
+
+      // Bind to preview sheet
+      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setTxt('cdc-pv-creditor-name', cName.toUpperCase());
+      setTxt('cdc-pv-creditor-doc', cDoc);
+      setTxt('cdc-pv-creditor-contact', cPhone ? `📞 ${cPhone}` : '');
+      setTxt('cdc-pv-creditor-city', cCity);
+
+      setTxt('cdc-pv-number', `N° ${num}`);
+      setTxt('cdc-pv-date', formatDateHuman(issueDate));
+      setTxt('cdc-pv-due-date', dueDate ? formatDateHuman(dueDate) : 'Contraentrega');
+
+      setTxt('cdc-pv-debtor-name', dName);
+      setTxt('cdc-pv-debtor-doc', dDoc);
+      setTxt('cdc-pv-debtor-contact', dContact);
+      setTxt('cdc-pv-debtor-city', dCity);
+
+      setTxt('cdc-pv-debe-a-name', cName.toUpperCase());
+      setTxt('cdc-pv-debe-a-doc', cDoc);
+
+      setTxt('cdc-pv-amount-num', `${formatCurrency(amount)} COP`);
+      setTxt('cdc-pv-amount-words', words);
+      setTxt('cdc-pv-concept', concept);
+      setTxt('cdc-pv-bank', bank);
+      setTxt('cdc-pv-tax-clause', taxClause);
+
+      setTxt('cdc-pv-sig-name', cName.toUpperCase());
+      setTxt('cdc-pv-sig-doc', cDoc);
+
+      // Tax clause toggle
+      const taxWrap = document.getElementById('cdc-pv-tax-wrapper');
+      if (taxWrap) taxWrap.style.display = showTax ? 'block' : 'none';
+
+      // Items breakdown table
+      const itemsWrap = document.getElementById('cdc-pv-items-wrapper');
+      const itemsTbody = document.getElementById('cdc-pv-items-tbody');
+      if (itemsWrap && itemsTbody) {
+        if (showItems && q.items && q.items.length > 0) {
+          itemsWrap.style.display = 'block';
+          itemsTbody.innerHTML = q.items.map(it => {
+            const qty = Number(it.qty) || 0;
+            const price = Number(it.price) || 0;
+            const rowTot = qty * price;
+            return `
+              <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 6px 10px; font-weight: 600; color: #1e293b;">
+                  <div>${it.name || 'Servicio'}</div>
+                  ${it.desc ? `<div style="font-size: 10px; color: #64748b; font-weight: normal;">${it.desc}</div>` : ''}
+                </td>
+                <td style="padding: 6px 8px; text-align: center; color: #475569;">${qty} ${it.unit || 'und'}</td>
+                <td style="padding: 6px 8px; text-align: right; color: #475569;">${formatCurrency(price)}</td>
+                <td style="padding: 6px 10px; text-align: right; font-weight: 700; color: #0f172a;">${formatCurrency(rowTot)}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          itemsWrap.style.display = 'none';
+        }
+      }
+    }
+
+    // High-Precision Cuenta de Cobro PDF Generation (100% Pure White Background, Exact A4 Geometry)
+    function downloadCuentaCobroPDF() {
+      const sheet = document.getElementById('cdc-printable-sheet');
+      if (!sheet) return;
+
+      const num = document.getElementById('cdc-input-number')?.value.trim() || 'CDC-001';
+      const cleanNum = num.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const clientName = (document.getElementById('cdc-debtor-name')?.value || 'Cliente').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `Cuenta_de_Cobro_${cleanNum}_${clientName}.pdf`;
+
+      showToast('Generando Cuenta de Cobro oficial en PDF...');
+
+      const clone = sheet.cloneNode(true);
+      clone.id = 'cdc-render-clone';
+      clone.style.width = '794px';
+      clone.style.minWidth = '794px';
+      clone.style.maxWidth = '794px';
+      clone.style.margin = '0px';
+      clone.style.padding = '35px 40px';
+      clone.style.boxSizing = 'border-box';
+      clone.style.boxShadow = 'none';
+      clone.style.border = 'none';
+      clone.style.borderRadius = '0px';
+      clone.style.backgroundColor = '#ffffff';
+      clone.style.color = '#0f172a';
+      clone.style.colorScheme = 'light';
+      clone.style.transform = 'none';
+
+      const sandbox = document.createElement('div');
+      sandbox.id = 'cdc-render-sandbox';
+      sandbox.style.cssText = 'position:absolute;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:-1;pointer-events:none;overflow:visible;';
+      sandbox.appendChild(clone);
+      document.body.appendChild(sandbox);
+
+      const veil = document.createElement('div');
+      veil.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#d97706;';
+      veil.textContent = '📄 Generando Cuenta de Cobro en PDF...';
+      document.body.appendChild(veil);
+
+      const prevScrollX = window.scrollX;
+      const prevScrollY = window.scrollY;
+      window.scrollTo(0, 0);
+
+      const cleanup = () => {
+        if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
+        if (veil.parentNode) veil.parentNode.removeChild(veil);
+        window.scrollTo(prevScrollX, prevScrollY);
+      };
+
+      const h2c = window.html2canvas;
+      const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+      if (!h2c || !JsPDF) {
+        cleanup();
+        window.print();
+        return;
+      }
+
+      const SCALE = 2;
+      setTimeout(() => {
+        h2c(clone, {
+          scale: SCALE,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: 794,
+          windowWidth: 794,
+          scrollX: 0,
+          scrollY: 0,
+          x: 0,
+          y: 0
+        }).then(canvas => {
+          const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+          const pageWmm = 210;
+          const pageHmm = 297;
+          const pxPerMm = 794 / pageWmm;
+          const pageHpx = pageHmm * pxPerMm;
+          const totalH = canvas.height / SCALE;
+
+          let start = 0;
+          let pageIndex = 0;
+          while (start < totalH - 2) {
+            const limit = start + pageHpx;
+            const end = Math.min(totalH, limit);
+            const sliceH = Math.max(1, Math.round((end - start) * SCALE));
+
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sliceH;
+            const ctx = pageCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+            ctx.drawImage(canvas, 0, Math.round(start * SCALE), canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+
+            if (pageIndex > 0) pdf.addPage('a4', 'portrait');
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(0, 0, pageWmm, pageHmm, 'F');
+            const imgData = pageCanvas.toDataURL('image/jpeg', 0.96);
+            pdf.addImage(imgData, 'JPEG', 0, 0, pageWmm, (sliceH / SCALE) / pxPerMm);
+
+            start = end;
+            pageIndex++;
+          }
+
+          pdf.save(filename);
+          cleanup();
+          showToast(`✅ Cuenta de Cobro descargada: ${filename}`);
+        }).catch(err => {
+          console.error('Error generating CDC PDF:', err);
+          cleanup();
+          window.print();
+        });
+      }, 100);
+    }
+
     function renderSavedQuotes() {
       ['badge-quotes-count', 'badge-quotes-count-drawer', 'badge-quotes-count-bottom'].forEach(id => {
         const b = document.getElementById(id);
@@ -3965,6 +4794,9 @@
               <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition">
                 Abrir / PDF
               </button>
+                <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold transition flex items-center gap-1">
+                  ðŸ§¾ Cobro
+                </button>
             </td>
           </tr>
         `;
@@ -4854,7 +5686,9 @@
             width: 794,
             windowWidth: 794,
             scrollX: 0,
-            scrollY: 0
+            scrollY: 0,
+            x: 0,
+            y: 0
           }).then(canvas => {
             const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
             const pageWmm = 210;
@@ -5786,6 +6620,113 @@ ${state.company.phone}`;
       populateClientSelect();
       populatePickerProducts();
       populateRecipeSimulator();
+            // ==========================================
+      // CUENTA DE COBRO EVENT LISTENERS & WIRING
+      // ==========================================
+      document.getElementById('btn-open-cuenta-cobro')?.addEventListener('click', () => {
+        openCuentaCobroModal();
+      });
+
+      document.getElementById('btn-close-modal-cdc')?.addEventListener('click', () => {
+        document.getElementById('modal-cuenta-cobro')?.classList.add('hidden');
+      });
+
+      document.getElementById('btn-download-cdc-pdf')?.addEventListener('click', downloadCuentaCobroPDF);
+      document.getElementById('btn-print-cdc')?.addEventListener('click', () => window.print());
+
+      // Mobile tab switches
+      document.getElementById('btn-cdc-tab-edit')?.addEventListener('click', () => {
+        document.getElementById('cdc-panel-editor')?.classList.remove('hidden');
+        document.getElementById('cdc-panel-preview')?.classList.add('hidden');
+        document.getElementById('btn-cdc-tab-edit')?.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+        document.getElementById('btn-cdc-tab-preview')?.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+      });
+
+      document.getElementById('btn-cdc-tab-preview')?.addEventListener('click', () => {
+        document.getElementById('cdc-panel-editor')?.classList.add('hidden');
+        document.getElementById('cdc-panel-preview')?.classList.remove('hidden');
+        document.getElementById('btn-cdc-tab-preview')?.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+        document.getElementById('btn-cdc-tab-edit')?.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+      });
+
+      // Amount Preset buttons
+      document.getElementById('btn-cdc-preset-total')?.addEventListener('click', () => {
+        const q = currentCDCQuote || state.activeQuote || {};
+        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const amtInput = document.getElementById('cdc-input-amount');
+        if (amtInput) amtInput.value = total;
+        const wordsInput = document.getElementById('cdc-input-amount-words');
+        if (wordsInput) wordsInput.value = numeroALetras(total);
+        highlightCDCPreset('btn-cdc-preset-total');
+        updateCuentaCobroPreview();
+      });
+
+      document.getElementById('btn-cdc-preset-anticipo')?.addEventListener('click', () => {
+        const q = currentCDCQuote || state.activeQuote || {};
+        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const anticipoVal = Math.round(total * ((Number(q.depositPct) || 50) / 100));
+        const amtInput = document.getElementById('cdc-input-amount');
+        if (amtInput) amtInput.value = anticipoVal;
+        const wordsInput = document.getElementById('cdc-input-amount-words');
+        if (wordsInput) wordsInput.value = numeroALetras(anticipoVal);
+        highlightCDCPreset('btn-cdc-preset-anticipo');
+        updateCuentaCobroPreview();
+      });
+
+      document.getElementById('btn-cdc-preset-saldo')?.addEventListener('click', () => {
+        const q = currentCDCQuote || state.activeQuote || {};
+        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const anticipoVal = Math.round(total * ((Number(q.depositPct) || 50) / 100));
+        const saldoVal = Math.max(0, total - anticipoVal);
+        const amtInput = document.getElementById('cdc-input-amount');
+        if (amtInput) amtInput.value = saldoVal;
+        const wordsInput = document.getElementById('cdc-input-amount-words');
+        if (wordsInput) wordsInput.value = numeroALetras(saldoVal);
+        highlightCDCPreset('btn-cdc-preset-saldo');
+        updateCuentaCobroPreview();
+      });
+
+      document.getElementById('btn-cdc-preset-custom')?.addEventListener('click', () => {
+        highlightCDCPreset('btn-cdc-preset-custom');
+        document.getElementById('cdc-input-amount')?.focus();
+      });
+
+      // Amount input handler: syncs words and live preview
+      document.getElementById('cdc-input-amount')?.addEventListener('input', e => {
+        const val = Number(e.target.value) || 0;
+        const wordsInput = document.getElementById('cdc-input-amount-words');
+        if (wordsInput) wordsInput.value = numeroALetras(val);
+        highlightCDCPreset('btn-cdc-preset-custom');
+        updateCuentaCobroPreview();
+      });
+
+      // Synchronize all other CDC inputs live to preview
+      ['cdc-input-number', 'cdc-input-date', 'cdc-input-due-date', 'cdc-input-amount-words',
+       'cdc-creditor-name', 'cdc-creditor-doc', 'cdc-creditor-phone', 'cdc-creditor-city',
+       'cdc-debtor-name', 'cdc-debtor-doc', 'cdc-debtor-contact', 'cdc-debtor-city',
+       'cdc-input-concept', 'cdc-input-bank', 'cdc-input-tax-clause'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', updateCuentaCobroPreview);
+      });
+
+      ['cdc-toggle-items', 'cdc-toggle-tax-clause'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', updateCuentaCobroPreview);
+      });
+
+      // Delegate click for data-cdc-quote in saved quotes table
+      document.getElementById('saved-quotes-tbody')?.addEventListener('click', e => {
+        const cdcBtn = e.target.closest('[data-cdc-quote]');
+        if (cdcBtn) {
+          const qId = cdcBtn.dataset.cdcQuote;
+          const sq = (state.savedQuotes || []).find(x => x.id === qId);
+          if (sq) {
+            openCuentaCobroModal(sq.fullCopy || sq);
+          }
+        }
+      });
+
       renderQuoteEditorAndPdf();
       renderSavedQuotes();
       renderProductsCatalog();
