@@ -40,6 +40,8 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -1247,12 +1249,9 @@
                   Fecha de emisión: <strong id="pdf-issue-date" class="text-slate-700">01 Nov 2026</strong>
                 </div>
                 <!-- Professional Expiration Callout -->
-                <div class="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900">
-                  <span class="text-xs">⏳</span>
-                  <div class="text-left leading-tight">
-                    <div class="text-[9px] font-bold uppercase tracking-wider text-amber-700">Oferta Válida Hasta</div>
-                    <div id="pdf-valid-until" class="text-xs font-extrabold tabular-nums text-amber-950">16 Nov 2026</div>
-                  </div>
+                <div style="margin-top: 4px; display: inline-block; padding: 4px 10px; border-radius: 8px; background-color: #fef3c7; border: 1px solid #fcd34d; text-align: right;">
+                  <span style="font-size: 10px; font-weight: 700; color: #92400e; text-transform: uppercase;">Oferta Válida Hasta:</span>
+                  <span id="pdf-valid-until" style="font-size: 11px; font-weight: 800; color: #451a03; margin-left: 4px;">16 Nov 2026</span>
                 </div>
               </div>
             </div>
@@ -1282,8 +1281,8 @@
                   📍 <strong>Lugar:</strong> <span id="pdf-event-venue">Hacienda Fizebad, El Retiro</span>
                 </div>
                 <div class="pt-0.5">
-                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-indigo-600 text-white text-[11px] font-extrabold tabular-nums">
-                    👥 Cantidad de Personas: <span id="pdf-event-pax">120 Invitados (Pax)</span>
+                  <span class="inline-block px-2.5 py-1 rounded-md bg-indigo-600 text-white text-[11px] font-extrabold">
+                    👥 Cantidad de Personas: <span id="pdf-event-pax" class="font-bold text-white">120 Invitados (Pax)</span>
                   </span>
                 </div>
               </div>
@@ -1501,13 +1500,12 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                <th class="py-3 px-4">Producto / Receta</th>
+                <th class="py-3 px-4">Producto / Receta (Modificar · Eliminar)</th>
                 <th class="py-3 px-4">Tipo</th>
                 <th class="py-3 px-4">Unidad Base</th>
                 <th class="py-3 px-4">Inventario / Stock</th>
                 <th class="py-3 px-4 text-right">Costo Unit/Pax</th>
                 <th class="py-3 px-4 text-right">Precio Venta</th>
-                <th class="py-3 px-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody id="products-catalog-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
@@ -3695,23 +3693,23 @@
             <td class="py-3 px-4">
               <div class="font-bold text-slate-900">${p.name}</div>
               <div class="text-[11px] text-slate-500">${p.desc || ''}</div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-amber-300" title="Modificar Producto o Receta">
+                  ✏️ Modificar
+                </button>
+                <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-rose-300" title="Eliminar del Catálogo">
+                  🗑️ Eliminar
+                </button>
+                <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer border border-indigo-300" title="Llevar a Cotización Activa">
+                  ➕ Cotizar
+                </button>
+              </div>
             </td>
             <td class="py-3 px-4">${typeHtml}</td>
             <td class="py-3 px-4 font-medium text-slate-700">${p.unit}</td>
             <td class="py-3 px-4">${stockHtml}</td>
             <td class="py-3 px-4 text-right font-medium text-slate-600 tabular-nums">${formatCurrency(unitCost)}</td>
             <td class="py-3 px-4 text-right font-extrabold text-emerald-700 tabular-nums">${formatCurrency(p.price)}</td>
-            <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-              <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Llevar a Cotización Activa">
-                <span>➕</span> Cotizar
-              </button>
-              <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Modificar Producto o Receta">
-                <span>✏️</span> Modificar
-              </button>
-              <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition text-xs inline-flex items-center gap-1 cursor-pointer" title="Eliminar del Catálogo">
-                <span>🗑️</span> Eliminar
-              </button>
-            </td>
           </tr>
         `;
       }).join('');
@@ -4787,65 +4785,118 @@
           tbl.style.borderCollapse = 'collapse';
         });
 
-        // Temporary mount in hidden DOM container at origin (0, 0) to avoid any negative coordinate displacement
+        // Fix html2canvas + Tailwind preflight bug (img{display:block} breaks text baseline → text sinks/disappears)
+        const h2cFixStyle = document.createElement('style');
+        h2cFixStyle.id = 'h2c-baseline-fix';
+        h2cFixStyle.textContent = 'img{display:inline-block !important;}';
+        document.head.appendChild(h2cFixStyle);
+        clone.querySelectorAll('*').forEach(el => {
+          el.style.fontVariantNumeric = 'normal';
+          el.style.fontFeatureSettings = 'normal';
+        });
+
+        // Off-screen sandbox in normal document flow at absolute (0,0) — no fixed overlay, no centering
         const sandbox = document.createElement('div');
         sandbox.id = 'pdf-render-sandbox';
-        sandbox.style.position = 'fixed';
-        sandbox.style.left = '0px';
-        sandbox.style.top = '0px';
-        sandbox.style.width = '794px';
-        sandbox.style.margin = '0px';
-        sandbox.style.padding = '0px';
-        sandbox.style.boxSizing = 'border-box';
-        sandbox.style.backgroundColor = '#ffffff';
-        sandbox.style.color = '#0f172a';
-        sandbox.style.colorScheme = 'light';
-        sandbox.style.zIndex = '-99999';
-        sandbox.style.pointerEvents = 'none';
-        sandbox.style.opacity = '1';
-        sandbox.style.overflow = 'visible';
+        sandbox.style.cssText = 'position:absolute;left:0;top:0;width:794px;margin:0;padding:0;background:#ffffff;color:#0f172a;color-scheme:light;z-index:-1;pointer-events:none;overflow:visible;';
         sandbox.appendChild(clone);
         document.body.appendChild(sandbox);
 
+        // White loading veil so the user never sees the sandbox
+        const veil = document.createElement('div');
+        veil.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;font:600 14px Inter,system-ui,sans-serif;color:#4f46e5;';
+        veil.textContent = '📄 Generando PDF en blanco...';
+        document.body.appendChild(veil);
+
+        const prevScrollX = window.scrollX;
+        const prevScrollY = window.scrollY;
+        window.scrollTo(0, 0);
+
         const restoreThemeAndCleanup = () => {
           if (sandbox.parentNode) sandbox.parentNode.removeChild(sandbox);
+          if (veil.parentNode) veil.parentNode.removeChild(veil);
+          if (h2cFixStyle.parentNode) h2cFixStyle.parentNode.removeChild(h2cFixStyle);
+          window.scrollTo(prevScrollX, prevScrollY);
           if (wasDark) {
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
           }
         };
 
-        const opt = {
-          margin: [0, 0, 0, 0], // Zero jsPDF margin: internal 34px padding provides exact 9mm A4 margins with 0% shift!
-          filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 2,
+        const h2c = window.html2canvas;
+        const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+        if (!h2c || !JsPDF) {
+          restoreThemeAndCleanup();
+          showToast('Abriendo visor de impresión...');
+          triggerPrintWhiteMode();
+          return;
+        }
+
+        // Collect safe page-break points (bottom of rows / blocks) in CSS px relative to the clone
+        const cloneTop = clone.getBoundingClientRect().top;
+        const breakPoints = [];
+        clone.querySelectorAll('tr, .pdf-avoid-break').forEach(el => {
+          breakPoints.push(Math.round(el.getBoundingClientRect().bottom - cloneTop));
+        });
+        Array.from(clone.querySelectorAll(':scope > *')).forEach(el => {
+          breakPoints.push(Math.round(el.getBoundingClientRect().bottom - cloneTop));
+        });
+        breakPoints.sort((a, b) => a - b);
+
+        const SCALE = 2;
+        setTimeout(() => {
+          h2c(clone, {
+            scale: SCALE,
             useCORS: true,
             allowTaint: true,
             logging: false,
-            scrollY: 0,
-            scrollX: 0,
-            x: 0,
-            y: 0,
+            backgroundColor: '#ffffff',
             width: 794,
             windowWidth: 794,
-            backgroundColor: '#ffffff'
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            compress: true
-          },
-          pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy'],
-            avoid: ['tr', '.pdf-avoid-break']
-          }
-        };
+            scrollX: 0,
+            scrollY: 0
+          }).then(canvas => {
+            const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+            const pageWmm = 210;
+            const pageHmm = 297;
+            const pxPerMm = 794 / pageWmm;           // CSS px per mm
+            const pageHpx = pageHmm * pxPerMm;        // ~1123 px
+            const topPadNext = 30;                    // top margin (px) on pages 2+
+            const totalH = canvas.height / SCALE;
 
-        if (typeof html2pdf !== 'undefined') {
-          html2pdf().set(opt).from(clone).save().then(() => {
+            let start = 0;
+            let pageIndex = 0;
+            while (start < totalH - 2) {
+              const pad = pageIndex === 0 ? 0 : topPadNext;
+              const limit = start + pageHpx - pad - 20;
+              let end;
+              if (limit >= totalH) {
+                end = totalH;
+              } else {
+                const candidates = breakPoints.filter(b => b > start + 150 && b <= limit);
+                end = candidates.length ? candidates[candidates.length - 1] : limit;
+              }
+              const sliceH = Math.max(1, Math.round((end - start) * SCALE));
+              const pageCanvas = document.createElement('canvas');
+              pageCanvas.width = canvas.width;
+              pageCanvas.height = sliceH;
+              const ctx = pageCanvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+              ctx.drawImage(canvas, 0, Math.round(start * SCALE), canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+
+              if (pageIndex > 0) pdf.addPage('a4', 'portrait');
+              // Paint full page white explicitly
+              pdf.setFillColor(255, 255, 255);
+              pdf.rect(0, 0, pageWmm, pageHmm, 'F');
+              const imgData = pageCanvas.toDataURL('image/jpeg', 0.96);
+              pdf.addImage(imgData, 'JPEG', 0, pad / pxPerMm, pageWmm, (sliceH / SCALE) / pxPerMm);
+
+              start = end;
+              pageIndex++;
+            }
+
+            pdf.save(filename);
             restoreThemeAndCleanup();
             showToast(`✅ PDF descargado con éxito: ${filename}`);
           }).catch(err => {
@@ -4854,10 +4905,7 @@
             showToast('Abriendo visor de impresión...');
             triggerPrintWhiteMode();
           });
-        } else {
-          restoreThemeAndCleanup();
-          triggerPrintWhiteMode();
-        }
+        }, 120);
       });
 
       // Print PDF directly (switches to preview mode for full document view)
