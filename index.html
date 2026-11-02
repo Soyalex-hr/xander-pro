@@ -620,7 +620,7 @@
       
       <!-- Agenda Operativa -->
       <button type="button" data-nav="agenda" onclick="switchView('agenda')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" title="Agenda y Calendario de Eventos">
-        <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">ðŸ“…</div>
+        <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">&#128197;</div>
         <div class="sidebar-text flex-1 min-w-0">
           <div class="text-xs font-bold truncate">Agenda Operativa</div>
           <div class="text-[10px] text-slate-400 truncate">Calendario de eventos</div>
@@ -669,10 +669,10 @@
       
       <!-- Cierre y Rentabilidad -->
       <button type="button" data-nav="rentabilidad" onclick="switchView('rentabilidad')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" title="Cierre de Eventos y Rentabilidad Real">
-        <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">ðŸ</div>
+        <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">&#127937;</div>
         <div class="sidebar-text flex-1 min-w-0">
           <div class="text-xs font-bold truncate">Rentabilidad Real</div>
-          <div class="text-[10px] text-slate-400 truncate">Cierre y auditorÃ­a</div>
+          <div class="text-[10px] text-slate-400 truncate">Cierre y auditor&iacute;a</div>
         </div>
       </button>
 
@@ -771,7 +771,7 @@
                 <!-- MODULE 4: NOTIFICATION BELL & POPOVER -->
         <div class="relative inline-block text-left" id="notifications-dropdown-container">
           <button type="button" id="btn-notifications-toggle" onclick="toggleNotificationsPopover()" class="relative min-w-[42px] min-h-[42px] p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm transition shrink-0 cursor-pointer flex items-center justify-center" title="Centro de Notificaciones y Alertas">
-            <span>ðŸ””</span>
+            <span>&#128276;</span>
             <span id="notif-badge-count" class="hidden absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white shadow-xs animate-pulse">0</span>
           </button>
           <div id="notifications-popover" class="hidden absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50">
@@ -781,8 +781,8 @@
                 <span id="notif-header-counter" class="text-[10px] font-black bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full">0 nuevas</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="requestPWANotifications()" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline" title="Habilitar notificaciones en navegador / celular">ðŸ”” Activar Push</button>
-                <button type="button" onclick="markAllNotificationsAsRead()" class="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Marcar leÃ­das</button>
+                <button type="button" onclick="requestPWANotifications()" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline" title="Habilitar notificaciones en navegador / celular">&#128276; Activar Push</button>
+                <button type="button" onclick="markAllNotificationsAsRead()" class="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Marcar le&iacute;das</button>
               </div>
             </div>
             <div id="notifications-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -837,28 +837,28 @@
          VIEW 1: COTIZADOR A PANTALLA COMPLETA + VISTA PREVIA FINAL
          ========================================== -->
     <section id="view-cotizador" class="space-y-6">
-            <!-- MODULE 5: WIDGET DE COTIZACIONES PRÃ“XIMAS A VENCER -->
+      <!-- MODULE 5: WIDGET DE COTIZACIONES PROXIMAS A VENCER -->
       <div id="widget-expiring-quotes" class="no-print bg-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-slate-800 space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-2">
-            <span class="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400 text-lg">â³</span>
+            <span class="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400 text-lg">&#9203;</span>
             <div>
-              <h3 class="text-sm sm:text-base font-black tracking-tight">Seguimiento de Cotizaciones PrÃ³ximas a Vencer</h3>
+              <h3 class="text-sm sm:text-base font-black tracking-tight">Seguimiento de Cotizaciones Pr&oacute;ximas a Vencer</h3>
               <p class="text-[11px] text-slate-400">Atiende a tiempo las cotizaciones pendientes antes de que expiren.</p>
             </div>
           </div>
           <!-- 3 Urgency Filters / Badges -->
           <div class="flex items-center gap-2 flex-wrap">
             <button type="button" onclick="filterQuotesByUrgency('today')" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸ”´ Vencen Hoy / Vencidas:</span>
+              <span>&#128308; Vencen Hoy / Vencidas:</span>
               <span id="widget-count-today" class="bg-rose-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" onclick="filterQuotesByUrgency('3days')" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¡ En 3 DÃ­as:</span>
+              <span>&#128993; En 3 D&iacute;as:</span>
               <span id="widget-count-3days" class="bg-amber-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" onclick="filterQuotesByUrgency('7days')" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¢ En 7 DÃ­as:</span>
+              <span>&#128994; En 7 D&iacute;as:</span>
               <span id="widget-count-7days" class="bg-emerald-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
           </div>
@@ -1293,8 +1293,8 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" id="btn-open-shopping-list" onclick="generateShoppingListFromQuote(state.activeQuote.id || 'active')" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-teal-600 text-white hover:bg-teal-500 shadow-sm transition flex items-center gap-1.5 cursor-pointer" title="Generar Lista AutomÃ¡tica de Compras segÃºn Pax e inventario">
-                <span>ðŸ›’</span>
+                            <button type="button" id="btn-open-shopping-list" onclick="generateShoppingListFromQuote(state.activeQuote.id || 'active')" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-teal-600 text-white hover:bg-teal-500 shadow-sm transition flex items-center gap-1.5 cursor-pointer" title="Generar Lista Autom&aacute;tica de Compras seg&uacute;n Pax e inventario">
+                <span>&#128722;</span>
                 <span>Lista Compras</span>
               </button>
               <button type="button" id="btn-save-quote" class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition">
@@ -5820,14 +5820,14 @@
       clientes: { title: 'Directorio de Clientes', icon: '👥', subtitle: 'Base de datos de contactos, empresas y novios' },
       finanzas: { title: 'Flujo de Caja & Finanzas', icon: '💰', subtitle: 'Registro de anticipos, ingresos, compras y balance neto' },
             agenda: {
-        icon: 'ðŸ“…',
+        icon: '\u{1F4C5}',
         title: 'Agenda Operativa',
         subtitle: 'Calendario de eventos, banquetes y bodas por fecha, estado y cliente'
       },
       rentabilidad: {
-        icon: 'ðŸ',
+        icon: '\u{1F3C1}',
         title: 'Cierre de Eventos & Rentabilidad',
-        subtitle: 'AuditorÃ­a financiera real vs estimada, gastos extra y liquidaciÃ³n'
+        subtitle: 'Auditor\u00EDa financiera real vs estimada, gastos extra y liquidaci\u00F3n'
       },
       empresa: { title: 'Mi Empresa & Respaldo', icon: '🏢', subtitle: 'Identidad corporativa, términos comerciales y copias JSON' }
     };
