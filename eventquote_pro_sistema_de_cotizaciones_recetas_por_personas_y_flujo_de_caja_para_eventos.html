@@ -1181,6 +1181,10 @@
           <span id="quote-active-version-badge" class="px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
             V1
           </span>
+          <button type="button" id="btn-quote-create-new-version" onclick="openCreateQuoteVersionModal()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition flex items-center gap-1 cursor-pointer" title="Crear nueva versiÃ³n a partir de la cotizaciÃ³n activa">
+            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>+ Versi&oacute;n</span>
+          </button>
           <button type="button" id="btn-quote-view-history" onclick="openQuoteVersionHistoryModal()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center gap-1 cursor-pointer" title="Ver historial de versiones de esta cotizaci&oacute;n">
             <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>Versiones</span>
@@ -3911,7 +3915,7 @@
     <!-- ==========================================
        MODAL: CREAR NUEVA VERSION DE COTIZACION
        ========================================== -->
-  <div id="modal-new-quote-version" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+  <div id="modal-new-quote-version" onclick="if(event.target === this) closeModal('modal-new-quote-version')" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
       
       <!-- Modal Header -->
@@ -3996,7 +4000,7 @@
   <!-- ==========================================
        MODAL: HISTORIAL DE VERSIONES
        ========================================== -->
-  <div id="modal-quote-versions-history" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+  <div id="modal-quote-versions-history" onclick="if(event.target === this) closeModal('modal-quote-versions-history')" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
       
       <!-- Modal Header -->
@@ -4030,7 +4034,7 @@
           <span>Comparar Versiones</span>
         </button>
         <div class="flex items-center gap-2">
-          <button type="button" id="btn-ver-hist-new-version" class="py-2 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+          <button type="button" id="btn-ver-hist-new-version" onclick="closeModal('modal-quote-versions-history'); openCreateQuoteVersionModal();" class="py-2 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Crear Siguiente Versi&oacute;n</span>
           </button>
@@ -4046,7 +4050,7 @@
   <!-- ==========================================
        MODAL: COMPARADOR DE VERSIONES
        ========================================== -->
-  <div id="modal-compare-quote-versions" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5 overflow-y-auto">
+  <div id="modal-compare-quote-versions" onclick="if(event.target === this) closeModal('modal-compare-quote-versions')" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[94vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
       
       <!-- Modal Header -->
@@ -4146,6 +4150,51 @@
   </div>
 
   <script>
+    // =====================================================
+    // GLOBAL MODAL HELPERS & ESCAPE DISMISSAL
+    // =====================================================
+    function closeModal(modalId) {
+      if (!modalId) return;
+      const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+      if (el) el.classList.add('hidden');
+    }
+    window.closeModal = closeModal;
+
+    function openModal(modalId) {
+      if (!modalId) return;
+      const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+      if (el) el.classList.remove('hidden');
+    }
+    window.openModal = openModal;
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modalIds = [
+          'modal-new-quote-version',
+          'modal-quote-versions-history',
+          'modal-compare-quote-versions',
+          'modal-shopping-list',
+          'modal-edit-client',
+          'modal-client-history',
+          'modal-agenda-event-details',
+          'modal-edit-operator',
+          'modal-simple-product',
+          'modal-recipe-product',
+          'modal-cuenta-cobro',
+          'modal-pwa-install',
+          'modal-email',
+          'modal-finance',
+          'modal-change-password'
+        ];
+        modalIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && !el.classList.contains('hidden')) {
+            el.classList.add('hidden');
+          }
+        });
+      }
+    });
+
     // =====================================================
     // 1. UNIT CONVERSION ENGINE (Litro, Onza, ml, Kg, Gramo, Unidad)
     // =====================================================
@@ -5349,23 +5398,23 @@
           return `
             <tr class="hover:bg-slate-50/80">
               <td class="py-2.5 px-2 space-y-1">
-                <input type="text" data-item-idx="${idx}" data-field="name" value="${item.name.replace(/"/g, '&quot;')}" class="quote-line-input w-full font-bold text-slate-900 bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white px-1 py-0.5 rounded" />
-                <input type="text" data-item-idx="${idx}" data-field="desc" value="${(item.desc || '').replace(/"/g, '&quot;')}" placeholder="Descripción en el PDF..." class="quote-line-input w-full text-[11px] text-slate-500 bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white px-1 py-0.5 rounded" />
+                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="name" value="${item.name.replace(/"/g, '&quot;')}" class="quote-line-input w-full font-bold text-slate-900 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
+                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="desc" value="${(item.desc || '').replace(/"/g, '&quot;')}" placeholder="Descripci&oacute;n en el PDF..." class="quote-line-input w-full text-[11px] text-slate-500 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
               </td>
               <td class="py-2.5 px-2 text-center">
-                <input type="number" step="any" min="0.1" data-item-idx="${idx}" data-field="qty" value="${item.qty}" class="quote-line-input w-20 text-center font-bold text-indigo-900 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 tabular-nums" />
+                <input type="number" ${isLocked ? 'disabled' : ''} step="any" min="0.1" data-item-idx="${idx}" data-field="qty" value="${item.qty}" class="quote-line-input w-20 text-center font-bold text-indigo-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed' : 'bg-indigo-50/60 border border-indigo-200'} rounded-lg px-2 py-1 tabular-nums" />
               </td>
               <td class="py-2.5 px-2">
-                <input type="text" data-item-idx="${idx}" data-field="unit" value="${item.unit}" class="quote-line-input w-24 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2 py-1" />
+                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="unit" value="${item.unit}" class="quote-line-input w-24 text-xs font-medium text-slate-700 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'border border-slate-200'} rounded-lg px-2 py-1" />
               </td>
               <td class="py-2.5 px-2 text-right">
-                <input type="number" step="100" min="0" data-item-idx="${idx}" data-field="price" value="${item.price}" class="quote-line-input w-28 text-right font-bold text-emerald-900 bg-emerald-50/50 border border-emerald-300 rounded-lg px-2 py-1 tabular-nums" />
+                <input type="number" ${isLocked ? 'disabled' : ''} step="100" min="0" data-item-idx="${idx}" data-field="price" value="${item.price}" class="quote-line-input w-28 text-right font-bold text-emerald-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'bg-emerald-50/50 border border-emerald-300'} rounded-lg px-2 py-1 tabular-nums" />
               </td>
               <td class="py-2.5 px-2 text-right font-extrabold text-slate-900 tabular-nums">
                 ${formatCurrency(lineTotal)}
               </td>
               <td class="py-2.5 px-2 text-center">
-                <button type="button" data-remove-idx="${idx}" class="remove-quote-line-btn text-rose-500 hover:text-rose-700 font-bold px-1.5 py-1 rounded hover:bg-rose-50" title="Eliminar ítem">✕</button>
+                ${isLocked ? '<span class="text-slate-300 font-bold text-xs" title="Cotizaci&oacute;n protegida">-</span>' : `<button type="button" data-remove-idx="${idx}" class="remove-quote-line-btn text-rose-500 hover:text-rose-700 font-bold px-1.5 py-1 rounded hover:bg-rose-50 cursor-pointer" title="Eliminar &iacute;tem">&#10005;</button>`}
               </td>
             </tr>
           `;
@@ -11853,6 +11902,19 @@ function renderQuoteVersionComparison(idA, idB) {
     }
   }
 }
+
+  // Expose version control and modal helpers globally
+  window.closeModal = closeModal;
+  window.openModal = openModal;
+  window.openCreateQuoteVersionModal = openCreateQuoteVersionModal;
+  window.confirmCreateQuoteVersion = confirmCreateQuoteVersion;
+  window.openQuoteVersionHistoryModal = openQuoteVersionHistoryModal;
+  window.loadSpecificQuoteVersion = loadSpecificQuoteVersion;
+  window.openQuoteVersionCompareModal = openQuoteVersionCompareModal;
+  window.renderQuoteVersionComparison = renderQuoteVersionComparison;
+  window.isQuoteLocked = isQuoteLocked;
+  window.getQuoteBaseNumber = getQuoteBaseNumber;
+  window.getAllVersionsOfQuote = getAllVersionsOfQuote;
 
   </script>
 </body>
