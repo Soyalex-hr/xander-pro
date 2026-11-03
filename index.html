@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="light" style="color-scheme: light;">
 <head>
   <meta charset="UTF-8" />
@@ -1132,8 +1132,19 @@
             </button>
           </div>
           <span id="quote-mode-badge" class="hidden sm:inline-flex px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
-            Cotización Activa
+            Cotizaci&oacute;n Activa
           </span>
+          <span id="quote-active-version-badge" class="px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+            V1
+          </span>
+          <button type="button" id="btn-quote-view-history" onclick="openQuoteVersionHistoryModal()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center gap-1 cursor-pointer" title="Ver historial de versiones de esta cotizaci&oacute;n">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Versiones</span>
+          </button>
+          <button type="button" id="btn-quote-compare-active" onclick="openQuoteVersionCompareModal()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition flex items-center gap-1 cursor-pointer" title="Comparar con versi&oacute;n anterior u otra versi&oacute;n">
+            <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Comparar</span>
+          </button>
         </div>
 
         <!-- Live Quick Totals Pill + Reset Button -->
@@ -1150,6 +1161,27 @@
           </div>
           <button type="button" id="btn-new-clean-quote" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
             + Limpiar / Nueva Cotización
+          </button>
+        </div>
+      </div>
+
+      <!-- Version & Lock Status Alert Banner -->
+      <div id="quote-version-lock-banner" class="hidden no-print bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div id="quote-version-lock-notice" class="flex-1">
+          <!-- Filled dynamically by renderQuoteEditorAndPdf -->
+        </div>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button type="button" onclick="openCreateQuoteVersionModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Crear Nueva Versi&oacute;n</span>
+          </button>
+          <button type="button" onclick="openQuoteVersionHistoryModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 transition flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Historial de Versiones</span>
+          </button>
+          <button type="button" onclick="openQuoteVersionCompareModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Comparar</span>
           </button>
         </div>
       </div>
@@ -1174,7 +1206,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label for="q-number" class="block text-xs font-semibold text-slate-600 mb-1">N° Cotización</label>
+                <label for="q-number" class="block text-xs font-semibold text-slate-600 mb-1">N&deg; Cotización</label>
                 <input id="q-number" type="text" value="COT-2026-0001" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
               <div>
@@ -1593,8 +1625,9 @@
               <!-- Quote Box & Professional Expiration Seal -->
               <div class="w-full sm:w-auto text-left sm:text-right space-y-1.5">
                 <div class="inline-block px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-extrabold tracking-wide tabular-nums" id="pdf-quote-number">
-                  COTIZACIÓN N° COT-2026-0001
+                  COTIZACIÓN N&deg; COT-2026-0001
                 </div>
+                <div id="pdf-quote-version-subtitle" class="text-[10px] font-bold text-indigo-700">Versi&oacute;n 1 &bull; Vigente</div>
                 <div class="text-[11px] text-slate-500 tabular-nums">
                   Fecha de emisión: <strong id="pdf-issue-date" class="text-slate-700">01 Nov 2026</strong>
                 </div>
@@ -1739,7 +1772,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
         <div class="relative flex-1 min-w-[240px]">
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
-          <input type="text" id="quote-search-input" placeholder="Buscar por N°, nombre del evento o cliente..." class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input type="text" id="quote-search-input" placeholder="Buscar por N&deg;, nombre del evento o cliente..." class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
         <div class="flex items-center gap-2">
           <label for="quote-filter-status" class="text-xs font-semibold text-slate-600 whitespace-nowrap">Estado:</label>
@@ -1759,7 +1792,7 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
-                <th class="py-3 px-4">N° Cotización</th>
+                <th class="py-3 px-4">N&deg; Cotización</th>
                 <th class="py-3 px-4">Evento y Cliente</th>
                 <th class="py-3 px-4 text-center">Invitados (Pax)</th>
                 <th class="py-3 px-4">Fecha Evento</th>
@@ -3185,7 +3218,7 @@
                     CUENTA DE COBRO
                   </div>
                   <div id="cdc-pv-number" style="font-size: 14px; font-weight: 800; color: #d97706; margin-top: 5px;">
-                    N° CDC-2026-0001
+                    N&deg; CDC-2026-0001
                   </div>
                   <div style="font-size: 11px; color: #475569; margin-top: 4px;">
                     Fecha de expedición: <strong id="cdc-pv-date">01 Nov 2026</strong>
@@ -3490,14 +3523,17 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="printShoppingList()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold transition hidden sm:inline-flex items-center gap-1">
-            🖨️ Imprimir
+          <button type="button" onclick="printShoppingList()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition hidden sm:inline-flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>Imprimir</span>
           </button>
-          <button type="button" onclick="downloadShoppingListPDF()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer">
-            <span>📄</span> PDF
+          <button type="button" onclick="downloadShoppingListPDF()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>PDF</span>
           </button>
-          <button type="button" onclick="exportShoppingListCSV()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold transition flex items-center gap-1">
-            📥 Excel
+          <button type="button" onclick="exportShoppingListCSV()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Excel</span>
           </button>
           <button type="button" onclick="document.getElementById('modal-shopping-list').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-2xl font-bold leading-none p-1">&times;</button>
         </div>
@@ -3822,6 +3858,238 @@
         </button>
         <button type="button" id="btn-modal-trigger-install" onclick="triggerModalInstall()" class="flex-1 py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
           <span>📲 Instalar Ahora</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+    <!-- ==========================================
+       MODAL: CREAR NUEVA VERSION DE COTIZACION
+       ========================================== -->
+  <div id="modal-new-quote-version" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-lg border border-blue-200/80 dark:border-blue-800 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Crear Nueva Versi&oacute;n</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">Trazabilidad</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Incrementa la versi&oacute;n y archiva la versi&oacute;n anterior intacta</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modal-new-quote-version')" class="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-sm font-bold transition cursor-pointer">&#10005;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-600 dark:text-slate-300">
+        
+        <!-- Transition Visual Card -->
+        <div class="bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-slate-800/60 dark:to-blue-950/20 rounded-2xl border border-slate-200 dark:border-slate-700/60 p-4 space-y-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Transici&oacute;n de Versi&oacute;n</div>
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex-1 bg-white dark:bg-slate-800 rounded-xl p-2.5 border border-slate-200 dark:border-slate-700 text-center">
+              <span class="block text-[10px] text-slate-500 font-medium">Versi&oacute;n Actual</span>
+              <strong id="new-ver-from-badge" class="block text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">COT-2026-0001 V1</strong>
+              <span id="new-ver-from-status" class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Enviada</span>
+            </div>
+            <div class="text-blue-600 dark:text-blue-400 font-extrabold text-lg shrink-0">&rarr;</div>
+            <div class="flex-1 bg-blue-600 text-white rounded-xl p-2.5 text-center shadow-sm shadow-blue-500/20">
+              <span class="block text-[10px] text-blue-100 font-medium">Nueva Versi&oacute;n</span>
+              <strong id="new-ver-to-badge" class="block text-xs font-black mt-0.5">COT-2026-0001 V2</strong>
+              <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-blue-800">Borrador</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed pt-1">
+            La versi&oacute;n actual pasar&aacute; a estado <strong>"Reemplazada"</strong> y sus datos quedar&aacute;n protegidos en el historial. La nueva versi&oacute;n copiar&aacute; todos los &iacute;tems para que apliques los cambios necesarios.
+          </p>
+        </div>
+
+        <!-- Form fields -->
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Fecha de Creaci&oacute;n</label>
+              <input type="text" id="new-ver-date-input" readonly class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400" />
+            </div>
+            <div>
+              <label for="new-ver-operator-input" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Usuario Responsable</label>
+              <input type="text" id="new-ver-operator-input" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+
+          <div>
+            <label for="new-ver-reason-input" class="block font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+              <span>Motivo del Cambio <span class="text-rose-500">*</span></span>
+              <span class="text-[10px] font-normal text-slate-400">Requerido para auditor&iacute;a</span>
+            </label>
+            <textarea id="new-ver-reason-input" rows="3" placeholder="Ej: Cliente solicit&oacute; incremento de 10 personas (Pax), cambio del plato fuerte y ajuste del 5% de descuento especial..." class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-end gap-2 shrink-0">
+        <button type="button" onclick="closeModal('modal-new-quote-version')" class="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirm-create-quote-version" onclick="confirmCreateQuoteVersion()" class="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-600/30 transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span id="btn-confirm-create-ver-label">Confirmar y Crear Versi&oacute;n</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: HISTORIAL DE VERSIONES
+       ========================================== -->
+  <div id="modal-quote-versions-history" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-200/80 dark:border-indigo-800 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="ver-hist-quote-title" class="text-base font-extrabold text-slate-900 dark:text-white">Historial de Versiones</h3>
+              <span id="ver-hist-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">1 versi&oacute;n</span>
+            </div>
+            <p id="ver-hist-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Trazabilidad completa, motivos de cambio y estados</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modal-quote-versions-history')" class="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-sm font-bold transition cursor-pointer">&#10005;</button>
+      </div>
+
+      <!-- Modal Body (Timeline of Versions) -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-600 dark:text-slate-300">
+        <div id="ver-hist-timeline-container" class="space-y-3">
+          <!-- Populated dynamically by renderQuoteVersionsTimeline() -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <button type="button" id="btn-ver-hist-compare" class="py-2 px-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border dark:border-indigo-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Comparar Versiones</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-ver-hist-new-version" class="py-2 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Crear Siguiente Versi&oacute;n</span>
+          </button>
+          <button type="button" onclick="closeModal('modal-quote-versions-history')" class="py-2 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+            Cerrar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: COMPARADOR DE VERSIONES
+       ========================================== -->
+  <div id="modal-compare-quote-versions" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[94vh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0 bg-white dark:bg-slate-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-200/80 dark:border-indigo-800 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Comparador de Versiones</h3>
+              <span id="compare-quote-base-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">COT-2026-0001</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">An&aacute;lisis detallado de diferencias de valor, personas (Pax) e &iacute;tems modificados</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modal-compare-quote-versions')" class="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-sm font-bold transition cursor-pointer">&#10005;</button>
+      </div>
+
+      <!-- Version Pickers Bar -->
+      <div class="px-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0 text-xs">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-4 flex-1">
+          <div class="flex items-center gap-1.5 flex-1 min-w-[160px]">
+            <span class="font-bold text-slate-500 shrink-0">Versi&oacute;n A (Base):</span>
+            <select id="compare-select-ver-a" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"></select>
+          </div>
+          <span class="text-slate-400 font-bold text-base">vs</span>
+          <div class="flex items-center gap-1.5 flex-1 min-w-[160px]">
+            <span class="font-bold text-slate-500 shrink-0">Versi&oacute;n B (Comparada):</span>
+            <select id="compare-select-ver-b" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body (Comparison Results) -->
+      <div class="p-6 overflow-y-auto space-y-5 text-xs text-slate-600 dark:text-slate-300">
+        
+        <!-- Summary KPI Cards -->
+        <div id="compare-summary-kpis" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Filled dynamically -->
+        </div>
+
+        <!-- Traceability Meta Card (Operator & Reason) -->
+        <div id="compare-trace-meta" class="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-2xl p-4 text-xs space-y-1.5">
+          <!-- Filled dynamically -->
+        </div>
+
+        <!-- Detailed Item Comparison Breakdown -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h4 class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <span>Desglose de &Iacute;tems por Categor&iacute;a</span>
+            </h4>
+            <div class="flex items-center gap-2 text-[11px]">
+              <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Agregados</span>
+              <span class="inline-flex items-center gap-1 text-rose-700 dark:text-rose-400 font-bold"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Eliminados</span>
+              <span class="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Modificados</span>
+            </div>
+          </div>
+
+          <!-- Added Items Table -->
+          <div id="compare-section-added" class="space-y-2">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Removed Items Table -->
+          <div id="compare-section-removed" class="space-y-2">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Modified Items Table -->
+          <div id="compare-section-modified" class="space-y-2">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Unchanged Items Summary -->
+          <div id="compare-section-unchanged" class="space-y-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-end gap-2 shrink-0">
+        <button type="button" onclick="closeModal('modal-compare-quote-versions')" class="py-2.5 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+          Cerrar
         </button>
       </div>
 
@@ -4234,6 +4502,30 @@
         }
         if (!state.eventTypes || !Array.isArray(state.eventTypes) || state.eventTypes.length === 0) {
           state.eventTypes = getDefaultState().eventTypes;
+        }
+        // Quote version control schema migration & backwards compatibility
+        if (Array.isArray(state.savedQuotes)) {
+          state.savedQuotes.forEach(sq => {
+            if (!sq.version) sq.version = 1;
+            if (!sq.baseNumber) sq.baseNumber = (sq.number || "").replace(/\s*V\d+$/i, "").trim();
+            if (!sq.status) sq.status = "Borrador";
+            if (!sq.createdBy) sq.createdBy = (typeof getOperatorName === "function") ? getOperatorName() : "Alexander";
+            if (!sq.createdAt) sq.createdAt = sq.issueDate || "2026-11-01";
+            if (!sq.changeReason) sq.changeReason = "Versi\u00F3n inicial";
+            if (sq.fullCopy) {
+              if (!sq.fullCopy.version) sq.fullCopy.version = sq.version;
+              if (!sq.fullCopy.baseNumber) sq.fullCopy.baseNumber = sq.baseNumber;
+              if (!sq.fullCopy.status) sq.fullCopy.status = sq.status;
+            }
+          });
+        }
+        if (state.activeQuote) {
+          if (!state.activeQuote.version) state.activeQuote.version = 1;
+          if (!state.activeQuote.baseNumber) state.activeQuote.baseNumber = (state.activeQuote.number || "").replace(/\s*V\d+$/i, "").trim();
+          if (!state.activeQuote.status) state.activeQuote.status = "Borrador";
+          if (!state.activeQuote.createdBy) state.activeQuote.createdBy = (typeof getOperatorName === "function") ? getOperatorName() : "Alexander";
+          if (!state.activeQuote.createdAt) state.activeQuote.createdAt = state.activeQuote.issueDate || "2026-11-01";
+          if (!state.activeQuote.changeReason) state.activeQuote.changeReason = "Versi\u00F3n inicial";
         }
       } catch (err) {
         // Ignore storage errors in sandboxed iframes
@@ -4900,6 +5192,55 @@
     // =====================================================
     function renderQuoteEditorAndPdf() {
       const q = state.activeQuote;
+      if (!q.baseNumber) q.baseNumber = (q.number || "").replace(/\s*V\d+$/i, "").trim();
+      if (!q.version) q.version = 1;
+
+      // Quote version locking check
+      const isLocked = (typeof isQuoteLocked === "function") && isQuoteLocked(q);
+      const lockBanner = document.getElementById("quote-version-lock-banner");
+      const lockNotice = document.getElementById("quote-version-lock-notice");
+      const activeVerBadge = document.getElementById("quote-active-version-badge");
+      if (activeVerBadge) {
+        activeVerBadge.textContent = "V" + (q.version || 1);
+        activeVerBadge.className = "px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider " +
+          (isLocked ? (q.status === "Aprobada" ? "bg-emerald-100 text-emerald-800 border border-emerald-300" : (q.status === "Enviada" ? "bg-amber-100 text-amber-800 border border-amber-300" : "bg-slate-200 text-slate-700 border border-slate-300")) : "bg-blue-50 text-blue-700 border border-blue-200");
+      }
+
+      if (lockBanner && lockNotice) {
+        if (isLocked) {
+          lockBanner.classList.remove("hidden");
+          const statusBg = q.status === "Aprobada" ? "bg-emerald-600" : (q.status === "Enviada" ? "bg-amber-600" : "bg-slate-600");
+          lockNotice.innerHTML = `
+            <div class="flex items-start gap-3">
+              <div class="p-2 rounded-xl ${statusBg} text-white shrink-0 mt-0.5 shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-sm text-slate-900 dark:text-white">Modo Protegido (Solo Lectura)</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-extrabold ${statusBg} text-white">${q.status} &bull; V${q.version || 1}</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Esta cotizaci&oacute;n ya fue <strong>${(q.status || "").toLowerCase()}</strong>. Para mantener la trazabilidad financiera y proteger los acuerdos con el cliente, <strong>no se puede modificar directamente</strong>. Si requieres hacer cambios, crea una nueva versi&oacute;n.
+                </p>
+              </div>
+            </div>
+          `;
+        } else {
+          lockBanner.classList.add("hidden");
+        }
+      }
+
+      // Lock or unlock inputs based on lock state
+      const formFieldsToLock = ["q-number", "q-event-type", "q-status", "q-event-title", "q-guests-pax", "q-event-date", "q-event-venue", "q-issue-date", "q-valid-until", "q-discount-pct", "q-tax-pct", "q-deposit-pct", "q-observations"];
+      formFieldsToLock.forEach(fId => {
+        const el = document.getElementById(fId);
+        if (el) {
+          el.disabled = isLocked;
+          el.classList.toggle("bg-slate-100", isLocked);
+          el.classList.toggle("cursor-not-allowed", isLocked);
+        }
+      });
 
       // Sync top inputs
       document.getElementById('q-number').value = q.number;
@@ -4988,7 +5329,12 @@
       const client = state.clients.find(c => c.id === q.clientId) || state.clients[0] || {
         name: 'Cliente General', doc: '—', email: '', phone: '', city: ''
       };
-      document.getElementById('pdf-quote-number').textContent = `COTIZACIÓN N° ${q.number}`;
+      const baseNum = (typeof getQuoteBaseNumber === "function") ? getQuoteBaseNumber(q) : (q.baseNumber || q.number);
+      document.getElementById("pdf-quote-number").textContent = `COTIZACI\u00D3N N\u00B0 ${baseNum} (V${q.version || 1})`;
+      const pdfVerSub = document.getElementById("pdf-quote-version-subtitle");
+      if (pdfVerSub) {
+        pdfVerSub.textContent = `Versi\u00F3n ${q.version || 1} (${q.status || "Borrador"}) \u2022 Emitida: ${formatDateHuman(q.createdAt || q.issueDate)}`;
+      }
       document.getElementById('pdf-issue-date').textContent = formatDateHuman(q.issueDate);
       document.getElementById('pdf-valid-until').textContent = formatDateHuman(q.validUntil);
       document.getElementById('pdf-client-name').textContent = client.name;
@@ -5778,7 +6124,7 @@
       // Concept prefill
       const cdcConcept = document.getElementById('cdc-input-concept');
       if (cdcConcept) {
-        cdcConcept.value = `Prestación de servicios para el evento '${q.eventTitle || 'Evento'}' (${q.eventType || 'Evento'}), programado para el día ${formatDateHuman(q.eventDate)} en ${q.eventVenue || 'Lugar por definir'} para ${q.guestsPax || 1} personas (Pax), según Cotización N° ${q.number}.`;
+        cdcConcept.value = `Prestación de servicios para el evento '${q.eventTitle || 'Evento'}' (${q.eventType || 'Evento'}), programado para el día ${formatDateHuman(q.eventDate)} en ${q.eventVenue || 'Lugar por definir'} para ${q.guestsPax || 1} personas (Pax), según Cotización N&deg; ${q.number}.`;
       }
 
       // Bank details
@@ -5846,7 +6192,7 @@
       setTxt('cdc-pv-creditor-contact', cPhone ? `📞 ${cPhone}` : '');
       setTxt('cdc-pv-creditor-city', cCity);
 
-      setTxt('cdc-pv-number', `N° ${num}`);
+      setTxt('cdc-pv-number', `N&deg; ${num}`);
       setTxt('cdc-pv-date', formatDateHuman(issueDate));
       setTxt('cdc-pv-due-date', dueDate ? formatDateHuman(dueDate) : 'Contraentrega');
 
@@ -6040,15 +6386,29 @@
 
       tbody.innerHTML = filtered.map(sq => {
         const cl = state.clients.find(c => c.id === sq.clientId);
+        const sqBase = sq.baseNumber || (typeof getQuoteBaseNumber === "function" ? getQuoteBaseNumber(sq.number) : sq.number.replace(/\s*V\d+$/i, ''));
+        const familyVersions = state.savedQuotes.filter(x => (x.baseNumber || x.number.replace(/\s*V\d+$/i, '')) === sqBase);
+        const familyCount = familyVersions.length;
+        const isLocked = sq.status === 'Enviada' || sq.status === 'Aprobada' || sq.status === 'Reemplazada';
+
         const statusColor = sq.status === 'Aprobada'
-          ? 'bg-emerald-100 text-emerald-800'
-          : (sq.status === 'Enviada' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700');
+          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+          : (sq.status === 'Enviada' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+            (sq.status === 'Reemplazada' ? 'bg-slate-100 text-slate-600 border border-slate-200 line-through decoration-slate-400' :
+            (sq.status === 'Rechazada' ? 'bg-rose-100 text-rose-800 border border-rose-200' : 'bg-blue-100 text-blue-800 border border-blue-200')));
+
         return `
           <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-indigo-700 tabular-nums">${sq.number}</td>
+            <td class="py-3 px-4 font-bold text-indigo-700 tabular-nums">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span>${sq.number}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-black ${sq.version > 1 ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'}">V${sq.version || 1}</span>
+              </div>
+              ${familyCount > 1 ? `<button type="button" onclick="openQuoteVersionHistoryModal('${sq.id}')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline block mt-0.5 cursor-pointer">(${familyCount} versiones)</button>` : ''}
+            </td>
             <td class="py-3 px-4">
               <div class="font-bold text-slate-900">${sq.eventTitle}</div>
-              <div class="text-[11px] text-slate-500">${cl ? cl.name : 'Cliente'} · ${sq.eventType}</div>
+              <div class="text-[11px] text-slate-500">${cl ? cl.name : 'Cliente'} &bull; ${sq.eventType}</div>
             </td>
             <td class="py-3 px-4 text-center font-bold tabular-nums">${sq.guestsPax} Pax</td>
             <td class="py-3 px-4 tabular-nums">${formatDateHuman(sq.eventDate)}</td>
@@ -6058,9 +6418,17 @@
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusColor}">${sq.status}</span>
             </td>
             <td class="py-3 px-4 text-right">
-              <div class="inline-flex items-center gap-1.5 justify-end">
-                <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition inline-flex items-center gap-1" title="Abrir y editar cotización">
+              <div class="inline-flex items-center gap-1.5 justify-end flex-wrap">
+                <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition inline-flex items-center gap-1" title="Abrir y editar cotizaci&oacute;n">
                   <span>Abrir / PDF</span>
+                </button>
+                ${isLocked ? `
+                  <button type="button" onclick="openCreateQuoteVersionModal('${sq.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition border border-emerald-200 flex items-center gap-1 cursor-pointer" title="Crear nueva versi&oacute;n a partir de esta cotizaci&oacute;n">
+                    <span>+ Versi&oacute;n</span>
+                  </button>
+                ` : ''}
+                <button type="button" onclick="openQuoteVersionHistoryModal('${sq.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center gap-1 cursor-pointer" title="Ver historial y comparar versiones">
+                  <span>Versiones</span>
                 </button>
                 <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition inline-flex items-center gap-1 border border-amber-200" title="Generar Cuenta de Cobro">
                   <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -6491,7 +6859,7 @@
       let quotesOverdue = 0;
       let quotesExpiringSoon = 0;
       quotes.forEach(q => {
-        if (q.status === 'Rechazada' || q.status === 'Cancelada' || q.status === 'Aprobada') return;
+        if (q.status === 'Rechazada' || q.status === 'Cancelada' || q.status === 'Aprobada' || q.status === 'Reemplazada') return;
         const vDate = new Date(q.validUntil + 'T00:00:00');
         const diffDays = Math.round((vDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         if (diffDays < 0) quotesOverdue++;
@@ -7325,6 +7693,19 @@
       // Save Quote to History
       document.getElementById('btn-save-quote')?.addEventListener('click', () => {
         const q = state.activeQuote;
+
+        // Version locking check: prevent direct overwriting of sent/approved/replaced quotes
+        if (typeof isQuoteLocked === 'function' && isQuoteLocked(q)) {
+          openCreateQuoteVersionModal(q.id);
+          return;
+        }
+
+        const baseNumber = q.baseNumber || (typeof getQuoteBaseNumber === 'function' ? getQuoteBaseNumber(q.number) : q.number.replace(/\s*V\d+$/i, '').trim());
+        const version = q.version || 1;
+        q.baseNumber = baseNumber;
+        q.version = version;
+        q.number = `${baseNumber} V${version}`;
+        const q = state.activeQuote;
         const subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
         const afterDisc = subtotal * (1 - (Number(q.discountPct) || 0) / 100);
         const total = afterDisc * (1 + (Number(q.taxPct) || 0) / 100);
@@ -7611,6 +7992,12 @@ ${state.company.phone}`;
         const subject = encodeURIComponent(document.getElementById('em-subject').value);
         const body = encodeURIComponent(document.getElementById('em-body').value);
         state.activeQuote.status = 'Enviada';
+        // Sync status to savedQuotes
+        const sendIdx = state.savedQuotes.findIndex(sq => sq.id === state.activeQuote.id || sq.number === state.activeQuote.number);
+        if (sendIdx >= 0) {
+          state.savedQuotes[sendIdx].status = 'Enviada';
+          if (state.savedQuotes[sendIdx].fullCopy) state.savedQuotes[sendIdx].fullCopy.status = 'Enviada';
+        }
         saveState();
         renderQuoteEditorAndPdf();
         document.getElementById('modal-email')?.classList.add('hidden');
@@ -7629,6 +8016,12 @@ ${state.company.phone}`;
         const deposit = total * ((Number(q.depositPct) || 0) / 100);
 
         q.status = 'Aprobada';
+        // Sync status to savedQuotes
+        const appIdx = state.savedQuotes.findIndex(sq => sq.id === q.id || sq.number === q.number);
+        if (appIdx >= 0) {
+          state.savedQuotes[appIdx].status = 'Aprobada';
+          if (state.savedQuotes[appIdx].fullCopy) state.savedQuotes[appIdx].fullCopy.status = 'Aprobada';
+        }
         state.finances.unshift({
           id: 'fin-' + Date.now(),
           type: 'ingreso',
@@ -8339,7 +8732,7 @@ ${state.company.phone}`;
 
       // CSV Export Buttons
       document.getElementById('btn-export-quotes-csv')?.addEventListener('click', () => {
-        const headers = ['N° Cotización', 'Título Evento', 'Cliente', 'Tipo de Evento', 'Invitados (Pax)', 'Fecha Evento', 'Vencimiento', 'Total ($ COP)', 'Estado'];
+        const headers = ['N&deg; Cotización', 'Título Evento', 'Cliente', 'Tipo de Evento', 'Invitados (Pax)', 'Fecha Evento', 'Vencimiento', 'Total ($ COP)', 'Estado'];
         const rows = state.savedQuotes.map(sq => {
           const cl = state.clients.find(c => c.id === sq.clientId);
           return [sq.number, sq.eventTitle, cl ? cl.name : '', sq.eventType, sq.guestsPax, sq.eventDate, sq.validUntil, Math.round(sq.total), sq.status];
@@ -9987,7 +10380,7 @@ function exportEventClosuresCSV() {
     showToast('No hay cierres de eventos registrados para exportar.');
     return;
   }
-  const headers = ['N° Cotización', 'Evento', 'Cliente', 'Fecha', 'Pax', 'Venta ($)', 'Costo Estimado ($)', 'Costo Real ($)', 'Utilidad Real ($)', 'Variación ($)', 'Estado Desempeño', 'Recomendaciones'];
+  const headers = ['N&deg; Cotización', 'Evento', 'Cliente', 'Fecha', 'Pax', 'Venta ($)', 'Costo Estimado ($)', 'Costo Real ($)', 'Utilidad Real ($)', 'Variación ($)', 'Estado Desempeño', 'Recomendaciones'];
   const rows = closures.map(cl => [
     cl.quoteNumber,
     cl.eventTitle,
@@ -10730,6 +11123,670 @@ function loadSavedQuoteIntoActiveQuoteById(quoteId) {
       }
       openShoppingListModal(q);
     }
+
+  
+// =============================================================
+// CONTROL DE VERSIONES DE COTIZACIONES (VERSION CONTROL ENGINE)
+// =============================================================
+
+function isQuoteLocked(q) {
+  const quote = q || state.activeQuote;
+  if (!quote) return false;
+  const status = (quote.status || '').trim();
+  return status === 'Enviada' || status === 'Aprobada' || status === 'Reemplazada';
+}
+
+function getQuoteBaseNumber(numberOrQuote) {
+  if (!numberOrQuote) return 'COT-2026-0001';
+  const num = typeof numberOrQuote === 'string' ? numberOrQuote : (numberOrQuote.baseNumber || numberOrQuote.number || '');
+  return num.replace(/\s*V\d+$/i, '').trim();
+}
+
+function getAllVersionsOfQuote(baseNumberOrQuoteId) {
+  let baseNum = '';
+  if (typeof baseNumberOrQuoteId === 'string' && baseNumberOrQuoteId.startsWith('sq-')) {
+    const q = (state.savedQuotes || []).find(x => x.id === baseNumberOrQuoteId);
+    baseNum = q ? (q.baseNumber || getQuoteBaseNumber(q.number)) : '';
+  } else if (typeof baseNumberOrQuoteId === 'string') {
+    baseNum = getQuoteBaseNumber(baseNumberOrQuoteId);
+  } else if (baseNumberOrQuoteId && typeof baseNumberOrQuoteId === 'object') {
+    baseNum = baseNumberOrQuoteId.baseNumber || getQuoteBaseNumber(baseNumberOrQuoteId.number);
+  }
+  if (!baseNum && state.activeQuote) {
+    baseNum = state.activeQuote.baseNumber || getQuoteBaseNumber(state.activeQuote.number);
+  }
+  const all = (state.savedQuotes || []).filter(sq => {
+    const sqBase = sq.baseNumber || getQuoteBaseNumber(sq.number);
+    return sqBase.toLowerCase() === baseNum.toLowerCase();
+  });
+  return all.sort((a, b) => (Number(a.version) || 1) - (Number(b.version) || 1));
+}
+
+function openCreateQuoteVersionModal(sourceQuoteId) {
+  const source = sourceQuoteId 
+    ? ((state.savedQuotes || []).find(q => q.id === sourceQuoteId) || state.activeQuote)
+    : state.activeQuote;
+  if (!source) return;
+
+  const baseNumber = source.baseNumber || getQuoteBaseNumber(source.number);
+  const allVersions = getAllVersionsOfQuote(baseNumber);
+  const maxVer = allVersions.reduce((max, v) => Math.max(max, Number(v.version) || 1), Number(source.version) || 1);
+  const nextVer = maxVer + 1;
+  const nextNumber = `${baseNumber} V${nextVer}`;
+  const curNumber = `${baseNumber} V${source.version || 1}`;
+
+  const fromBadge = document.getElementById('new-ver-from-badge');
+  if (fromBadge) fromBadge.textContent = curNumber;
+  const fromStatus = document.getElementById('new-ver-from-status');
+  if (fromStatus) {
+    fromStatus.textContent = source.status || 'Borrador';
+    fromStatus.className = 'inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ' + 
+      (source.status === 'Aprobada' ? 'bg-emerald-100 text-emerald-800' : (source.status === 'Enviada' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'));
+  }
+
+  const toBadge = document.getElementById('new-ver-to-badge');
+  if (toBadge) toBadge.textContent = nextNumber;
+
+  const dateInput = document.getElementById('new-ver-date-input');
+  if (dateInput) {
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    dateInput.value = new Date().toLocaleDateString('es-CO', options);
+  }
+
+  const opInput = document.getElementById('new-ver-operator-input');
+  if (opInput) opInput.value = getOperatorName();
+
+  const reasonInput = document.getElementById('new-ver-reason-input');
+  if (reasonInput) {
+    reasonInput.value = '';
+    setTimeout(() => reasonInput.focus(), 150);
+  }
+
+  const confirmBtn = document.getElementById('btn-confirm-create-quote-version');
+  if (confirmBtn) {
+    confirmBtn.setAttribute('data-source-id', source.id || 'active');
+    confirmBtn.setAttribute('data-next-version', nextVer);
+    confirmBtn.setAttribute('data-base-number', baseNumber);
+  }
+
+  const modal = document.getElementById('modal-new-quote-version');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function confirmCreateQuoteVersion() {
+  const confirmBtn = document.getElementById('btn-confirm-create-quote-version');
+  const sourceId = confirmBtn?.getAttribute('data-source-id') || 'active';
+  const nextVer = parseInt(confirmBtn?.getAttribute('data-next-version') || '2', 10);
+  const baseNumber = confirmBtn?.getAttribute('data-base-number') || getQuoteBaseNumber(state.activeQuote?.number);
+
+  const reasonInput = document.getElementById('new-ver-reason-input');
+  const reason = (reasonInput?.value || '').trim();
+  if (!reason) {
+    showToast('Por favor describe el motivo del cambio para mantener la trazabilidad');
+    reasonInput?.focus();
+    return;
+  }
+
+  const operatorInput = document.getElementById('new-ver-operator-input');
+  const operatorName = (operatorInput?.value || '').trim() || getOperatorName();
+
+  let source = (state.savedQuotes || []).find(q => q.id === sourceId);
+  if (!source) source = state.activeQuote;
+
+  source.status = 'Reemplazada';
+  if (source.fullCopy) {
+    source.fullCopy.status = 'Reemplazada';
+  }
+  const sourceIdx = (state.savedQuotes || []).findIndex(q => q.id === source.id);
+  if (sourceIdx >= 0) {
+    state.savedQuotes[sourceIdx].status = 'Reemplazada';
+    if (state.savedQuotes[sourceIdx].fullCopy) {
+      state.savedQuotes[sourceIdx].fullCopy.status = 'Reemplazada';
+    }
+  }
+
+  const rawCopy = source.fullCopy ? JSON.parse(JSON.stringify(source.fullCopy)) : JSON.parse(JSON.stringify(source));
+  const newId = 'sq-' + Date.now();
+  const nextNumber = `${baseNumber} V${nextVer}`;
+  const nowIso = new Date().toISOString();
+
+  const newQuote = {
+    ...rawCopy,
+    id: newId,
+    baseNumber: baseNumber,
+    version: nextVer,
+    number: nextNumber,
+    status: 'Borrador',
+    createdAt: nowIso,
+    issueDate: nowIso.split('T')[0],
+    createdBy: operatorName,
+    changeReason: reason,
+    parentQuoteId: source.id,
+    items: JSON.parse(JSON.stringify(source.items || rawCopy.items || []))
+  };
+
+  const subtotal = (newQuote.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+  const afterDisc = subtotal * (1 - (Number(newQuote.discountPct) || 0) / 100);
+  const total = afterDisc * (1 + (Number(newQuote.taxPct) || 0) / 100);
+  newQuote.total = total;
+
+  const summaryRecord = {
+    id: newId,
+    baseNumber: baseNumber,
+    version: nextVer,
+    number: nextNumber,
+    eventType: newQuote.eventType,
+    eventTitle: newQuote.eventTitle,
+    clientId: newQuote.clientId,
+    guestsPax: newQuote.guestsPax,
+    eventDate: newQuote.eventDate,
+    validUntil: newQuote.validUntil,
+    total: total,
+    status: 'Borrador',
+    createdAt: nowIso,
+    createdBy: operatorName,
+    changeReason: reason,
+    parentQuoteId: source.id,
+    fullCopy: JSON.parse(JSON.stringify(newQuote))
+  };
+
+  state.savedQuotes.unshift(summaryRecord);
+  state.activeQuote = JSON.parse(JSON.stringify(newQuote));
+
+  saveState();
+  closeModal('modal-new-quote-version');
+
+  switchView('cotizador');
+  renderQuoteEditorAndPdf();
+  renderSavedQuotes();
+  renderDashboard();
+
+  showToast(`Nueva versi\u00F3n ${nextNumber} creada con \u00E9xito en modo Borrador.`);
+}
+
+function openQuoteVersionHistoryModal(quoteIdOrBaseNumber) {
+  const baseNumber = quoteIdOrBaseNumber ? getQuoteBaseNumber(quoteIdOrBaseNumber) : (state.activeQuote?.baseNumber || getQuoteBaseNumber(state.activeQuote?.number));
+  const versions = getAllVersionsOfQuote(baseNumber);
+
+  const titleEl = document.getElementById('ver-hist-quote-title');
+  if (titleEl) titleEl.textContent = `Historial de Versiones: ${baseNumber}`;
+  const countBadge = document.getElementById('ver-hist-count-badge');
+  if (countBadge) countBadge.textContent = `${versions.length} ${versions.length === 1 ? 'versi\u00F3n' : 'versiones'}`;
+
+  const container = document.getElementById('ver-hist-timeline-container');
+  if (container) {
+    if (versions.length === 0) {
+      container.innerHTML = `<div class="p-6 text-center text-slate-400">No se encontraron versiones registradas para esta cotizaci\u00F3n.</div>`;
+    } else {
+      const sorted = [...versions].sort((a, b) => (Number(b.version) || 1) - (Number(a.version) || 1));
+      container.innerHTML = sorted.map((v, idx) => {
+        const isCurrentActive = state.activeQuote && (state.activeQuote.id === v.id || (state.activeQuote.baseNumber === baseNumber && Number(state.activeQuote.version) === Number(v.version)));
+        const statusColor = v.status === 'Aprobada' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
+          (v.status === 'Enviada' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+          (v.status === 'Reemplazada' ? 'bg-slate-100 text-slate-600 border-slate-200 line-through decoration-slate-400' :
+          'bg-blue-100 text-blue-800 border-blue-200'));
+
+        const dateFormatted = v.createdAt ? new Date(v.createdAt).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : formatDateHuman(v.eventDate);
+
+        return `
+          <div class="relative bg-white dark:bg-slate-800/80 rounded-2xl border ${isCurrentActive ? 'border-blue-500 shadow-md ring-2 ring-blue-500/20' : 'border-slate-200 dark:border-slate-700'} p-4.5 space-y-3 transition">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center">V${v.version || 1}</span>
+                <div>
+                  <strong class="text-slate-900 dark:text-white text-xs font-bold">${v.number || (baseNumber + ' V' + (v.version || 1))}</strong>
+                  ${isCurrentActive ? '<span class="ml-1.5 px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white">Activa en Editor</span>' : ''}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusColor}">${v.status || 'Borrador'}</span>
+                <span class="text-[11px] text-slate-400 tabular-nums">${dateFormatted}</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-slate-50 dark:bg-slate-900/40 rounded-xl p-2.5">
+              <div>
+                <span class="block text-slate-400 text-[10px]">Invitados:</span>
+                <strong class="text-slate-800 dark:text-slate-200">${v.guestsPax || 0} Pax</strong>
+              </div>
+              <div>
+                <span class="block text-slate-400 text-[10px]">Total Cotizado:</span>
+                <strong class="text-slate-900 dark:text-white font-extrabold">${formatCurrency(v.total || 0)}</strong>
+              </div>
+              <div>
+                <span class="block text-slate-400 text-[10px]">Responsable:</span>
+                <strong class="text-slate-700 dark:text-slate-300">${v.createdBy || 'Alexander'}</strong>
+              </div>
+              <div>
+                <span class="block text-slate-400 text-[10px]">\u00CDtems:</span>
+                <strong class="text-slate-700 dark:text-slate-300">${(v.fullCopy?.items || v.items || []).length} renglones</strong>
+              </div>
+            </div>
+
+            ${v.changeReason ? `
+              <div class="text-[11px] text-slate-600 dark:text-slate-300 bg-amber-50/50 dark:bg-amber-950/20 border-l-2 border-amber-400 p-2 rounded-r-lg">
+                <span class="font-bold text-amber-800 dark:text-amber-300">Motivo:</span> "${v.changeReason}"
+              </div>
+            ` : ''}
+
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
+              <button type="button" onclick="loadSpecificQuoteVersion('${v.id}')" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>Cargar en Editor</span>
+              </button>
+              ${idx < sorted.length - 1 ? `
+                <button type="button" onclick="openQuoteVersionCompareModal('${sorted[idx+1].id}', '${v.id}', '${baseNumber}')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                  <span>Comparar con V${sorted[idx+1].version || 1}</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  const btnCompare = document.getElementById('btn-ver-hist-compare');
+  if (btnCompare) {
+    btnCompare.onclick = () => {
+      closeModal('modal-quote-versions-history');
+      openQuoteVersionCompareModal(null, null, baseNumber);
+    };
+  }
+
+  const btnNewVer = document.getElementById('btn-ver-hist-new-version');
+  if (btnNewVer) {
+    const latestVersion = versions.length > 0 ? versions[versions.length - 1] : state.activeQuote;
+    btnNewVer.onclick = () => {
+      closeModal('modal-quote-versions-history');
+      openCreateQuoteVersionModal(latestVersion?.id);
+    };
+  }
+
+  const modal = document.getElementById('modal-quote-versions-history');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function loadSpecificQuoteVersion(quoteId) {
+  const q = (state.savedQuotes || []).find(x => x.id === quoteId);
+  if (!q) return;
+  if (q.fullCopy) {
+    state.activeQuote = JSON.parse(JSON.stringify(q.fullCopy));
+  } else {
+    state.activeQuote = {
+      ...state.activeQuote,
+      id: q.id,
+      baseNumber: q.baseNumber || getQuoteBaseNumber(q.number),
+      version: q.version || 1,
+      number: q.number,
+      eventType: q.eventType,
+      eventTitle: q.eventTitle,
+      clientId: q.clientId,
+      guestsPax: q.guestsPax,
+      eventDate: q.eventDate,
+      validUntil: q.validUntil,
+      status: q.status,
+      items: q.items || []
+    };
+  }
+  saveState();
+  closeModal('modal-quote-versions-history');
+  switchView('cotizador');
+  renderQuoteEditorAndPdf();
+  showToast(`Cotizaci\u00F3n ${q.number} cargada en el editor.`);
+}
+
+function openQuoteVersionCompareModal(idA, idB, baseNumber) {
+  const baseNum = baseNumber || state.activeQuote?.baseNumber || getQuoteBaseNumber(state.activeQuote?.number);
+  const versions = getAllVersionsOfQuote(baseNum);
+
+  if (versions.length < 2) {
+    showToast('Esta cotizaci\u00F3n solo tiene una versi\u00F3n registrada (V1). Crea la versi\u00F3n V2 para poder comparar cambios.');
+    return;
+  }
+
+  const baseBadge = document.getElementById('compare-quote-base-badge');
+  if (baseBadge) baseBadge.textContent = baseNum;
+
+  let selA = idA;
+  let selB = idB;
+
+  if (!selA || !selB) {
+    selA = versions[0].id;
+    selB = versions[versions.length - 1].id;
+  }
+
+  const selectA = document.getElementById('compare-select-ver-a');
+  const selectB = document.getElementById('compare-select-ver-b');
+
+  if (selectA) {
+    selectA.innerHTML = versions.map(v => `
+      <option value="${v.id}" ${v.id === selA ? 'selected' : ''}>V${v.version || 1} (${v.status || 'Borrador'} \u2022 ${formatCurrency(v.total || 0)})</option>
+    `).join('');
+    selectA.onchange = () => renderQuoteVersionComparison(selectA.value, selectB.value);
+  }
+
+  if (selectB) {
+    selectB.innerHTML = versions.map(v => `
+      <option value="${v.id}" ${v.id === selB ? 'selected' : ''}>V${v.version || 1} (${v.status || 'Borrador'} \u2022 ${formatCurrency(v.total || 0)})</option>
+    `).join('');
+    selectB.onchange = () => renderQuoteVersionComparison(selectA.value, selectB.value);
+  }
+
+  renderQuoteVersionComparison(selA, selB);
+
+  const modal = document.getElementById('modal-compare-quote-versions');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function renderQuoteVersionComparison(idA, idB) {
+  const quoteA = (state.savedQuotes || []).find(q => q.id === idA) || (state.activeQuote?.id === idA ? state.activeQuote : null);
+  const quoteB = (state.savedQuotes || []).find(q => q.id === idB) || (state.activeQuote?.id === idB ? state.activeQuote : null);
+
+  if (!quoteA || !quoteB) return;
+
+  const fullA = quoteA.fullCopy || quoteA;
+  const fullB = quoteB.fullCopy || quoteB;
+
+  const totalA = Number(quoteA.total) || 0;
+  const totalB = Number(quoteB.total) || 0;
+  const totalDiff = totalB - totalA;
+  const totalPct = totalA > 0 ? ((totalDiff / totalA) * 100).toFixed(1) : 0;
+
+  const paxA = Number(quoteA.guestsPax) || 0;
+  const paxB = Number(quoteB.guestsPax) || 0;
+  const paxDiff = paxB - paxA;
+
+  const kpisContainer = document.getElementById('compare-summary-kpis');
+  if (kpisContainer) {
+    const isTotalUp = totalDiff > 0;
+    const isTotalSame = totalDiff === 0;
+    const totalColorClass = isTotalSame ? 'text-slate-700' : (isTotalUp ? 'text-emerald-600' : 'text-rose-600');
+    const totalDiffBadge = isTotalSame ? 'Sin variaci\u00F3n' : `${isTotalUp ? '+' : ''}${formatCurrency(totalDiff)} (${totalPct > 0 ? '+' : ''}${totalPct}%)`;
+
+    const isPaxUp = paxDiff > 0;
+    const isPaxSame = paxDiff === 0;
+    const paxColorClass = isPaxSame ? 'text-slate-700' : (isPaxUp ? 'text-blue-600' : 'text-amber-600');
+    const paxDiffBadge = isPaxSame ? 'Mismo aforo' : `${isPaxUp ? '+' : ''}${paxDiff} Pax`;
+
+    kpisContainer.innerHTML = `
+      <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <span class="block text-[10px] font-bold uppercase text-slate-400">Total Cotizado</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <strong class="text-sm font-extrabold ${totalColorClass}">${formatCurrency(totalB)}</strong>
+          <span class="text-[10px] text-slate-400">Ant: ${formatCurrency(totalA)}</span>
+        </div>
+        <div class="mt-2 text-[11px] font-extrabold ${totalColorClass}">
+          ${totalDiffBadge}
+        </div>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <span class="block text-[10px] font-bold uppercase text-slate-400">Invitados (Pax)</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <strong class="text-sm font-extrabold ${paxColorClass}">${paxB} Pax</strong>
+          <span class="text-[10px] text-slate-400">Ant: ${paxA} Pax</span>
+        </div>
+        <div class="mt-2 text-[11px] font-extrabold ${paxColorClass}">
+          ${paxDiffBadge}
+        </div>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <span class="block text-[10px] font-bold uppercase text-slate-400">Fechas del Evento</span>
+        <div class="mt-1 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-[10px]">V${quoteB.version || 2}:</span>
+            <strong class="text-slate-800 dark:text-slate-200">${formatDateHuman(quoteB.eventDate)}</strong>
+          </div>
+          <div class="flex items-center justify-between text-slate-400 text-[10px] mt-0.5">
+            <span>V${quoteA.version || 1}:</span>
+            <span>${formatDateHuman(quoteA.eventDate)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const traceEl = document.getElementById('compare-trace-meta');
+  if (traceEl) {
+    traceEl.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-blue-200/60 dark:border-blue-900/40 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-600 text-white">V${quoteB.version || 2}</span>
+          <span class="font-bold text-slate-900 dark:text-white">Detalles del Cambio Registrado</span>
+        </div>
+        <div class="text-[11px] text-slate-500">
+          Operador: <strong>${quoteB.createdBy || 'Alexander'}</strong> &bull; Fecha: <strong>${formatDateHuman(quoteB.createdAt || quoteB.issueDate)}</strong>
+        </div>
+      </div>
+      <p class="text-xs text-slate-700 dark:text-slate-200 italic pt-1">
+        "${quoteB.changeReason || 'Sin motivo de cambio documentado'}"
+      </p>
+    `;
+  }
+
+  const itemsA = fullA.items || [];
+  const itemsB = fullB.items || [];
+
+  const added = [];
+  const removed = [];
+  const modified = [];
+  const unchanged = [];
+
+  const matchedInA = new Set();
+
+  itemsB.forEach(itB => {
+    const matchIdx = itemsA.findIndex((itA, idx) => {
+      if (matchedInA.has(idx)) return false;
+      if (itB.productId && itA.productId && itB.productId === itA.productId) return true;
+      return (itB.name || '').trim().toLowerCase() === (itA.name || '').trim().toLowerCase();
+    });
+
+    if (matchIdx >= 0) {
+      matchedInA.add(matchIdx);
+      const itA = itemsA[matchIdx];
+      const qtyA = Number(itA.qty) || 0;
+      const qtyB = Number(itB.qty) || 0;
+      const priceA = Number(itA.price) || 0;
+      const priceB = Number(itB.price) || 0;
+      const lineSubA = qtyA * priceA;
+      const lineSubB = qtyB * priceB;
+
+      if (qtyA !== qtyB || priceA !== priceB || (itA.unit || '') !== (itB.unit || '')) {
+        modified.push({
+          name: itB.name,
+          unit: itB.unit,
+          qtyA, qtyB,
+          priceA, priceB,
+          lineSubA, lineSubB,
+          diffVal: lineSubB - lineSubA
+        });
+      } else {
+        unchanged.push({
+          name: itB.name,
+          unit: itB.unit,
+          qty: qtyB,
+          price: priceB,
+          lineSub: lineSubB
+        });
+      }
+    } else {
+      const qtyB = Number(itB.qty) || 0;
+      const priceB = Number(itB.price) || 0;
+      added.push({
+        name: itB.name,
+        unit: itB.unit,
+        qty: qtyB,
+        price: priceB,
+        lineSub: qtyB * priceB
+      });
+    }
+  });
+
+  itemsA.forEach((itA, idx) => {
+    if (!matchedInA.has(idx)) {
+      const qtyA = Number(itA.qty) || 0;
+      const priceA = Number(itA.price) || 0;
+      removed.push({
+        name: itA.name,
+        unit: itA.unit,
+        qty: qtyA,
+        price: priceA,
+        lineSub: qtyA * priceA
+      });
+    }
+  });
+
+  const secAdded = document.getElementById('compare-section-added');
+  if (secAdded) {
+    if (added.length === 0) {
+      secAdded.innerHTML = '';
+    } else {
+      secAdded.innerHTML = `
+        <div class="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between text-emerald-800 dark:text-emerald-300 font-extrabold text-xs">
+            <span class="flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center text-xs">+</span>
+              \u00CDtems Nuevos Agregados en V${quoteB.version || 2} (${added.length})
+            </span>
+            <span>+${formatCurrency(added.reduce((s, it) => s + it.lineSub, 0))}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="text-[10px] text-emerald-700/80 uppercase font-bold border-b border-emerald-200/60">
+                  <th class="py-1 px-2">\u00CDtem</th>
+                  <th class="py-1 px-2 text-center">Cantidad</th>
+                  <th class="py-1 px-2 text-right">Precio Unit.</th>
+                  <th class="py-1 px-2 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-emerald-200/40">
+                ${added.map(it => `
+                  <tr>
+                    <td class="py-1.5 px-2 font-bold text-slate-900 dark:text-white">${it.name}</td>
+                    <td class="py-1.5 px-2 text-center font-semibold text-emerald-900 dark:text-emerald-200">${it.qty} ${it.unit}</td>
+                    <td class="py-1.5 px-2 text-right">${formatCurrency(it.price)}</td>
+                    <td class="py-1.5 px-2 text-right font-extrabold text-emerald-700 dark:text-emerald-400">+${formatCurrency(it.lineSub)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  const secRemoved = document.getElementById('compare-section-removed');
+  if (secRemoved) {
+    if (removed.length === 0) {
+      secRemoved.innerHTML = '';
+    } else {
+      secRemoved.innerHTML = `
+        <div class="bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/60 rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between text-rose-800 dark:text-rose-300 font-extrabold text-xs">
+            <span class="flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-md bg-rose-600 text-white flex items-center justify-center text-xs">-</span>
+              \u00CDtems Eliminados en V${quoteB.version || 2} (${removed.length})
+            </span>
+            <span>-${formatCurrency(removed.reduce((s, it) => s + it.lineSub, 0))}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="text-[10px] text-rose-700/80 uppercase font-bold border-b border-rose-200/60">
+                  <th class="py-1 px-2">\u00CDtem</th>
+                  <th class="py-1 px-2 text-center">Cantidad</th>
+                  <th class="py-1 px-2 text-right">Precio Unit.</th>
+                  <th class="py-1 px-2 text-right">Subtotal Eliminado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-rose-200/40">
+                ${removed.map(it => `
+                  <tr>
+                    <td class="py-1.5 px-2 font-bold text-slate-700 dark:text-slate-300 line-through decoration-rose-400">${it.name}</td>
+                    <td class="py-1.5 px-2 text-center font-semibold text-rose-900 dark:text-rose-200">${it.qty} ${it.unit}</td>
+                    <td class="py-1.5 px-2 text-right">${formatCurrency(it.price)}</td>
+                    <td class="py-1.5 px-2 text-right font-extrabold text-rose-700 dark:text-rose-400">-${formatCurrency(it.lineSub)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  const secMod = document.getElementById('compare-section-modified');
+  if (secMod) {
+    if (modified.length === 0) {
+      secMod.innerHTML = '';
+    } else {
+      secMod.innerHTML = `
+        <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between text-amber-800 dark:text-amber-300 font-extrabold text-xs">
+            <span class="flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-md bg-amber-500 text-white flex items-center justify-center text-xs">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </span>
+              \u00CDtems con Variaci\u00F3n de Cantidad o Precio (${modified.length})
+            </span>
+            <span>${modified.reduce((s, it) => s + it.diffVal, 0) >= 0 ? '+' : ''}${formatCurrency(modified.reduce((s, it) => s + it.diffVal, 0))}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="text-[10px] text-amber-800/80 uppercase font-bold border-b border-amber-200/60">
+                  <th class="py-1 px-2">\u00CDtem</th>
+                  <th class="py-1 px-2 text-center">Cantidad (Ant \u2192 Nueva)</th>
+                  <th class="py-1 px-2 text-right">Precio Unitario</th>
+                  <th class="py-1 px-2 text-right">Diferencia Neta</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-amber-200/40">
+                ${modified.map(it => {
+                  const isUp = it.diffVal >= 0;
+                  return `
+                    <tr>
+                      <td class="py-1.5 px-2 font-bold text-slate-900 dark:text-white">${it.name}</td>
+                      <td class="py-1.5 px-2 text-center font-medium">
+                        <span class="text-slate-400">${it.qtyA}</span> \u2192 <strong class="text-amber-900 dark:text-amber-200">${it.qtyB} ${it.unit}</strong>
+                      </td>
+                      <td class="py-1.5 px-2 text-right font-medium">
+                        ${it.priceA !== it.priceB ? `<span class="text-slate-400">${formatCurrency(it.priceA)}</span> \u2192 ` : ''}<strong>${formatCurrency(it.priceB)}</strong>
+                      </td>
+                      <td class="py-1.5 px-2 text-right font-extrabold ${isUp ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}">
+                        ${isUp ? '+' : ''}${formatCurrency(it.diffVal)}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  const secUnchanged = document.getElementById('compare-section-unchanged');
+  if (secUnchanged) {
+    if (unchanged.length === 0) {
+      secUnchanged.innerHTML = '';
+    } else {
+      secUnchanged.innerHTML = `
+        <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 text-xs text-slate-500 flex items-center justify-between">
+          <span class="font-medium">&bull; <strong>${unchanged.length} renglones</strong> se mantuvieron exactamente id&eacute;nticos en ambas versiones.</span>
+          <span class="font-bold text-slate-700 dark:text-slate-300">${formatCurrency(unchanged.reduce((s, it) => s + it.lineSub, 0))}</span>
+        </div>
+      `;
+    }
+  }
+}
 
   </script>
 </body>
