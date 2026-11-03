@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light" style="color-scheme: light;">
 <head>
   <meta charset="UTF-8" />
@@ -4334,6 +4334,7 @@
         if (lockedNotice) lockedNotice.classList.add('hidden');
         if (passwordInput) passwordInput.value = '';
         resetInactivityTimer();
+        switchView('dashboard');
       } else {
         document.body.classList.add('is-unauthenticated');
         authScreen?.classList.remove('hidden');
@@ -6229,9 +6230,7 @@
           }
         }
       
-      renderDashboard();
-      switchView('dashboard');
-    });
+      });
       renderDashboardExpiringWidget();
     }
 
@@ -8165,6 +8164,9 @@ ${state.company.phone}`;
             console.log('SW registration note:', err);
           });
         };
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
         if (document.readyState === 'complete') {
           regSW();
         } else {
@@ -8415,6 +8417,7 @@ ${state.company.phone}`;
       renderClientsGrid();
       renderFinancesView();
       loadCompanyFormInputs();
+      switchView('dashboard');
     });
 
 
