@@ -518,6 +518,7 @@
       }
     }
   </style>
+<style id="xp-fixes">.sidebar-nav-btn[data-nav="dashboard"] > div:first-child,.sidebar-nav-btn[data-nav="cotizador"] > div:first-child{background:#dbeafe !important;color:#2563eb !important}.sidebar-nav-btn svg{color:inherit !important}.sidebar-nav-btn[data-nav="dashboard"] svg{color:#2563eb !important}</style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden is-unauthenticated">
 
@@ -995,12 +996,12 @@
         </div>
       </div>
 
-      <!-- 3. MÃ“DULO CENTRAL: ACCIONES PENDIENTES (Requirement 4) -->
+      <!-- 3. MÓDULO CENTRAL: ACCIONES PENDIENTES (Requirement 4) -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="p-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm font-bold">âš¡</span>
+              <span class="p-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm font-bold">⚡</span>
               <h2 class="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Acciones Pendientes</h2>
               <span id="dash-actions-badge-total" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">0 tareas</span>
             </div>
@@ -1010,7 +1011,7 @@
           </div>
           <div class="flex items-center gap-2">
             <button type="button" onclick="renderDashboard()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer">
-              <span>ðŸ”„</span> Actualizar
+              <span>🔄</span> Actualizar
             </button>
           </div>
         </div>
@@ -1021,12 +1022,12 @@
         </div>
       </div>
 
-      <!-- 4. WIDGET DE COTIZACIONES PRÃ“XIMAS A VENCER (Requirement 6) -->
+      <!-- 4. WIDGET DE COTIZACIONES PRÓXIMAS A VENCER (Requirement 6) -->
       <div id="widget-expiring-quotes-dashboard" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-lg">â³</span>
+              <span class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-lg">⏳</span>
               <div>
                 <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Seguimiento de Cotizaciones Próximas a Vencer</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400">Atiende a tiempo las cotizaciones pendientes antes de que expiren.</p>
@@ -1036,15 +1037,15 @@
           <!-- 3 Urgency Filters / Badges -->
           <div class="flex items-center gap-2 flex-wrap">
             <button type="button" id="btn-dash-urgency-today" onclick="filterDashboardUrgency('today')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸ”´ Vencen Hoy / Vencidas:</span>
+              <span>🔴 Vencen Hoy / Vencidas:</span>
               <span id="dash-count-today" class="bg-rose-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-3days" onclick="filterDashboardUrgency('3days')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¡ En 3 Días:</span>
+              <span>🟡 En 3 Días:</span>
               <span id="dash-count-3days" class="bg-amber-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-7days" onclick="filterDashboardUrgency('7days')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¢ En 7 Días:</span>
+              <span>🟢 En 7 Días:</span>
               <span id="dash-count-7days" class="bg-emerald-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-all" onclick="filterDashboardUrgency('all')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition cursor-pointer ring-2 ring-blue-500">
@@ -1087,10 +1088,10 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>ðŸŽ‰</span> Próximos Eventos Confirmados
+              <span>🎉</span> Próximos Eventos Confirmados
             </h3>
             <button type="button" onclick="switchView('agenda')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
-              Ver Agenda Completa âž”
+              Ver Agenda Completa ➔
             </button>
           </div>
           <div id="dash-upcoming-events-list" class="space-y-2.5">
@@ -1102,10 +1103,10 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>ðŸ’µ</span> Movimientos Financieros Recientes
+              <span>💵</span> Movimientos Financieros Recientes
             </h3>
             <button type="button" onclick="switchView('finanzas')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
-              Flujo de Caja âž”
+              Flujo de Caja ➔
             </button>
           </div>
           <div id="dash-recent-finances-list" class="space-y-2">
@@ -1766,7 +1767,7 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
-                <th class="py-3 px-4">NÂ° Cotización</th>
+                <th class="py-3 px-4">N° Cotización</th>
                 <th class="py-3 px-4">Evento y Cliente</th>
                 <th class="py-3 px-4 text-center">Invitados (Pax)</th>
                 <th class="py-3 px-4">Fecha Evento</th>
@@ -3462,7 +3463,7 @@
           </div>
           <div>
             <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nombre del Operador</h3>
-            <p class="text-xs text-slate-500">Â¿Qui&eacute;n va a manejar el sistema?</p>
+            <p class="text-xs text-slate-500">¿Qui&eacute;n va a manejar el sistema?</p>
           </div>
         </div>
         <button type="button" onclick="closeEditOperatorModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl leading-none cursor-pointer">&times;</button>
@@ -3501,7 +3502,7 @@
             🖨️ Imprimir
           </button>
           <button type="button" onclick="downloadShoppingListPDF()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer">
-            <span>ðŸ“„</span> PDF
+            <span>📄</span> PDF
           </button>
           <button type="button" onclick="exportShoppingListCSV()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold transition flex items-center gap-1">
             📥 Excel
@@ -6278,7 +6279,7 @@
     }
 
     const viewTitles = {
-      dashboard: { title: 'Dashboard Operativo', icon: 'âš¡', subtitle: 'Panel de control ejecutivo, KPIs en vivo y acciones pendientes' },
+      dashboard: { title: 'Dashboard Operativo', icon: '⚡', subtitle: 'Panel de control ejecutivo, KPIs en vivo y acciones pendientes' },
       cotizador: { title: 'Cotizador y PDF', icon: '📋', subtitle: 'Presupuesto dinámico por Pax, montaje y exportación PDF' },
       historial: { title: 'Cotizaciones Guardadas', icon: '🗂️', subtitle: 'Historial comercial, seguimiento y estados de eventos' },
       productos: { title: 'Productos e Insumos', icon: '🍹', subtitle: 'Catálogo de recetas compuestas y control de inventario' },
@@ -6574,9 +6575,9 @@
           title: 'Cotizaciones Próximas a Vencer',
           badge: quotesOverdue > 0 ? `${quotesOverdue} vencidas` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} por vencer` : 'Al día'),
           badgeClass: quotesOverdue > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : (quotesExpiringSoon > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'),
-          icon: 'â³',
+          icon: '⏳',
           desc: quotesOverdue > 0 ? `${quotesOverdue} cotizaciones requieren seguimiento comercial urgente.` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} cotizaciones vencen en los próximos 7 días.` : 'Todas las propuestas comerciales al día.'),
-          actionText: 'Ver Cotizaciones âž”',
+          actionText: 'Ver Cotizaciones ➔',
           action: () => {
             const el = document.getElementById('widget-expiring-quotes-dashboard');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -6586,27 +6587,27 @@
           title: 'Eventos Próximos (7 Días)',
           badge: upcomingEventsCount > 0 ? `${upcomingEventsCount} esta semana` : 'Sin eventos',
           badgeClass: upcomingEventsCount > 0 ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-          icon: 'ðŸ“…',
+          icon: '📅',
           desc: upcomingEventsCount > 0 ? `${upcomingEventsCount} celebraciones confirmadas en la agenda próxima.` : 'No hay eventos programados en los próximos 7 días.',
-          actionText: 'Ver Agenda âž”',
+          actionText: 'Ver Agenda ➔',
           action: () => switchView('agenda')
         },
         {
           title: 'Eventos Sin Cerrar',
           badge: unclosedEventsCount > 0 ? `${unclosedEventsCount} pendientes` : 'Al día',
           badgeClass: unclosedEventsCount > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-          icon: 'ðŸ',
+          icon: '🏁',
           desc: unclosedEventsCount > 0 ? `${unclosedEventsCount} eventos finalizados sin registrar costos reales ni liquidación.` : 'Todos los eventos pasados han sido auditados y cerrados.',
-          actionText: 'Liquidar Rentabilidad âž”',
+          actionText: 'Liquidar Rentabilidad ➔',
           action: () => switchView('rentabilidad')
         },
         {
           title: 'Compras & Insumos Pendientes',
           badge: pendingPurchasesCount > 0 ? `${pendingPurchasesCount} insumos` : 'Completo',
           badgeClass: pendingPurchasesCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-          icon: 'ðŸ›’',
+          icon: '🛒',
           desc: pendingPurchasesCount > 0 ? `Insumos necesarios para eventos aprobados pendientes por comprar.` : 'Insumos de eventos aprobados cubiertos o comprados.',
-          actionText: 'Ver Lista de Compras âž”',
+          actionText: 'Ver Lista de Compras ➔',
           action: () => {
             const approved = (state.savedQuotes || []).find(q => q.status === 'Aprobada');
             if (approved) openShoppingListModal(approved);
@@ -6617,18 +6618,18 @@
           title: 'Inventario Insuficiente (Agotado)',
           badge: lowStockCount > 0 ? `${lowStockCount} en cero` : 'Stock OK',
           badgeClass: lowStockCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-          icon: 'ðŸ“¦',
+          icon: '📦',
           desc: lowStockCount > 0 ? `${lowStockCount} insumos en bodega tienen existencia en cero.` : 'Existencias de insumos en bodega con stock disponible.',
-          actionText: 'Ir a Almacén âž”',
+          actionText: 'Ir a Almacén ➔',
           action: () => switchView('productos')
         },
         {
           title: 'Pagos y Saldos Pendientes',
           badge: pendingPaymentsCount > 0 ? `${formatCurrency(pendingPaymentsAmount)}` : 'Cobrado',
           badgeClass: pendingPaymentsCount > 0 ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-          icon: 'ðŸ’³',
+          icon: '💳',
           desc: pendingPaymentsCount > 0 ? `${pendingPaymentsCount} eventos confirmados con saldo pendiente de pago.` : 'Sin saldos pendientes en eventos confirmados.',
-          actionText: 'Ver Cobros âž”',
+          actionText: 'Ver Cobros ➔',
           action: () => switchView('historial')
         }
       ];
@@ -6710,7 +6711,7 @@
       if (filtered.length === 0) {
         const emptyMsg = `
           <div class="py-8 text-center text-slate-400 text-xs">
-            <span class="text-xl block mb-1">ðŸŽ‰</span>
+            <span class="text-xl block mb-1">🎉</span>
             No hay cotizaciones pendientes en este criterio de vencimiento.
           </div>
         `;
@@ -6724,13 +6725,13 @@
         tbody.innerHTML = filtered.map(q => {
           let badgeHtml = '';
           if (q.diffDays < 0) {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">ðŸ”´ Vencida (${Math.abs(q.diffDays)}d)</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">🔴 Vencida (${Math.abs(q.diffDays)}d)</span>`;
           } else if (q.diffDays === 0) {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 animate-pulse">ðŸ”´ Vence Hoy</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 animate-pulse">🔴 Vence Hoy</span>`;
           } else if (q.diffDays <= 3) {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200">ðŸŸ¡ En ${q.diffDays} días</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200">🟡 En ${q.diffDays} días</span>`;
           } else {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">ðŸŸ¢ En ${q.diffDays} días</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">🟢 En ${q.diffDays} días</span>`;
           }
 
           const statusColor = q.status === 'Aprobada' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
@@ -6741,7 +6742,7 @@
               <td class="py-3 px-3.5 font-bold font-mono text-blue-600 dark:text-blue-400">${q.number}</td>
               <td class="py-3 px-3.5">
                 <div class="font-bold text-slate-900 dark:text-white">${q.eventTitle}</div>
-                <div class="text-[11px] text-slate-500">${q.clientName} Â· ${q.guestsPax} Pax</div>
+                <div class="text-[11px] text-slate-500">${q.clientName} · ${q.guestsPax} Pax</div>
               </td>
               <td class="py-3 px-3.5 tabular-nums text-slate-700 dark:text-slate-300">${formatDateHuman(q.validUntil)}</td>
               <td class="py-3 px-3.5 text-center">${badgeHtml}</td>
@@ -6751,7 +6752,7 @@
               <td class="py-3 px-3.5 text-right font-extrabold text-slate-900 dark:text-white tabular-nums">${formatCurrency(q.total)}</td>
               <td class="py-3 px-3.5 text-right">
                 <button type="button" onclick="loadSavedQuoteIntoActiveQuoteById('${q.id}'); switchView('cotizador');" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-300 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer">
-                  <span>Abrir âž”</span>
+                  <span>Abrir ➔</span>
                 </button>
               </td>
             </tr>
@@ -6765,16 +6766,16 @@
           let badgeText = '';
           let badgeClass = '';
           if (q.diffDays < 0) {
-            badgeText = `ðŸ”´ Vencida hace ${Math.abs(q.diffDays)} días`;
+            badgeText = `🔴 Vencida hace ${Math.abs(q.diffDays)} días`;
             badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
           } else if (q.diffDays === 0) {
-            badgeText = 'ðŸ”´ Vence Hoy';
+            badgeText = '🔴 Vence Hoy';
             badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
           } else if (q.diffDays <= 3) {
-            badgeText = `ðŸŸ¡ Vence en ${q.diffDays} días`;
+            badgeText = `🟡 Vence en ${q.diffDays} días`;
             badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200';
           } else {
-            badgeText = `ðŸŸ¢ Vence en ${q.diffDays} días`;
+            badgeText = `🟢 Vence en ${q.diffDays} días`;
             badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200';
           }
 
@@ -6786,7 +6787,7 @@
               </div>
               <div>
                 <h4 class="font-bold text-slate-900 dark:text-white text-xs">${q.eventTitle}</h4>
-                <div class="text-[11px] text-slate-500 mt-0.5">${q.clientName} Â· ${q.guestsPax} Pax Â· Vence: <strong>${formatDateHuman(q.validUntil)}</strong></div>
+                <div class="text-[11px] text-slate-500 mt-0.5">${q.clientName} · ${q.guestsPax} Pax · Vence: <strong>${formatDateHuman(q.validUntil)}</strong></div>
               </div>
               <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
                 <span class="font-black text-slate-900 dark:text-white text-sm tabular-nums">${formatCurrency(q.total)}</span>
@@ -6826,7 +6827,7 @@
         const cl = (state.clients || []).find(c => c.id === q.clientId);
 
         let countdownBadge = '';
-        if (diffDays === 0) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white">Â¡Hoy!</span>`;
+        if (diffDays === 0) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white">¡Hoy!</span>`;
         else if (diffDays === 1) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-600 text-white">Mañana</span>`;
         else countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">En ${diffDays} días</span>`;
 
@@ -6839,14 +6840,14 @@
               </div>
               <div class="min-w-0">
                 <h4 class="font-bold text-slate-900 dark:text-white text-xs truncate">${q.eventTitle}</h4>
-                <div class="text-[11px] text-slate-500 truncate">${cl ? cl.name : 'Cliente'} Â· ${q.guestsPax} Pax Â· ${q.eventVenue || 'Locación'}</div>
+                <div class="text-[11px] text-slate-500 truncate">${cl ? cl.name : 'Cliente'} · ${q.guestsPax} Pax · ${q.eventVenue || 'Locación'}</div>
               </div>
             </div>
             <div class="text-right shrink-0">
               ${countdownBadge}
               <div class="mt-1">
                 <button type="button" onclick="openShoppingListModal('${q.id}')" class="text-[11px] text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer" title="Ver compras del evento">
-                  Compras âž”
+                  Compras ➔
                 </button>
               </div>
             </div>
@@ -6875,7 +6876,7 @@
               </div>
               <div class="min-w-0">
                 <p class="font-bold text-slate-900 dark:text-white truncate">${f.concept}</p>
-                <span class="text-[10px] text-slate-400">${formatDateHuman(f.date)} Â· ${f.category || ''}</span>
+                <span class="text-[10px] text-slate-400">${formatDateHuman(f.date)} · ${f.category || ''}</span>
               </div>
             </div>
             <div class="text-right font-black ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} tabular-nums shrink-0">
@@ -8625,7 +8626,7 @@ function generateSystemNotifications() {
         id: `notif-exp-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ Crítico',
+        badge: '🔴 Crítico',
         title: `Cotización ${q.number} VENCIDA`,
         message: `${q.eventTitle} (${clientName}) venció el ${formatDateHuman(q.validUntil)}. Requiere seguimiento comercial urgente.`,
         quoteId: q.id,
@@ -8636,7 +8637,7 @@ function generateSystemNotifications() {
         id: `notif-today-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ Crítico',
+        badge: '🔴 Crítico',
         title: `Cotización ${q.number} vence HOY`,
         message: `${q.eventTitle} (${clientName}) vence hoy. Contacta al cliente para confirmar el evento.`,
         quoteId: q.id,
@@ -8647,9 +8648,9 @@ function generateSystemNotifications() {
         id: `notif-tomorrow-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ Crítico',
-        title: `Cotización ${q.number} vence MAÃ‘ANA`,
-        message: `${q.eventTitle} (${clientName}) vence mañana (${formatDateHuman(q.validUntil)}). Ãšltimo día para acordar condiciones.`,
+        badge: '🔴 Crítico',
+        title: `Cotización ${q.number} vence MAÑANA`,
+        message: `${q.eventTitle} (${clientName}) vence mañana (${formatDateHuman(q.validUntil)}). Último día para acordar condiciones.`,
         quoteId: q.id,
         days: 1
       });
@@ -8658,7 +8659,7 @@ function generateSystemNotifications() {
         id: `notif-3d-${q.id}`,
         type: 'quote_expiring',
         severity: 'warning',
-        badge: 'ðŸŸ¡ Advertencia',
+        badge: '🟡 Advertencia',
         title: `Cotización ${q.number} vence en ${diffDays} días`,
         message: `${q.eventTitle} (${clientName}) vence el ${formatDateHuman(q.validUntil)}.`,
         quoteId: q.id,
@@ -8669,7 +8670,7 @@ function generateSystemNotifications() {
         id: `notif-7d-${q.id}`,
         type: 'quote_expiring',
         severity: 'info',
-        badge: 'ðŸŸ¢ Informativo',
+        badge: '🟢 Informativo',
         title: `Cotización ${q.number} activa`,
         message: `${q.eventTitle} (${clientName}) vence en ${diffDays} días.`,
         quoteId: q.id,
@@ -8693,8 +8694,8 @@ function generateSystemNotifications() {
         id: `notif-event-${q.id}`,
         type: 'event_upcoming',
         severity: isCrit ? 'critical' : 'warning',
-        badge: isCrit ? 'ðŸ”´ Crítico' : 'ðŸŸ¡ Advertencia',
-        title: diffDays === 0 ? `ðŸŽ‰ Evento HOY: ${q.eventTitle}` : `ðŸ“… Evento en ${diffDays}d: ${q.eventTitle}`,
+        badge: isCrit ? '🔴 Crítico' : '🟡 Advertencia',
+        title: diffDays === 0 ? `🎉 Evento HOY: ${q.eventTitle}` : `📅 Evento en ${diffDays}d: ${q.eventTitle}`,
         message: `${q.guestsPax} Pax en ${q.eventVenue || 'locación'} (${clientName}). Verifica insumos y personal.`,
         quoteId: q.id,
         days: diffDays
@@ -8709,7 +8710,7 @@ function generateSystemNotifications() {
           id: `notif-unclosed-${q.id}`,
           type: 'unclosed_event',
           severity: 'warning',
-          badge: 'ðŸŸ¡ Advertencia',
+          badge: '🟡 Advertencia',
           title: `Cierre pendiente: ${q.eventTitle}`,
           message: `Evento finalizó hace ${Math.abs(diffDays)} días. Registra costos reales, compras extras y liquida.`,
           quoteId: q.id,
@@ -8728,7 +8729,7 @@ function generateSystemNotifications() {
         id: `notif-payment-${q.id}`,
         type: 'pending_payment',
         severity: diffDays <= 2 ? 'critical' : 'warning',
-        badge: diffDays <= 2 ? 'ðŸ”´ Crítico' : 'ðŸŸ¡ Advertencia',
+        badge: diffDays <= 2 ? '🔴 Crítico' : '🟡 Advertencia',
         title: `Saldo por cobrar: ${formatCurrency(saldo)}`,
         message: `${q.eventTitle} (${clientName}) tiene saldo pendiente de cobro antes de la entrega.`,
         quoteId: q.id
@@ -8743,7 +8744,7 @@ function generateSystemNotifications() {
         id: `notif-stock-${p.id}`,
         type: 'low_stock',
         severity: 'critical',
-        badge: 'ðŸ”´ Crítico',
+        badge: '🔴 Crítico',
         title: `Insumo agotado: ${p.name}`,
         message: `Existencia en 0 ${p.unit}. Reabastecer en bodega para evitar faltantes en eventos.`,
         productId: p.id
@@ -9209,7 +9210,7 @@ function openAgendaEventDetails(quoteId) {
   today.setHours(0,0,0,0);
   const diffDays = Math.round((eventDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-  let daysText = diffDays === 0 ? 'Â¡Hoy es el evento!' : (diffDays > 0 ? `Faltan ${diffDays} días` : `Finalizó hace ${Math.abs(diffDays)} días`);
+  let daysText = diffDays === 0 ? '¡Hoy es el evento!' : (diffDays > 0 ? `Faltan ${diffDays} días` : `Finalizó hace ${Math.abs(diffDays)} días`);
 
   // Status badge styling
   let statusBadgeClass = 'bg-slate-100 text-slate-700';
@@ -9587,9 +9588,9 @@ function toggleShopItemPurchased(idx) {
 
       container.innerHTML = `
         <div style="border-bottom: 2px solid #2563EB; padding-bottom: 12px; margin-bottom: 16px;">
-          <h1 style="font-size: 20px; font-weight: 800; color: #2563EB; margin: 0;">LISTA DE COMPRAS E INSUMOS â€” XANDER PRO</h1>
+          <h1 style="font-size: 20px; font-weight: 800; color: #2563EB; margin: 0;">LISTA DE COMPRAS E INSUMOS — XANDER PRO</h1>
           <p style="font-size: 13px; font-weight: 600; color: #334155; margin: 4px 0 0 0;">${q.eventTitle} (${q.quoteNumber})</p>
-          <p style="font-size: 11px; color: #64748B; margin: 2px 0 0 0;">Generado: ${new Date().toLocaleDateString('es-CO')} Â· Estado: ${purchasedCount}/${items.length} insumos comprados</p>
+          <p style="font-size: 11px; color: #64748B; margin: 2px 0 0 0;">Generado: ${new Date().toLocaleDateString('es-CO')} · Estado: ${purchasedCount}/${items.length} insumos comprados</p>
         </div>
 
         <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px;">
@@ -9606,7 +9607,7 @@ function toggleShopItemPurchased(idx) {
           <tbody>
             ${items.map(it => `
               <tr style="border-bottom: 1px solid #E2E8F0;">
-                <td style="padding: 8px;">${it.isPurchased ? 'â˜‘ Comprado' : 'â˜ Pendiente'}</td>
+                <td style="padding: 8px;">${it.isPurchased ? '☑ Comprado' : '☐ Pendiente'}</td>
                 <td style="padding: 8px; font-weight: bold;">${it.name}</td>
                 <td style="padding: 8px; text-align: center;">${it.required.toFixed(1)} ${it.unit}</td>
                 <td style="padding: 8px; text-align: center;">${it.stock.toFixed(1)} ${it.unit}</td>
@@ -9636,7 +9637,7 @@ function toggleShopItemPurchased(idx) {
         };
         html2pdf().set(opt).from(container).save().then(() => {
           document.body.removeChild(container);
-          showToast('âœ… PDF de lista de compras generado');
+          showToast('✅ PDF de lista de compras generado');
         }).catch(() => {
           document.body.removeChild(container);
           window.print();
@@ -10689,6 +10690,8 @@ function closeClientHistoryModal() {
 function closeEditClientModal() {
   document.getElementById('modal-edit-client')?.classList.add('hidden');
 }
+
+function updateClientInfoDisplay() { try { saveState(); } catch (e) {} if (typeof renderQuoteEditorAndPdf === 'function') renderQuoteEditorAndPdf(); }
 
 function createQuoteForClient(clientId) {
   const client = state.clients.find(c => c.id === clientId);
