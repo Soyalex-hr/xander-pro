@@ -27,11 +27,56 @@
         extend: {
           colors: {
             brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca'
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            },
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            },
+            success: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d'
+            },
+            warning: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309'
+            },
+            danger: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c'
+            },
+            info: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1'
             }
           }
         }
@@ -592,8 +637,21 @@
 
     <!-- Navigation List (Scrollable) -->
     <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden" aria-label="Navegación del Dashboard">
+      <!-- 0. Dashboard Operativo -->
+      <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-left cursor-pointer bg-blue-600 text-white shadow-sm font-bold" title="Dashboard Operativo">
+        <div class="w-9 h-9 rounded-lg bg-white/20 text-white flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">âš¡</div>
+        <div class="sidebar-text flex-1 min-w-0">
+          <div class="text-xs font-bold truncate">Dashboard</div>
+          <div class="text-[10px] opacity-80 truncate">Panel general &amp; KPIs</div>
+        </div>
+      </button>
+
       <!-- 1. Cotizador -->
-      <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/30 font-bold" title="Cotizador y PDF">
+      <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer">
+      <span class="text-lg">âš¡</span>
+      <span class="text-[10px] tracking-tight font-medium">Inicio</span>
+    </button>
+    <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/30 font-bold" title="Cotizador y PDF">
         <div class="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">📋</div>
         <div class="sidebar-text flex-1 min-w-0">
           <div class="text-xs font-bold truncate">Cotizador y PDF</div>
@@ -832,44 +890,231 @@
     <!-- ==========================================
          VIEW 1: COTIZADOR A PANTALLA COMPLETA + VISTA PREVIA FINAL
          ========================================== -->
-    <section id="view-cotizador" class="space-y-6">
-      <!-- MODULE 5: WIDGET DE COTIZACIONES PROXIMAS A VENCER -->
-      <div id="widget-expiring-quotes" class="no-print bg-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-slate-800 space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <!-- ==========================================
+         VIEW 0: DASHBOARD OPERATIVO EJECUTIVO (INICIO)
+         ========================================== -->
+    <section id="view-dashboard" class="space-y-6">
+      <!-- 1. Executive Greeting & Quick Action Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-800 relative overflow-hidden">
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div class="space-y-1.5">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-400/30">
+              <span id="dash-greeting-time-icon">â˜€ï¸</span>
+              <span id="dash-current-date-text">Cargando fecha...</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight" id="dash-greeting-title">
+              Buenos dÃ­as, Alexander.
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-2xl" id="dash-greeting-subtitle">
+              Panel de control operativo: cotizaciones, eventos programados, compras de insumos y balance financiero.
+            </p>
+          </div>
+
+          <!-- Quick Action Buttons Bar -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="switchView('cotizador')" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-2 cursor-pointer">
+              <span>+</span> Nueva CotizaciÃ³n
+            </button>
+            <button type="button" onclick="switchView('agenda')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span>ðŸ“…</span> Agenda
+            </button>
+            <button type="button" onclick="switchView('clientes')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span>ðŸ‘¥</span> Clientes
+            </button>
+            <button type="button" onclick="document.getElementById('btn-new-income')?.click(); switchView('finanzas');" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span>ðŸ’°</span> Finanzas
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. KPI Executive Indicators Grid (6 Cards) -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <!-- KPI 1: Cotizaciones Activas -->
+        <div onclick="switchView('historial')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cotizaciones</span>
+            <span class="text-base">ðŸ“‹</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 tabular-nums" id="dash-kpi-active-quotes">0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-active-quotes-val">Valor: $ 0</div>
+        </div>
+
+        <!-- KPI 2: Eventos Programados -->
+        <div onclick="switchView('agenda')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Eventos</span>
+            <span class="text-base">ðŸŽ‰</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 tabular-nums" id="dash-kpi-scheduled-events">0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-scheduled-pax">0 Pax confirmados</div>
+        </div>
+
+        <!-- KPI 3: Balance del Mes -->
+        <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance Mes</span>
+            <span class="text-base">ðŸ’°</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1.5 tabular-nums" id="dash-kpi-month-balance">$ 0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-month-flow">Ingresos vs Egresos</div>
+        </div>
+
+        <!-- KPI 4: Ganancia Estimada -->
+        <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Est.</span>
+            <span class="text-base">ðŸ“ˆ</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5 tabular-nums" id="dash-kpi-est-profit">$ 0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5">Eventos en curso</div>
+        </div>
+
+        <!-- KPI 5: Ganancia Real (Cierres) -->
+        <div onclick="switchView('rentabilidad')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Real</span>
+            <span class="text-base">ðŸ</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1.5 tabular-nums" id="dash-kpi-real-profit">$ 0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-closed-count">0 eventos liquidados</div>
+        </div>
+
+        <!-- KPI 6: Alertas Pendientes -->
+        <div onclick="toggleNotificationsPopover()" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-rose-600 transition">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Alertas</span>
+            <span class="text-base">ðŸ””</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1.5 tabular-nums" id="dash-kpi-pending-alerts">0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-critical-alerts">0 crÃ­ticas</div>
+        </div>
+      </div>
+
+      <!-- 3. MÃ“DULO CENTRAL: ACCIONES PENDIENTES (Requirement 4) -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="p-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm font-bold">âš¡</span>
+              <h2 class="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Acciones Pendientes</h2>
+              <span id="dash-actions-badge-total" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">0 tareas</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Control operativo en tiempo real: vencimientos, compras por hacer, eventos sin liquidar y pagos por cobrar.
+            </p>
+          </div>
           <div class="flex items-center gap-2">
-            <span class="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400 text-lg">&#9203;</span>
-            <div>
-              <h3 class="text-sm sm:text-base font-black tracking-tight">Seguimiento de Cotizaciones Pr&oacute;ximas a Vencer</h3>
-              <p class="text-[11px] text-slate-400">Atiende a tiempo las cotizaciones pendientes antes de que expiren.</p>
+            <button type="button" onclick="renderDashboard()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer">
+              <span>ðŸ”„</span> Actualizar
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Cards Grid (6 Categories) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="dash-pending-actions-grid">
+          <!-- Rendered dynamically by updatePendingActions() -->
+        </div>
+      </div>
+
+      <!-- 4. WIDGET DE COTIZACIONES PRÃ“XIMAS A VENCER (Requirement 6) -->
+      <div id="widget-expiring-quotes-dashboard" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-lg">â³</span>
+              <div>
+                <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Seguimiento de Cotizaciones PrÃ³ximas a Vencer</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Atiende a tiempo las cotizaciones pendientes antes de que expiren.</p>
+              </div>
             </div>
           </div>
           <!-- 3 Urgency Filters / Badges -->
           <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" onclick="filterQuotesByUrgency('today')" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>&#128308; Vencen Hoy / Vencidas:</span>
-              <span id="widget-count-today" class="bg-rose-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
+            <button type="button" id="btn-dash-urgency-today" onclick="filterDashboardUrgency('today')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+              <span>ðŸ”´ Vencen Hoy / Vencidas:</span>
+              <span id="dash-count-today" class="bg-rose-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
-            <button type="button" onclick="filterQuotesByUrgency('3days')" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>&#128993; En 3 D&iacute;as:</span>
-              <span id="widget-count-3days" class="bg-amber-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
+            <button type="button" id="btn-dash-urgency-3days" onclick="filterDashboardUrgency('3days')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+              <span>ðŸŸ¡ En 3 DÃ­as:</span>
+              <span id="dash-count-3days" class="bg-amber-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
-            <button type="button" onclick="filterQuotesByUrgency('7days')" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>&#128994; En 7 D&iacute;as:</span>
-              <span id="widget-count-7days" class="bg-emerald-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
+            <button type="button" id="btn-dash-urgency-7days" onclick="filterDashboardUrgency('7days')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+              <span>ðŸŸ¢ En 7 DÃ­as:</span>
+              <span id="dash-count-7days" class="bg-emerald-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
+            </button>
+            <button type="button" id="btn-dash-urgency-all" onclick="filterDashboardUrgency('all')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition cursor-pointer ring-2 ring-blue-500">
+              Todas
             </button>
           </div>
         </div>
-        <!-- Quick Table / Drawer (Expandable) -->
-        <div id="widget-expiring-list-container" class="hidden pt-3 border-t border-slate-800 space-y-2">
-          <div class="flex items-center justify-between text-xs">
-            <span id="widget-expiring-title" class="font-bold text-indigo-300">Cotizaciones seleccionadas:</span>
-            <button type="button" onclick="document.getElementById('widget-expiring-list-container').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs cursor-pointer">Ocultar âœ•</button>
+
+        <!-- Summary Table (Desktop) / Cards (Mobile) -->
+        <div class="overflow-hidden border border-slate-200/80 dark:border-slate-800 rounded-xl">
+          <!-- Desktop Table -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold">
+                  <th class="py-2.5 px-3.5">NÃºmero</th>
+                  <th class="py-2.5 px-3.5">Cliente & Evento</th>
+                  <th class="py-2.5 px-3.5">Vencimiento</th>
+                  <th class="py-2.5 px-3.5 text-center">DÃ­as Restantes</th>
+                  <th class="py-2.5 px-3.5 text-center">Estado</th>
+                  <th class="py-2.5 px-3.5 text-right">Total</th>
+                  <th class="py-2.5 px-3.5 text-right">AcciÃ³n</th>
+                </tr>
+              </thead>
+              <tbody id="dash-expiring-table-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
           </div>
-          <div id="widget-expiring-tbody" class="space-y-2 max-h-60 overflow-y-auto">
-            <!-- Rendered by filterQuotesByUrgency() -->
+          <!-- Mobile Cards -->
+          <div id="dash-expiring-mobile-cards" class="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
+
+      <!-- 5. Bottom Section: Upcoming Events Preview + Recent Cash Flow -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <!-- Upcoming Events Preview -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>ðŸŽ‰</span> PrÃ³ximos Eventos Confirmados
+            </h3>
+            <button type="button" onclick="switchView('agenda')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
+              Ver Agenda Completa âž”
+            </button>
+          </div>
+          <div id="dash-upcoming-events-list" class="space-y-2.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Recent Financial Activity -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>ðŸ’µ</span> Movimientos Financieros Recientes
+            </h3>
+            <button type="button" onclick="switchView('finanzas')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
+              Flujo de Caja âž”
+            </button>
+          </div>
+          <div id="dash-recent-finances-list" class="space-y-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 1: COTIZADOR A PANTALLA COMPLETA + VISTA PREVIA FINAL
+         ========================================== -->
+    <section id="view-cotizador" class="hidden space-y-6">
       <!-- Top Intuitive Stepper & Live Summary Bar -->
       <div class="no-print bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-3">
@@ -1511,12 +1756,13 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Desktop Table (md+) -->
+      <div class="hidden md:block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                <th class="py-3 px-4">N° Cotización</th>
+              <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
+                <th class="py-3 px-4">NÂ° CotizaciÃ³n</th>
                 <th class="py-3 px-4">Evento y Cliente</th>
                 <th class="py-3 px-4 text-center">Invitados (Pax)</th>
                 <th class="py-3 px-4">Fecha Evento</th>
@@ -1526,9 +1772,14 @@
                 <th class="py-3 px-4 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody id="saved-quotes-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+            <tbody id="saved-quotes-tbody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Mobile Touch Cards (< md) -->
+      <div id="saved-quotes-mobile-cards" class="md:hidden space-y-3">
+        <!-- Rendered dynamically -->
       </div>
     </section>
 
@@ -2340,6 +2591,10 @@
 
   <!-- Fixed Bottom Navigation Bar (Mobile only, < 768px) -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around shadow-2xl no-print" aria-label="Navegación móvil rápida">
+    <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer">
+      <span class="text-lg">âš¡</span>
+      <span class="text-[10px] tracking-tight font-medium">Inicio</span>
+    </button>
     <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-indigo-600 dark:text-indigo-400 font-bold scale-105 cursor-pointer">
       <span class="text-lg">📋</span>
       <span class="text-[10px] tracking-tight">Cotizar</span>
@@ -3096,6 +3351,9 @@
           <button type="button" onclick="printShoppingList()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold transition hidden sm:inline-flex items-center gap-1">
             🖨️ Imprimir
           </button>
+          <button type="button" onclick="downloadShoppingListPDF()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+            <span>ðŸ“„</span> PDF
+          </button>
           <button type="button" onclick="exportShoppingListCSV()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold transition flex items-center gap-1">
             📥 Excel
           </button>
@@ -3462,8 +3720,61 @@
 
     function formatCurrency(val) {
       const n = Number(val) || 0;
-      return '$' + Math.round(n).toLocaleString('es-CO');
+      return '$ ' + Math.round(n).toLocaleString('es-CO');
     }
+
+    function formatQty(val, unit = '') {
+      const n = Number(val) || 0;
+      const formatted = n.toLocaleString('es-CO', { maximumFractionDigits: 2 });
+      return unit ? `${formatted} ${unit}` : formatted;
+    }
+
+    // High Performance IndexedDB Storage Engine
+    const XanderDB = {
+      dbName: 'XanderProDB',
+      storeName: 'app_state',
+      db: null,
+      init() {
+        return new Promise((resolve) => {
+          if (!window.indexedDB) { resolve(null); return; }
+          try {
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = (e) => {
+              const db = e.target.result;
+              if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName);
+              }
+            };
+            req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+            req.onerror = () => resolve(null);
+          } catch(e) { resolve(null); }
+        });
+      },
+      async get(key) {
+        if (!this.db) await this.init();
+        if (!this.db) return null;
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction([this.storeName], 'readonly');
+            const req = tx.objectStore(this.storeName).get(key);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+          } catch(e) { resolve(null); }
+        });
+      },
+      async set(key, val) {
+        if (!this.db) await this.init();
+        if (!this.db) return false;
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction([this.storeName], 'readwrite');
+            const req = tx.objectStore(this.storeName).put(val, key);
+            req.onsuccess = () => resolve(true);
+            req.onerror = () => resolve(false);
+          } catch(e) { resolve(false); }
+        });
+      }
+    };
 
     function formatDateHuman(isoDate) {
       if (!isoDate) return '—';
@@ -3790,8 +4101,9 @@
     function saveState() {
       try {
         localStorage.setItem('xander_pro_state_v1', JSON.stringify(state));
-      } catch (err) {
-        // Ignore storage errors in sandboxed iframes
+      } catch (err) {}
+      if (typeof XanderDB !== 'undefined') {
+        XanderDB.set('main_state', state).catch(() => {});
       }
     }
 
@@ -5815,6 +6127,7 @@
     }
 
     const viewTitles = {
+      dashboard: { title: 'Dashboard Operativo', icon: 'âš¡', subtitle: 'Panel de control ejecutivo, KPIs en vivo y acciones pendientes' },
       cotizador: { title: 'Cotizador y PDF', icon: '📋', subtitle: 'Presupuesto dinámico por Pax, montaje y exportación PDF' },
       historial: { title: 'Cotizaciones Guardadas', icon: '🗂️', subtitle: 'Historial comercial, seguimiento y estados de eventos' },
       productos: { title: 'Productos e Insumos', icon: '🍹', subtitle: 'Catálogo de recetas compuestas y control de inventario' },
@@ -5835,14 +6148,14 @@
     };
 
     function switchView(viewName) {
-      const views = ['cotizador', 'historial', 'productos', 'simulador', 'clientes', 'finanzas', 'empresa', 'agenda', 'rentabilidad'];
+      const views = ['dashboard', 'cotizador', 'historial', 'productos', 'simulador', 'clientes', 'finanzas', 'empresa', 'agenda', 'rentabilidad'];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.classList.toggle('hidden', v !== viewName);
       });
 
       // Update Header Breadcrumb Title & Icon
-      const viewInfo = viewTitles[viewName] || viewTitles.cotizador;
+      const viewInfo = viewTitles[viewName] || viewTitles.dashboard;
       const hIcon = document.getElementById('header-active-view-icon');
       const hTitle = document.getElementById('header-active-view-title');
       const hSub = document.getElementById('header-active-view-sub');
@@ -5868,6 +6181,7 @@
 
       closeMobileSidebar();
 
+      if (viewName === 'dashboard') renderDashboard();
       if (viewName === 'productos') renderProductsCatalog();
       if (viewName === 'simulador') {
         populateRecipeSimulator();
@@ -5895,6 +6209,532 @@
         populatePickerProducts();
         renderQuoteEditorAndPdf();
       }
+    }
+
+    
+    // =========================================================================
+    // EXECUTIVE DASHBOARD LOGIC (MODULE 4 & 6)
+    // =========================================================================
+    let currentDashboardUrgency = 'all';
+
+    function filterDashboardUrgency(urgency) {
+      currentDashboardUrgency = urgency;
+      ['today', '3days', '7days', 'all'].forEach(u => {
+        const btn = document.getElementById(`btn-dash-urgency-${u}`);
+        if (btn) {
+          if (u === urgency) {
+            btn.classList.add('ring-2', 'ring-blue-500', 'font-black');
+          } else {
+            btn.classList.remove('ring-2', 'ring-blue-500', 'font-black');
+          }
+        }
+      
+      renderDashboard();
+      switchView('dashboard');
+    });
+      renderDashboardExpiringWidget();
+    }
+
+    function renderDashboard() {
+      // 1. Dynamic Greeting
+      const hour = new Date().getHours();
+      let greeting = 'Buenos dÃ­as';
+      let greetingIcon = 'â˜€ï¸';
+      if (hour >= 12 && hour < 18) {
+        greeting = 'Buenas tardes';
+        greetingIcon = 'ðŸŒ¤ï¸';
+      } else if (hour >= 18 || hour < 5) {
+        greeting = 'Buenas noches';
+        greetingIcon = 'ðŸŒ™';
+      }
+      const userName = (state.auth && state.auth.user) ? (state.auth.user === 'admin' ? 'Alexander' : state.auth.user) : 'Alexander';
+      const greetingTitle = document.getElementById('dash-greeting-title');
+      if (greetingTitle) greetingTitle.textContent = `${greeting}, ${userName}.`;
+
+      const timeIcon = document.getElementById('dash-greeting-time-icon');
+      if (timeIcon) timeIcon.textContent = greetingIcon;
+
+      const dateEl = document.getElementById('dash-current-date-text');
+      if (dateEl) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = new Date().toLocaleDateString('es-CO', options);
+        dateEl.textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+      }
+
+      // 2. Compute KPIs
+      const saved = state.savedQuotes || [];
+      const activeQuotes = saved.filter(q => q.status === 'Borrador' || q.status === 'Enviada');
+      const activeQuotesVal = activeQuotes.reduce((sum, q) => sum + (Number(q.total) || 0), 0);
+      
+      const approvedQuotes = saved.filter(q => q.status === 'Aprobada');
+      const scheduledPax = approvedQuotes.reduce((sum, q) => sum + (Number(q.guestsPax) || 0), 0);
+
+      // Month cash balance
+      const now = new Date();
+      const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const finances = state.finances || [];
+      const monthFinances = finances.filter(f => (f.date || '').startsWith(currentMonthStr));
+      const monthInc = monthFinances.filter(f => f.type === 'ingreso').reduce((s, f) => s + (Number(f.amount) || 0), 0);
+      const monthExp = monthFinances.filter(f => f.type === 'egreso').reduce((s, f) => s + (Number(f.amount) || 0), 0);
+      const monthBalance = monthInc - monthExp;
+
+      // Estimated profit (projected margin of approved/active quotes)
+      const estProfit = approvedQuotes.reduce((sum, q) => {
+        const cost = (q.items || []).reduce((cSum, it) => cSum + (Number(it.costTotal) || ((Number(it.costUnit) || 0) * (Number(it.qty) || 1))), 0);
+        return sum + Math.max(0, (Number(q.total) || 0) - cost);
+      }, 0);
+
+      // Real liquidated profit from event closures
+      const closures = state.eventClosures || [];
+      const realProfit = closures.reduce((sum, c) => sum + (Number(c.realProfit) || 0), 0);
+
+      // Notifications
+      const notifs = generateSystemNotifications();
+      const dismissed = JSON.parse(localStorage.getItem('eq_dismissed_notifs') || '[]');
+      const activeNotifs = notifs.filter(n => !dismissed.includes(n.id));
+      const criticalNotifs = activeNotifs.filter(n => n.severity === 'critical');
+
+      // DOM update KPIs
+      const kpiActive = document.getElementById('dash-kpi-active-quotes');
+      const kpiActiveVal = document.getElementById('dash-kpi-active-quotes-val');
+      if (kpiActive) kpiActive.textContent = activeQuotes.length;
+      if (kpiActiveVal) kpiActiveVal.textContent = `Valor: ${formatCurrency(activeQuotesVal)}`;
+
+      const kpiEvents = document.getElementById('dash-kpi-scheduled-events');
+      const kpiPax = document.getElementById('dash-kpi-scheduled-pax');
+      if (kpiEvents) kpiEvents.textContent = approvedQuotes.length;
+      if (kpiPax) kpiPax.textContent = `${scheduledPax} Pax confirmados`;
+
+      const kpiBal = document.getElementById('dash-kpi-month-balance');
+      const kpiFlow = document.getElementById('dash-kpi-month-flow');
+      if (kpiBal) kpiBal.textContent = formatCurrency(monthBalance);
+      if (kpiFlow) kpiFlow.textContent = `+${formatCurrency(monthInc)} / -${formatCurrency(monthExp)}`;
+
+      const kpiEst = document.getElementById('dash-kpi-est-profit');
+      if (kpiEst) kpiEst.textContent = formatCurrency(estProfit);
+
+      const kpiReal = document.getElementById('dash-kpi-real-profit');
+      const kpiClosed = document.getElementById('dash-kpi-closed-count');
+      if (kpiReal) kpiReal.textContent = formatCurrency(realProfit);
+      if (kpiClosed) kpiClosed.textContent = `${closures.length} eventos liquidados`;
+
+      const kpiAlerts = document.getElementById('dash-kpi-pending-alerts');
+      const kpiCrit = document.getElementById('dash-kpi-critical-alerts');
+      if (kpiAlerts) kpiAlerts.textContent = activeNotifs.length;
+      if (kpiCrit) kpiCrit.textContent = `${criticalNotifs.length} crÃ­ticas`;
+
+      // 3. Render Central Module: ACCIONES PENDIENTES
+      updatePendingActions(notifs);
+
+      // 4. Render Expiring Quotes Widget in Dashboard
+      renderDashboardExpiringWidget();
+
+      // 5. Render Upcoming Events
+      renderDashboardUpcomingEvents();
+
+      // 6. Render Recent Financial Activity
+      renderDashboardRecentFinances();
+    }
+
+    function updatePendingActions(notifs) {
+      const container = document.getElementById('dash-pending-actions-grid');
+      const totalBadge = document.getElementById('dash-actions-badge-total');
+      if (!container) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // 1. Cotizaciones vencidas & prÃ³ximas a vencer
+      const quotes = state.savedQuotes || [];
+      let quotesOverdue = 0;
+      let quotesExpiringSoon = 0;
+      quotes.forEach(q => {
+        if (q.status === 'Rechazada' || q.status === 'Cancelada' || q.status === 'Aprobada') return;
+        const vDate = new Date(q.validUntil + 'T00:00:00');
+        const diffDays = Math.round((vDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) quotesOverdue++;
+        else if (diffDays <= 7) quotesExpiringSoon++;
+      });
+
+      // 2. Eventos prÃ³ximos (en 7 dÃ­as)
+      let upcomingEventsCount = 0;
+      quotes.forEach(q => {
+        if (q.status !== 'Aprobada') return;
+        const eDate = new Date(q.eventDate + 'T00:00:00');
+        const diffDays = Math.round((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 0 && diffDays <= 7) upcomingEventsCount++;
+      });
+
+      // 3. Eventos sin cerrar
+      let unclosedEventsCount = 0;
+      quotes.forEach(q => {
+        if (q.status !== 'Aprobada') return;
+        const eDate = new Date(q.eventDate + 'T00:00:00');
+        const diffDays = Math.round((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) {
+          const isClosed = (state.eventClosures || []).some(cl => cl.quoteId === q.id);
+          if (!isClosed) unclosedEventsCount++;
+        }
+      });
+
+      // 4. Compras pendientes
+      let pendingPurchasesCount = 0;
+      quotes.filter(q => q.status === 'Aprobada').forEach(q => {
+        const listState = (state.shoppingLists || {})[q.id] || {};
+        (q.items || []).forEach(it => {
+          const p = (state.products || []).find(prod => prod.id === it.productId);
+          if (it.isRecipe && p && Array.isArray(p.ingredients)) {
+            p.ingredients.forEach(ing => {
+              if (!listState[ing.productId]) pendingPurchasesCount++;
+            });
+          }
+        });
+      });
+
+      // 5. Inventario insuficiente
+      let lowStockCount = 0;
+      (state.products || []).forEach(p => {
+        if (p.trackStock && Number(p.stock) <= 0) lowStockCount++;
+      });
+
+      // 6. Pagos pendientes (Aprobadas con saldo por cobrar)
+      let pendingPaymentsCount = 0;
+      let pendingPaymentsAmount = 0;
+      quotes.filter(q => q.status === 'Aprobada').forEach(q => {
+        const total = Number(q.total) || 0;
+        const depositPct = Number(q.depositPct) || 50;
+        const anticipo = Math.round(total * (depositPct / 100));
+        const saldo = total - anticipo;
+        if (saldo > 0) {
+          pendingPaymentsCount++;
+          pendingPaymentsAmount += saldo;
+        }
+      });
+
+      const totalActiveTasks = (quotesOverdue + quotesExpiringSoon > 0 ? 1 : 0) +
+                               (upcomingEventsCount > 0 ? 1 : 0) +
+                               (unclosedEventsCount > 0 ? 1 : 0) +
+                               (pendingPurchasesCount > 0 ? 1 : 0) +
+                               (lowStockCount > 0 ? 1 : 0) +
+                               (pendingPaymentsCount > 0 ? 1 : 0);
+
+      if (totalBadge) totalBadge.textContent = `${totalActiveTasks} categorÃ­as activas`;
+
+      const cards = [
+        {
+          title: 'Cotizaciones PrÃ³ximas a Vencer',
+          badge: quotesOverdue > 0 ? `${quotesOverdue} vencidas` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} por vencer` : 'Al dÃ­a'),
+          badgeClass: quotesOverdue > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : (quotesExpiringSoon > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'),
+          icon: 'â³',
+          desc: quotesOverdue > 0 ? `${quotesOverdue} cotizaciones requieren seguimiento comercial urgente.` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} cotizaciones vencen en los prÃ³ximos 7 dÃ­as.` : 'Todas las propuestas comerciales al dÃ­a.'),
+          actionText: 'Ver Cotizaciones âž”',
+          action: () => {
+            const el = document.getElementById('widget-expiring-quotes-dashboard');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }
+        },
+        {
+          title: 'Eventos PrÃ³ximos (7 DÃ­as)',
+          badge: upcomingEventsCount > 0 ? `${upcomingEventsCount} esta semana` : 'Sin eventos',
+          badgeClass: upcomingEventsCount > 0 ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+          icon: 'ðŸ“…',
+          desc: upcomingEventsCount > 0 ? `${upcomingEventsCount} celebraciones confirmadas en la agenda prÃ³xima.` : 'No hay eventos programados en los prÃ³ximos 7 dÃ­as.',
+          actionText: 'Ver Agenda âž”',
+          action: () => switchView('agenda')
+        },
+        {
+          title: 'Eventos Sin Cerrar',
+          badge: unclosedEventsCount > 0 ? `${unclosedEventsCount} pendientes` : 'Al dÃ­a',
+          badgeClass: unclosedEventsCount > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+          icon: 'ðŸ',
+          desc: unclosedEventsCount > 0 ? `${unclosedEventsCount} eventos finalizados sin registrar costos reales ni liquidaciÃ³n.` : 'Todos los eventos pasados han sido auditados y cerrados.',
+          actionText: 'Liquidar Rentabilidad âž”',
+          action: () => switchView('rentabilidad')
+        },
+        {
+          title: 'Compras & Insumos Pendientes',
+          badge: pendingPurchasesCount > 0 ? `${pendingPurchasesCount} insumos` : 'Completo',
+          badgeClass: pendingPurchasesCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+          icon: 'ðŸ›’',
+          desc: pendingPurchasesCount > 0 ? `Insumos necesarios para eventos aprobados pendientes por comprar.` : 'Insumos de eventos aprobados cubiertos o comprados.',
+          actionText: 'Ver Lista de Compras âž”',
+          action: () => {
+            const approved = (state.savedQuotes || []).find(q => q.status === 'Aprobada');
+            if (approved) openShoppingListModal(approved);
+            else showToast('No hay eventos aprobados activos para lista de compras');
+          }
+        },
+        {
+          title: 'Inventario Insuficiente (Agotado)',
+          badge: lowStockCount > 0 ? `${lowStockCount} en cero` : 'Stock OK',
+          badgeClass: lowStockCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+          icon: 'ðŸ“¦',
+          desc: lowStockCount > 0 ? `${lowStockCount} insumos en bodega tienen existencia en cero.` : 'Existencias de insumos en bodega con stock disponible.',
+          actionText: 'Ir a AlmacÃ©n âž”',
+          action: () => switchView('productos')
+        },
+        {
+          title: 'Pagos y Saldos Pendientes',
+          badge: pendingPaymentsCount > 0 ? `${formatCurrency(pendingPaymentsAmount)}` : 'Cobrado',
+          badgeClass: pendingPaymentsCount > 0 ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+          icon: 'ðŸ’³',
+          desc: pendingPaymentsCount > 0 ? `${pendingPaymentsCount} eventos confirmados con saldo pendiente de pago.` : 'Sin saldos pendientes en eventos confirmados.',
+          actionText: 'Ver Cobros âž”',
+          action: () => switchView('historial')
+        }
+      ];
+
+      container.innerHTML = cards.map((c, idx) => `
+        <div class="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-blue-400 dark:hover:border-blue-600 transition flex flex-col justify-between space-y-3 group">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-lg p-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-xs">${c.icon}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${c.badgeClass}">${c.badge}</span>
+            </div>
+            <h4 class="font-extrabold text-sm text-slate-900 dark:text-white mt-2">${c.title}</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${c.desc}</p>
+          </div>
+          <button type="button" onclick="dashActionHandler(${idx})" class="w-full py-2 px-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950 text-blue-600 dark:text-blue-400 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer">
+            ${c.actionText}
+          </button>
+        </div>
+      `).join('');
+
+      window._dashActionCallbacks = cards.map(c => c.action);
+    }
+
+    function dashActionHandler(idx) {
+      if (window._dashActionCallbacks && window._dashActionCallbacks[idx]) {
+        window._dashActionCallbacks[idx]();
+      }
+    }
+
+    function renderDashboardExpiringWidget() {
+      const tbody = document.getElementById('dash-expiring-table-tbody');
+      const cardsContainer = document.getElementById('dash-expiring-mobile-cards');
+      const countTodayEl = document.getElementById('dash-count-today');
+      const count3dEl = document.getElementById('dash-count-3days');
+      const count7dEl = document.getElementById('dash-count-7days');
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const quotes = state.savedQuotes || [];
+      let countToday = 0;
+      let count3d = 0;
+      let count7d = 0;
+
+      const analyzed = quotes.map(q => {
+        if (q.status === 'Rechazada' || q.status === 'Cancelada') return null;
+        const vDate = new Date(q.validUntil + 'T00:00:00');
+        const diffTime = vDate.getTime() - today.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 0) countToday++;
+        else if (diffDays <= 3) count3d++;
+        else if (diffDays <= 7) count7d++;
+
+        const cl = (state.clients || []).find(c => c.id === q.clientId);
+        return {
+          ...q,
+          diffDays,
+          clientName: cl ? cl.name : 'Cliente'
+        };
+      }).filter(Boolean);
+
+      if (countTodayEl) countTodayEl.textContent = countToday;
+      if (count3dEl) count3dEl.textContent = count3d;
+      if (count7dEl) count7dEl.textContent = count7d;
+
+      let filtered = analyzed;
+      if (currentDashboardUrgency === 'today') {
+        filtered = analyzed.filter(q => q.diffDays <= 0);
+      } else if (currentDashboardUrgency === '3days') {
+        filtered = analyzed.filter(q => q.diffDays > 0 && q.diffDays <= 3);
+      } else if (currentDashboardUrgency === '7days') {
+        filtered = analyzed.filter(q => q.diffDays > 3 && q.diffDays <= 7);
+      }
+
+      // Sort by urgency
+      filtered.sort((a, b) => a.diffDays - b.diffDays);
+
+      if (filtered.length === 0) {
+        const emptyMsg = `
+          <div class="py-8 text-center text-slate-400 text-xs">
+            <span class="text-xl block mb-1">ðŸŽ‰</span>
+            No hay cotizaciones pendientes en este criterio de vencimiento.
+          </div>
+        `;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400 text-xs">No hay cotizaciones pendientes en este rango.</td></tr>`;
+        if (cardsContainer) cardsContainer.innerHTML = emptyMsg;
+        return;
+      }
+
+      // Render Desktop Table
+      if (tbody) {
+        tbody.innerHTML = filtered.map(q => {
+          let badgeHtml = '';
+          if (q.diffDays < 0) {
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">ðŸ”´ Vencida (${Math.abs(q.diffDays)}d)</span>`;
+          } else if (q.diffDays === 0) {
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 animate-pulse">ðŸ”´ Vence Hoy</span>`;
+          } else if (q.diffDays <= 3) {
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200">ðŸŸ¡ En ${q.diffDays} dÃ­as</span>`;
+          } else {
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">ðŸŸ¢ En ${q.diffDays} dÃ­as</span>`;
+          }
+
+          const statusColor = q.status === 'Aprobada' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                             (q.status === 'Enviada' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200');
+
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+              <td class="py-3 px-3.5 font-bold font-mono text-blue-600 dark:text-blue-400">${q.number}</td>
+              <td class="py-3 px-3.5">
+                <div class="font-bold text-slate-900 dark:text-white">${q.eventTitle}</div>
+                <div class="text-[11px] text-slate-500">${q.clientName} Â· ${q.guestsPax} Pax</div>
+              </td>
+              <td class="py-3 px-3.5 tabular-nums text-slate-700 dark:text-slate-300">${formatDateHuman(q.validUntil)}</td>
+              <td class="py-3 px-3.5 text-center">${badgeHtml}</td>
+              <td class="py-3 px-3.5 text-center">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusColor}">${q.status}</span>
+              </td>
+              <td class="py-3 px-3.5 text-right font-extrabold text-slate-900 dark:text-white tabular-nums">${formatCurrency(q.total)}</td>
+              <td class="py-3 px-3.5 text-right">
+                <button type="button" onclick="loadSavedQuoteIntoActiveQuoteById('${q.id}'); switchView('cotizador');" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-300 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer">
+                  <span>Abrir âž”</span>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Mobile Cards
+      if (cardsContainer) {
+        cardsContainer.innerHTML = filtered.map(q => {
+          let badgeText = '';
+          let badgeClass = '';
+          if (q.diffDays < 0) {
+            badgeText = `ðŸ”´ Vencida hace ${Math.abs(q.diffDays)} dÃ­as`;
+            badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
+          } else if (q.diffDays === 0) {
+            badgeText = 'ðŸ”´ Vence Hoy';
+            badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
+          } else if (q.diffDays <= 3) {
+            badgeText = `ðŸŸ¡ Vence en ${q.diffDays} dÃ­as`;
+            badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200';
+          } else {
+            badgeText = `ðŸŸ¢ Vence en ${q.diffDays} dÃ­as`;
+            badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200';
+          }
+
+          return `
+            <div class="p-3.5 space-y-2 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold font-mono text-xs text-blue-600 dark:text-blue-400">${q.number}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-black ${badgeClass}">${badgeText}</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-xs">${q.eventTitle}</h4>
+                <div class="text-[11px] text-slate-500 mt-0.5">${q.clientName} Â· ${q.guestsPax} Pax Â· Vence: <strong>${formatDateHuman(q.validUntil)}</strong></div>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                <span class="font-black text-slate-900 dark:text-white text-sm tabular-nums">${formatCurrency(q.total)}</span>
+                <button type="button" onclick="loadSavedQuoteIntoActiveQuoteById('${q.id}'); switchView('cotizador');" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1 cursor-pointer">
+                  <span>Gestionar CotizaciÃ³n</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderDashboardUpcomingEvents() {
+      const container = document.getElementById('dash-upcoming-events-list');
+      if (!container) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const approved = (state.savedQuotes || []).filter(q => q.status === 'Aprobada' && q.eventDate);
+      approved.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+
+      const upcoming = approved.filter(q => {
+        const eDate = new Date(q.eventDate + 'T00:00:00');
+        return eDate.getTime() >= today.getTime();
+      }).slice(0, 4);
+
+      if (upcoming.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">No hay eventos prÃ³ximos confirmados en agenda.</div>`;
+        return;
+      }
+
+      container.innerHTML = upcoming.map(q => {
+        const eDate = new Date(q.eventDate + 'T00:00:00');
+        const diffDays = Math.round((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const cl = (state.clients || []).find(c => c.id === q.clientId);
+
+        let countdownBadge = '';
+        if (diffDays === 0) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white">Â¡Hoy!</span>`;
+        else if (diffDays === 1) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-600 text-white">MaÃ±ana</span>`;
+        else countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">En ${diffDays} dÃ­as</span>`;
+
+        return `
+          <div class="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 hover:border-blue-400 transition">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex flex-col items-center justify-center font-bold text-xs shrink-0">
+                <span class="text-[9px] uppercase leading-none">${formatDateHuman(q.eventDate).split(' ')[1] || 'EV'}</span>
+                <span class="text-sm leading-none mt-0.5">${formatDateHuman(q.eventDate).split(' ')[0] || ''}</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-bold text-slate-900 dark:text-white text-xs truncate">${q.eventTitle}</h4>
+                <div class="text-[11px] text-slate-500 truncate">${cl ? cl.name : 'Cliente'} Â· ${q.guestsPax} Pax Â· ${q.eventVenue || 'LocaciÃ³n'}</div>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              ${countdownBadge}
+              <div class="mt-1">
+                <button type="button" onclick="openShoppingListModal('${q.id}')" class="text-[11px] text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer" title="Ver compras del evento">
+                  Compras âž”
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDashboardRecentFinances() {
+      const container = document.getElementById('dash-recent-finances-list');
+      if (!container) return;
+
+      const finances = (state.finances || []).slice(-4).reverse();
+      if (finances.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">No hay movimientos financieros registrados.</div>`;
+        return;
+      }
+
+      container.innerHTML = finances.map(f => {
+        const isIncome = f.type === 'ingreso';
+        return `
+          <div class="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg ${isIncome ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'} flex items-center justify-center text-xs font-black shrink-0">
+                ${isIncome ? '+' : '-'}
+              </div>
+              <div class="min-w-0">
+                <p class="font-bold text-slate-900 dark:text-white truncate">${f.concept}</p>
+                <span class="text-[10px] text-slate-400">${formatDateHuman(f.date)} Â· ${f.category || ''}</span>
+              </div>
+            </div>
+            <div class="text-right font-black ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} tabular-nums shrink-0">
+              ${isIncome ? '+' : '-'}${formatCurrency(f.amount)}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function setupEventListeners() {
@@ -7616,13 +8456,13 @@ function generateSystemNotifications() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 1. Scan Quotes for Expiration
+  // 1. Cotizaciones prÃ³ximas a vencer y vencidas
   (state.savedQuotes || []).forEach(q => {
     if (q.status === 'Rechazada' || q.status === 'Cancelada') return;
     const vDate = new Date(q.validUntil + 'T00:00:00');
     const diffTime = vDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    const cl = state.clients.find(c => c.id === q.clientId);
+    const cl = (state.clients || []).find(c => c.id === q.clientId);
     const clientName = cl ? cl.name : 'Cliente';
 
     if (diffDays < 0) {
@@ -7630,9 +8470,9 @@ function generateSystemNotifications() {
         id: `notif-exp-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: '🔴 Vencida',
-        title: `Cotización ${q.number} vencida`,
-        message: `${q.eventTitle} (${clientName}) venció el ${formatDateHuman(q.validUntil)}.`,
+        badge: 'ðŸ”´ CrÃ­tico',
+        title: `CotizaciÃ³n ${q.number} VENCIDA`,
+        message: `${q.eventTitle} (${clientName}) venciÃ³ el ${formatDateHuman(q.validUntil)}. Requiere seguimiento comercial urgente.`,
         quoteId: q.id,
         days: diffDays
       });
@@ -7641,20 +8481,31 @@ function generateSystemNotifications() {
         id: `notif-today-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: '🔴 Vence Hoy',
-        title: `Cotización ${q.number} vence HOY`,
-        message: `${q.eventTitle} (${clientName}) vence hoy. Requiere seguimiento comercial.`,
+        badge: 'ðŸ”´ CrÃ­tico',
+        title: `CotizaciÃ³n ${q.number} vence HOY`,
+        message: `${q.eventTitle} (${clientName}) vence hoy. Contacta al cliente para confirmar el evento.`,
         quoteId: q.id,
         days: 0
+      });
+    } else if (diffDays === 1) {
+      notifs.push({
+        id: `notif-tomorrow-${q.id}`,
+        type: 'quote_expiring',
+        severity: 'critical',
+        badge: 'ðŸ”´ CrÃ­tico',
+        title: `CotizaciÃ³n ${q.number} vence MAÃ‘ANA`,
+        message: `${q.eventTitle} (${clientName}) vence maÃ±ana (${formatDateHuman(q.validUntil)}). Ãšltimo dÃ­a para acordar condiciones.`,
+        quoteId: q.id,
+        days: 1
       });
     } else if (diffDays <= 3) {
       notifs.push({
         id: `notif-3d-${q.id}`,
         type: 'quote_expiring',
         severity: 'warning',
-        badge: '🟡 Vence en 3 Días',
-        title: `Cotización ${q.number} próxima a vencer`,
-        message: `${q.eventTitle} (${clientName}) vence en ${diffDays} días (${formatDateHuman(q.validUntil)}).`,
+        badge: 'ðŸŸ¡ Advertencia',
+        title: `CotizaciÃ³n ${q.number} vence en ${diffDays} dÃ­as`,
+        message: `${q.eventTitle} (${clientName}) vence el ${formatDateHuman(q.validUntil)}.`,
         quoteId: q.id,
         days: diffDays
       });
@@ -7663,38 +8514,39 @@ function generateSystemNotifications() {
         id: `notif-7d-${q.id}`,
         type: 'quote_expiring',
         severity: 'info',
-        badge: '🟢 Vence en 7 Días',
-        title: `Cotización ${q.number} activa`,
-        message: `${q.eventTitle} (${clientName}) vence en ${diffDays} días.`,
+        badge: 'ðŸŸ¢ Informativo',
+        title: `CotizaciÃ³n ${q.number} activa`,
+        message: `${q.eventTitle} (${clientName}) vence en ${diffDays} dÃ­as.`,
         quoteId: q.id,
         days: diffDays
       });
     }
   });
 
-  // 2. Scan Upcoming Events (Within 7 Days)
+  // 2. Eventos prÃ³ximos en Agenda
   (state.savedQuotes || []).forEach(q => {
     if (q.status !== 'Aprobada') return;
     const eDate = new Date(q.eventDate + 'T00:00:00');
     const diffTime = eDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    const cl = state.clients.find(c => c.id === q.clientId);
+    const cl = (state.clients || []).find(c => c.id === q.clientId);
     const clientName = cl ? cl.name : 'Cliente';
 
     if (diffDays >= 0 && diffDays <= 7) {
+      const isCrit = diffDays <= 2;
       notifs.push({
         id: `notif-event-${q.id}`,
         type: 'event_upcoming',
-        severity: diffDays <= 2 ? 'critical' : 'warning',
-        badge: diffDays === 0 ? '🎉 Evento Hoy' : `📅 Evento en ${diffDays}d`,
-        title: `Evento Próximo: ${q.eventTitle}`,
-        message: `${q.guestsPax} Pax en ${q.eventVenue || 'locación'} (${clientName}).`,
+        severity: isCrit ? 'critical' : 'warning',
+        badge: isCrit ? 'ðŸ”´ CrÃ­tico' : 'ðŸŸ¡ Advertencia',
+        title: diffDays === 0 ? `ðŸŽ‰ Evento HOY: ${q.eventTitle}` : `ðŸ“… Evento en ${diffDays}d: ${q.eventTitle}`,
+        message: `${q.guestsPax} Pax en ${q.eventVenue || 'locaciÃ³n'} (${clientName}). Verifica insumos y personal.`,
         quoteId: q.id,
         days: diffDays
       });
     }
 
-    // 3. Unclosed Past Events (Event happened, but no closure recorded)
+    // 3. Eventos finalizados sin cerrar
     if (diffDays < 0) {
       const isClosed = (state.eventClosures || []).some(cl => cl.quoteId === q.id);
       if (!isClosed) {
@@ -7702,26 +8554,43 @@ function generateSystemNotifications() {
           id: `notif-unclosed-${q.id}`,
           type: 'unclosed_event',
           severity: 'warning',
-          badge: '⚠️ Sin Liquidar',
+          badge: 'ðŸŸ¡ Advertencia',
           title: `Cierre pendiente: ${q.eventTitle}`,
-          message: `Evento finalizó hace ${Math.abs(diffDays)} días. Registra los costos reales y cierre.`,
+          message: `Evento finalizÃ³ hace ${Math.abs(diffDays)} dÃ­as. Registra costos reales, compras extras y liquida.`,
           quoteId: q.id,
           days: diffDays
         });
       }
     }
+
+    // 4. Pagos pendientes (Aprobados con saldo por cobrar)
+    const total = Number(q.total) || 0;
+    const depositPct = Number(q.depositPct) || 50;
+    const anticipo = Math.round(total * (depositPct / 100));
+    const saldo = total - anticipo;
+    if (saldo > 0 && diffDays <= 7) {
+      notifs.push({
+        id: `notif-payment-${q.id}`,
+        type: 'pending_payment',
+        severity: diffDays <= 2 ? 'critical' : 'warning',
+        badge: diffDays <= 2 ? 'ðŸ”´ CrÃ­tico' : 'ðŸŸ¡ Advertencia',
+        title: `Saldo por cobrar: ${formatCurrency(saldo)}`,
+        message: `${q.eventTitle} (${clientName}) tiene saldo pendiente de cobro antes de la entrega.`,
+        quoteId: q.id
+      });
+    }
   });
 
-  // 4. Low Inventory Stock Alerts
+  // 5. Inventario Insuficiente (Stock agotado)
   (state.products || []).forEach(p => {
     if (p.trackStock && Number(p.stock) <= 0) {
       notifs.push({
         id: `notif-stock-${p.id}`,
         type: 'low_stock',
         severity: 'critical',
-        badge: '📦 Stock Agotado',
+        badge: 'ðŸ”´ CrÃ­tico',
         title: `Insumo agotado: ${p.name}`,
-        message: `Existencia en 0 ${p.unit}. Reabastecer para eventos próximos.`,
+        message: `Existencia en 0 ${p.unit}. Reabastecer en bodega para evitar faltantes en eventos.`,
         productId: p.id
       });
     }
@@ -8356,6 +9225,86 @@ function toggleShopItemPurchased(idx) {
 
   renderShoppingList();
 }
+
+    function downloadShoppingListPDF() {
+      if (!currentShoppingList || !currentShoppingList.items) {
+        showToast('No hay lista de compras para exportar');
+        return;
+      }
+
+      const q = currentShoppingList;
+      const items = q.items;
+      const purchasedCount = items.filter(it => it.isPurchased).length;
+      const totalCost = items.reduce((sum, it) => sum + (it.estimatedCost || 0), 0);
+
+      const container = document.createElement('div');
+      container.style.padding = '24px';
+      container.style.fontFamily = "'Inter', Arial, sans-serif";
+      container.style.color = '#0F172A';
+      container.style.background = '#FFFFFF';
+      container.style.maxWidth = '800px';
+
+      container.innerHTML = `
+        <div style="border-bottom: 2px solid #2563EB; padding-bottom: 12px; margin-bottom: 16px;">
+          <h1 style="font-size: 20px; font-weight: 800; color: #2563EB; margin: 0;">LISTA DE COMPRAS E INSUMOS â€” XANDER PRO</h1>
+          <p style="font-size: 13px; font-weight: 600; color: #334155; margin: 4px 0 0 0;">${q.eventTitle} (${q.quoteNumber})</p>
+          <p style="font-size: 11px; color: #64748B; margin: 2px 0 0 0;">Generado: ${new Date().toLocaleDateString('es-CO')} Â· Estado: ${purchasedCount}/${items.length} insumos comprados</p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 1px solid #CBD5E1; text-align: left;">
+              <th style="padding: 8px;">Estado</th>
+              <th style="padding: 8px;">Insumo</th>
+              <th style="padding: 8px; text-align: center;">Requerido</th>
+              <th style="padding: 8px; text-align: center;">En Bodega</th>
+              <th style="padding: 8px; text-align: center;">Faltante a Comprar</th>
+              <th style="padding: 8px; text-align: right;">Costo Estimado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(it => `
+              <tr style="border-bottom: 1px solid #E2E8F0;">
+                <td style="padding: 8px;">${it.isPurchased ? 'â˜‘ Comprado' : 'â˜ Pendiente'}</td>
+                <td style="padding: 8px; font-weight: bold;">${it.name}</td>
+                <td style="padding: 8px; text-align: center;">${it.required.toFixed(1)} ${it.unit}</td>
+                <td style="padding: 8px; text-align: center;">${it.stock.toFixed(1)} ${it.unit}</td>
+                <td style="padding: 8px; text-align: center; font-weight: bold; color: ${it.toBuy > 0 ? '#DC2626' : '#16A34A'};">${it.toBuy > 0 ? `${it.toBuy} ${it.unit}` : 'Cubierto'}</td>
+                <td style="padding: 8px; text-align: right; font-weight: bold;">${formatCurrency(it.estimatedCost)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background: #F1F5F9; font-weight: bold;">
+              <td colspan="5" style="padding: 10px; text-align: right;">TOTAL ESTIMADO DE COMPRAS:</td>
+              <td style="padding: 10px; text-align: right; font-size: 13px; color: #2563EB;">${formatCurrency(totalCost)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+
+      document.body.appendChild(container);
+
+      if (typeof html2pdf !== 'undefined') {
+        const opt = {
+          margin: 10,
+          filename: `lista_compras_${q.quoteNumber}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(container).save().then(() => {
+          document.body.removeChild(container);
+          showToast('âœ… PDF de lista de compras generado');
+        }).catch(() => {
+          document.body.removeChild(container);
+          window.print();
+        });
+      } else {
+        document.body.removeChild(container);
+        window.print();
+      }
+    }
 
 function exportShoppingListCSV() {
   if (!currentShoppingList || !currentShoppingList.items.length) {
