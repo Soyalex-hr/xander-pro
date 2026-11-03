@@ -639,7 +639,7 @@
     <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden" aria-label="Navegación del Dashboard">
       <!-- 0. Dashboard Operativo -->
       <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-left cursor-pointer bg-blue-600 text-white shadow-sm font-bold" title="Dashboard Operativo">
-        <div class="w-9 h-9 rounded-lg bg-white/20 text-white flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">âš¡</div>
+        <div class="w-9 h-9 rounded-lg bg-white/20 text-white flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2v-8zM10 14a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg></div>
         <div class="sidebar-text flex-1 min-w-0">
           <div class="text-xs font-bold truncate">Dashboard</div>
           <div class="text-[10px] opacity-80 truncate">Panel general &amp; KPIs</div>
@@ -647,11 +647,7 @@
       </button>
 
       <!-- 1. Cotizador -->
-      <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer">
-      <span class="text-lg">âš¡</span>
-      <span class="text-[10px] tracking-tight font-medium">Inicio</span>
-    </button>
-    <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/30 font-bold" title="Cotizador y PDF">
+      <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/30 font-bold" title="Cotizador y PDF">
         <div class="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110">📋</div>
         <div class="sidebar-text flex-1 min-w-0">
           <div class="text-xs font-bold truncate">Cotizador y PDF</div>
@@ -899,30 +895,38 @@
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div class="space-y-1.5">
             <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-400/30">
-              <span id="dash-greeting-time-icon">â˜€ï¸</span>
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
               <span id="dash-current-date-text">Cargando fecha...</span>
             </div>
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight" id="dash-greeting-title">
-              Buenos dÃ­as, Alexander.
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight flex items-center gap-2.5" id="dash-greeting-title">
+              <span>Buenos d&iacute;as, <span id="dash-greeting-name">Alexander</span>.</span>
+              <button type="button" onclick="openEditOperatorModal()" title="Personalizar nombre del operador" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer text-xs flex items-center gap-1 border border-slate-700/60">
+                <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                <span class="hidden sm:inline font-medium">Editar</span>
+              </button>
             </h1>
             <p class="text-xs sm:text-sm text-slate-300 max-w-2xl" id="dash-greeting-subtitle">
               Panel de control operativo: cotizaciones, eventos programados, compras de insumos y balance financiero.
             </p>
           </div>
 
-          <!-- Quick Action Buttons Bar -->
+          <!-- Quick Action Buttons Bar with Clean SVGs -->
           <div class="flex flex-wrap items-center gap-2.5">
             <button type="button" onclick="switchView('cotizador')" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-2 cursor-pointer">
-              <span>+</span> Nueva CotizaciÃ³n
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              <span>Nueva Cotizaci&oacute;n</span>
             </button>
-            <button type="button" onclick="switchView('agenda')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
-              <span>ðŸ“…</span> Agenda
+            <button type="button" onclick="switchView('agenda')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Agenda</span>
             </button>
-            <button type="button" onclick="switchView('clientes')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
-              <span>ðŸ‘¥</span> Clientes
+            <button type="button" onclick="switchView('clientes')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span>Clientes</span>
             </button>
-            <button type="button" onclick="document.getElementById('btn-new-income')?.click(); switchView('finanzas');" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer">
-              <span>ðŸ’°</span> Finanzas
+            <button type="button" onclick="document.getElementById('btn-new-income')?.click(); switchView('finanzas');" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Finanzas</span>
             </button>
           </div>
         </div>
@@ -934,7 +938,7 @@
         <div onclick="switchView('historial')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cotizaciones</span>
-            <span class="text-base">ðŸ“‹</span>
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
           <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 tabular-nums" id="dash-kpi-active-quotes">0</div>
           <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-active-quotes-val">Valor: $ 0</div>
@@ -944,7 +948,7 @@
         <div onclick="switchView('agenda')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Eventos</span>
-            <span class="text-base">ðŸŽ‰</span>
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           </div>
           <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 tabular-nums" id="dash-kpi-scheduled-events">0</div>
           <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-scheduled-pax">0 Pax confirmados</div>
@@ -954,7 +958,7 @@
         <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance Mes</span>
-            <span class="text-base">ðŸ’°</span>
+            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <div class="text-xl sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1.5 tabular-nums" id="dash-kpi-month-balance">$ 0</div>
           <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-month-flow">Ingresos vs Egresos</div>
@@ -964,7 +968,7 @@
         <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Est.</span>
-            <span class="text-base">ðŸ“ˆ</span>
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
           </div>
           <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5 tabular-nums" id="dash-kpi-est-profit">$ 0</div>
           <div class="text-[10px] text-slate-400 truncate mt-0.5">Eventos en curso</div>
@@ -974,20 +978,20 @@
         <div onclick="switchView('rentabilidad')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Real</span>
-            <span class="text-base">ðŸ</span>
+            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1.5 tabular-nums" id="dash-kpi-real-profit">$ 0</div>
-          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-closed-count">0 eventos liquidados</div>
+          <div class="text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1.5 tabular-nums" id="dash-kpi-real-profit">$ 0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-real-profit-count">0 eventos liquidados</div>
         </div>
 
         <!-- KPI 6: Alertas Pendientes -->
         <div onclick="toggleNotificationsPopover()" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
-          <div class="flex items-center justify-between text-slate-400 group-hover:text-rose-600 transition">
+          <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Alertas</span>
-            <span class="text-base">ðŸ””</span>
+            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
-          <div class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1.5 tabular-nums" id="dash-kpi-pending-alerts">0</div>
-          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-critical-alerts">0 crÃ­ticas</div>
+          <div class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1.5 tabular-nums" id="dash-kpi-alerts-count">0</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5" id="dash-kpi-critical-alerts">0 cr&iacute;ticas</div>
         </div>
       </div>
 
@@ -1024,7 +1028,7 @@
             <div class="flex items-center gap-2">
               <span class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-lg">â³</span>
               <div>
-                <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Seguimiento de Cotizaciones PrÃ³ximas a Vencer</h3>
+                <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Seguimiento de Cotizaciones Próximas a Vencer</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400">Atiende a tiempo las cotizaciones pendientes antes de que expiren.</p>
               </div>
             </div>
@@ -1036,11 +1040,11 @@
               <span id="dash-count-today" class="bg-rose-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-3days" onclick="filterDashboardUrgency('3days')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¡ En 3 DÃ­as:</span>
+              <span>ðŸŸ¡ En 3 Días:</span>
               <span id="dash-count-3days" class="bg-amber-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-7days" onclick="filterDashboardUrgency('7days')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
-              <span>ðŸŸ¢ En 7 DÃ­as:</span>
+              <span>ðŸŸ¢ En 7 Días:</span>
               <span id="dash-count-7days" class="bg-emerald-600 text-white px-2 py-0.2 rounded-full font-black text-[11px]">0</span>
             </button>
             <button type="button" id="btn-dash-urgency-all" onclick="filterDashboardUrgency('all')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition cursor-pointer ring-2 ring-blue-500">
@@ -1056,13 +1060,13 @@
             <table class="w-full text-left border-collapse text-xs">
               <thead>
                 <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold">
-                  <th class="py-2.5 px-3.5">NÃºmero</th>
+                  <th class="py-2.5 px-3.5">Número</th>
                   <th class="py-2.5 px-3.5">Cliente & Evento</th>
                   <th class="py-2.5 px-3.5">Vencimiento</th>
-                  <th class="py-2.5 px-3.5 text-center">DÃ­as Restantes</th>
+                  <th class="py-2.5 px-3.5 text-center">Días Restantes</th>
                   <th class="py-2.5 px-3.5 text-center">Estado</th>
                   <th class="py-2.5 px-3.5 text-right">Total</th>
-                  <th class="py-2.5 px-3.5 text-right">AcciÃ³n</th>
+                  <th class="py-2.5 px-3.5 text-right">Acción</th>
                 </tr>
               </thead>
               <tbody id="dash-expiring-table-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1083,7 +1087,7 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>ðŸŽ‰</span> PrÃ³ximos Eventos Confirmados
+              <span>ðŸŽ‰</span> Próximos Eventos Confirmados
             </h3>
             <button type="button" onclick="switchView('agenda')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
               Ver Agenda Completa âž”
@@ -1762,7 +1766,7 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
-                <th class="py-3 px-4">NÂ° CotizaciÃ³n</th>
+                <th class="py-3 px-4">NÂ° Cotización</th>
                 <th class="py-3 px-4">Evento y Cliente</th>
                 <th class="py-3 px-4 text-center">Invitados (Pax)</th>
                 <th class="py-3 px-4">Fecha Evento</th>
@@ -2222,7 +2226,14 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+                        <div class="md:col-span-2">
+              <label for="comp-operator-name" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                &#128100; Nombre de la Persona que Maneja el Sistema (Operador)
+              </label>
+              <input id="comp-operator-name" type="text" placeholder="Ej: Alexander, Carlos, Chef Mario..." class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <p class="text-[11px] text-slate-400 mt-1">Este nombre aparecer&aacute; en los saludos personalizados del Dashboard, en el perfil y en la aplicaci&oacute;n.</p>
+            </div>
+<div>
               <label for="comp-name" class="block text-xs font-semibold text-slate-700 mb-1">Nombre Comercial de la Empresa</label>
               <input id="comp-name" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold" />
             </div>
@@ -2591,8 +2602,8 @@
 
   <!-- Fixed Bottom Navigation Bar (Mobile only, < 768px) -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around shadow-2xl no-print" aria-label="Navegación móvil rápida">
-    <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer">
-      <span class="text-lg">âš¡</span>
+        <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2v-8zM10 14a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
       <span class="text-[10px] tracking-tight font-medium">Inicio</span>
     </button>
     <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-indigo-600 dark:text-indigo-400 font-bold scale-105 cursor-pointer">
@@ -3333,7 +3344,145 @@
     <!-- ==========================================
        MODAL: LISTA AUTOMÁTICA DE COMPRAS DEL EVENTO
        ========================================== -->
-  <div id="modal-shopping-list" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+    <!-- ==========================================
+     MODAL: DETALLES COMPLETOS DEL EVENTO (AGENDA OPERATIVA)
+     ========================================== -->
+  <div id="modal-agenda-event-details" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-slate-800/40">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="agenda-det-quote-num" class="font-black text-blue-600 dark:text-blue-400 font-mono text-sm">COT-001</span>
+              <span id="agenda-det-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Aprobada</span>
+            </div>
+            <h3 id="agenda-det-title" class="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">Nombre del Evento</h3>
+          </div>
+        </div>
+        <button type="button" onclick="closeAgendaEventDetailsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl p-1 cursor-pointer leading-none">&times;</button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+        <!-- Event Overview Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Fecha del Evento</div>
+            <div id="agenda-det-date" class="text-xs font-black text-slate-900 dark:text-white mt-1">Cargando...</div>
+            <div id="agenda-det-days-left" class="text-[10px] text-blue-600 dark:text-blue-400 font-bold mt-0.5">-</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Invitados (Pax)</div>
+            <div id="agenda-det-pax" class="text-xs font-black text-slate-900 dark:text-white mt-1">0 Pax</div>
+            <div id="agenda-det-type" class="text-[10px] text-slate-500 truncate mt-0.5">Boda</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Locaci&oacute;n / Lugar</div>
+            <div id="agenda-det-venue" class="text-xs font-black text-slate-900 dark:text-white mt-1 truncate">Por definir</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Lugar del evento</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Cotizado</div>
+            <div id="agenda-det-total" class="text-xs font-black text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">$ 0</div>
+            <div id="agenda-det-balance-note" class="text-[10px] text-slate-500 mt-0.5">Anticipo / Saldo</div>
+          </div>
+        </div>
+
+        <!-- Client Information Card -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Datos del Cliente</span>
+            <span id="agenda-det-client-city" class="text-[11px] text-slate-500">Medell&iacute;n</span>
+          </div>
+          <div class="mt-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div id="agenda-det-client-name" class="font-extrabold text-sm text-slate-900 dark:text-white">Nombre Cliente</div>
+              <div class="text-xs text-slate-500 mt-0.5 space-x-2">
+                <span id="agenda-det-client-doc">Doc: -</span>
+                <span>&bull;</span>
+                <span id="agenda-det-client-email">correo@cliente.com</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a id="agenda-det-client-phone-btn" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold text-xs inline-flex items-center gap-1.5 transition">
+                <span>&#128222;</span> <span id="agenda-det-client-phone">Llamar</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items Cotizados Accordion / List -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Servicios &amp; Men&uacute; Cotizado</span>
+            <span id="agenda-det-items-count" class="text-[10px] font-bold text-slate-500">0 &iacute;tems</span>
+          </div>
+          <div id="agenda-det-items-list" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-40 overflow-y-auto">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer (Actions Bar) -->
+      <div class="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+        <button type="button" onclick="closeAgendaEventDetailsModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Cerrar
+        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="agenda-btn-action-quote" class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold transition flex items-center gap-1.5 cursor-pointer">
+            <span>&#128196;</span> Ver Cotizaci&oacute;n
+          </button>
+          <button type="button" id="agenda-btn-action-shop" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <span>&#128722;</span> Lista Compras
+          </button>
+          <button type="button" id="agenda-btn-action-cdc" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <span>&#129534;</span> Cuenta Cobro
+          </button>
+          <button type="button" id="agenda-btn-action-close-event" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <span>&#127937;</span> Liquidar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+     MODAL: CAMBIAR NOMBRE DEL OPERADOR DEL SISTEMA
+     ========================================== -->
+  <div id="modal-edit-operator" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 flex items-center justify-center font-bold text-lg">
+            &#128100;
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nombre del Operador</h3>
+            <p class="text-xs text-slate-500">Â¿Qui&eacute;n va a manejar el sistema?</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditOperatorModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl leading-none cursor-pointer">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nombre o Apodo Personalizado:</label>
+        <input type="text" id="input-modal-operator-name" placeholder="Ej: Alexander, Carlos, Chef Andrea..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        <p class="text-[11px] text-slate-400 mt-1">Este nombre se mostrar&aacute; en el saludo matutino del Dashboard, barra superior y reportes.</p>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeEditOperatorModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="saveOperatorNameFromModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer">
+          Guardar Nombre
+        </button>
+      </div>
+    </div>
+  </div>
+<div id="modal-shopping-list" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
       <!-- Header -->
       <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-slate-800/40">
@@ -6039,6 +6188,7 @@
       document.getElementById('comp-address').value = c.address;
       document.getElementById('comp-bank').value = c.bankDetails;
       document.getElementById('comp-terms').value = c.terms;
+      const compOpInput = document.getElementById('comp-operator-name'); if (compOpInput) compOpInput.value = getOperatorName();
       const sidebarComp = document.getElementById('sidebar-company-name');
       if (sidebarComp) sidebarComp.textContent = c.name || 'Aura Eventos';
       const secAutoLock = document.getElementById('sec-auto-lock-mins');
@@ -6237,21 +6387,21 @@
     function renderDashboard() {
       // 1. Dynamic Greeting
       const hour = new Date().getHours();
-      let greeting = 'Buenos dÃ­as';
-      let greetingIcon = 'â˜€ï¸';
+      let greeting = 'Buenos días';
       if (hour >= 12 && hour < 18) {
         greeting = 'Buenas tardes';
-        greetingIcon = 'ðŸŒ¤ï¸';
       } else if (hour >= 18 || hour < 5) {
         greeting = 'Buenas noches';
-        greetingIcon = 'ðŸŒ™';
       }
-      const userName = (state.auth && state.auth.user) ? (state.auth.user === 'admin' ? 'Alexander' : state.auth.user) : 'Alexander';
+      const userName = getOperatorName();
       const greetingTitle = document.getElementById('dash-greeting-title');
-      if (greetingTitle) greetingTitle.textContent = `${greeting}, ${userName}.`;
-
-      const timeIcon = document.getElementById('dash-greeting-time-icon');
-      if (timeIcon) timeIcon.textContent = greetingIcon;
+      if (greetingTitle) {
+        greetingTitle.innerHTML = `<span>${greeting}, <span id="dash-greeting-name">${userName}</span>.</span>
+          <button type="button" onclick="openEditOperatorModal()" title="Personalizar nombre del operador" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer text-xs flex items-center gap-1 border border-slate-700/60">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            <span class="hidden sm:inline font-medium">Editar</span>
+          </button>`;
+      }
 
       const dateEl = document.getElementById('dash-current-date-text');
       if (dateEl) {
@@ -6320,7 +6470,7 @@
       const kpiAlerts = document.getElementById('dash-kpi-pending-alerts');
       const kpiCrit = document.getElementById('dash-kpi-critical-alerts');
       if (kpiAlerts) kpiAlerts.textContent = activeNotifs.length;
-      if (kpiCrit) kpiCrit.textContent = `${criticalNotifs.length} crÃ­ticas`;
+      if (kpiCrit) kpiCrit.textContent = `${criticalNotifs.length} críticas`;
 
       // 3. Render Central Module: ACCIONES PENDIENTES
       updatePendingActions(notifs);
@@ -6343,7 +6493,7 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // 1. Cotizaciones vencidas & prÃ³ximas a vencer
+      // 1. Cotizaciones vencidas & próximas a vencer
       const quotes = state.savedQuotes || [];
       let quotesOverdue = 0;
       let quotesExpiringSoon = 0;
@@ -6355,7 +6505,7 @@
         else if (diffDays <= 7) quotesExpiringSoon++;
       });
 
-      // 2. Eventos prÃ³ximos (en 7 dÃ­as)
+      // 2. Eventos próximos (en 7 días)
       let upcomingEventsCount = 0;
       quotes.forEach(q => {
         if (q.status !== 'Aprobada') return;
@@ -6417,15 +6567,15 @@
                                (lowStockCount > 0 ? 1 : 0) +
                                (pendingPaymentsCount > 0 ? 1 : 0);
 
-      if (totalBadge) totalBadge.textContent = `${totalActiveTasks} categorÃ­as activas`;
+      if (totalBadge) totalBadge.textContent = `${totalActiveTasks} categorías activas`;
 
       const cards = [
         {
-          title: 'Cotizaciones PrÃ³ximas a Vencer',
-          badge: quotesOverdue > 0 ? `${quotesOverdue} vencidas` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} por vencer` : 'Al dÃ­a'),
+          title: 'Cotizaciones Próximas a Vencer',
+          badge: quotesOverdue > 0 ? `${quotesOverdue} vencidas` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} por vencer` : 'Al día'),
           badgeClass: quotesOverdue > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : (quotesExpiringSoon > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'),
           icon: 'â³',
-          desc: quotesOverdue > 0 ? `${quotesOverdue} cotizaciones requieren seguimiento comercial urgente.` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} cotizaciones vencen en los prÃ³ximos 7 dÃ­as.` : 'Todas las propuestas comerciales al dÃ­a.'),
+          desc: quotesOverdue > 0 ? `${quotesOverdue} cotizaciones requieren seguimiento comercial urgente.` : (quotesExpiringSoon > 0 ? `${quotesExpiringSoon} cotizaciones vencen en los próximos 7 días.` : 'Todas las propuestas comerciales al día.'),
           actionText: 'Ver Cotizaciones âž”',
           action: () => {
             const el = document.getElementById('widget-expiring-quotes-dashboard');
@@ -6433,20 +6583,20 @@
           }
         },
         {
-          title: 'Eventos PrÃ³ximos (7 DÃ­as)',
+          title: 'Eventos Próximos (7 Días)',
           badge: upcomingEventsCount > 0 ? `${upcomingEventsCount} esta semana` : 'Sin eventos',
           badgeClass: upcomingEventsCount > 0 ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
           icon: 'ðŸ“…',
-          desc: upcomingEventsCount > 0 ? `${upcomingEventsCount} celebraciones confirmadas en la agenda prÃ³xima.` : 'No hay eventos programados en los prÃ³ximos 7 dÃ­as.',
+          desc: upcomingEventsCount > 0 ? `${upcomingEventsCount} celebraciones confirmadas en la agenda próxima.` : 'No hay eventos programados en los próximos 7 días.',
           actionText: 'Ver Agenda âž”',
           action: () => switchView('agenda')
         },
         {
           title: 'Eventos Sin Cerrar',
-          badge: unclosedEventsCount > 0 ? `${unclosedEventsCount} pendientes` : 'Al dÃ­a',
+          badge: unclosedEventsCount > 0 ? `${unclosedEventsCount} pendientes` : 'Al día',
           badgeClass: unclosedEventsCount > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
           icon: 'ðŸ',
-          desc: unclosedEventsCount > 0 ? `${unclosedEventsCount} eventos finalizados sin registrar costos reales ni liquidaciÃ³n.` : 'Todos los eventos pasados han sido auditados y cerrados.',
+          desc: unclosedEventsCount > 0 ? `${unclosedEventsCount} eventos finalizados sin registrar costos reales ni liquidación.` : 'Todos los eventos pasados han sido auditados y cerrados.',
           actionText: 'Liquidar Rentabilidad âž”',
           action: () => switchView('rentabilidad')
         },
@@ -6469,7 +6619,7 @@
           badgeClass: lowStockCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
           icon: 'ðŸ“¦',
           desc: lowStockCount > 0 ? `${lowStockCount} insumos en bodega tienen existencia en cero.` : 'Existencias de insumos en bodega con stock disponible.',
-          actionText: 'Ir a AlmacÃ©n âž”',
+          actionText: 'Ir a Almacén âž”',
           action: () => switchView('productos')
         },
         {
@@ -6578,9 +6728,9 @@
           } else if (q.diffDays === 0) {
             badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 animate-pulse">ðŸ”´ Vence Hoy</span>`;
           } else if (q.diffDays <= 3) {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200">ðŸŸ¡ En ${q.diffDays} dÃ­as</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200">ðŸŸ¡ En ${q.diffDays} días</span>`;
           } else {
-            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">ðŸŸ¢ En ${q.diffDays} dÃ­as</span>`;
+            badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">ðŸŸ¢ En ${q.diffDays} días</span>`;
           }
 
           const statusColor = q.status === 'Aprobada' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
@@ -6615,16 +6765,16 @@
           let badgeText = '';
           let badgeClass = '';
           if (q.diffDays < 0) {
-            badgeText = `ðŸ”´ Vencida hace ${Math.abs(q.diffDays)} dÃ­as`;
+            badgeText = `ðŸ”´ Vencida hace ${Math.abs(q.diffDays)} días`;
             badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
           } else if (q.diffDays === 0) {
             badgeText = 'ðŸ”´ Vence Hoy';
             badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
           } else if (q.diffDays <= 3) {
-            badgeText = `ðŸŸ¡ Vence en ${q.diffDays} dÃ­as`;
+            badgeText = `ðŸŸ¡ Vence en ${q.diffDays} días`;
             badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200';
           } else {
-            badgeText = `ðŸŸ¢ Vence en ${q.diffDays} dÃ­as`;
+            badgeText = `ðŸŸ¢ Vence en ${q.diffDays} días`;
             badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200';
           }
 
@@ -6641,7 +6791,7 @@
               <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
                 <span class="font-black text-slate-900 dark:text-white text-sm tabular-nums">${formatCurrency(q.total)}</span>
                 <button type="button" onclick="loadSavedQuoteIntoActiveQuoteById('${q.id}'); switchView('cotizador');" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1 cursor-pointer">
-                  <span>Gestionar CotizaciÃ³n</span>
+                  <span>Gestionar Cotización</span>
                 </button>
               </div>
             </div>
@@ -6666,7 +6816,7 @@
       }).slice(0, 4);
 
       if (upcoming.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">No hay eventos prÃ³ximos confirmados en agenda.</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">No hay eventos próximos confirmados en agenda.</div>`;
         return;
       }
 
@@ -6677,8 +6827,8 @@
 
         let countdownBadge = '';
         if (diffDays === 0) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white">Â¡Hoy!</span>`;
-        else if (diffDays === 1) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-600 text-white">MaÃ±ana</span>`;
-        else countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">En ${diffDays} dÃ­as</span>`;
+        else if (diffDays === 1) countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-600 text-white">Mañana</span>`;
+        else countdownBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">En ${diffDays} días</span>`;
 
         return `
           <div class="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 hover:border-blue-400 transition">
@@ -6689,7 +6839,7 @@
               </div>
               <div class="min-w-0">
                 <h4 class="font-bold text-slate-900 dark:text-white text-xs truncate">${q.eventTitle}</h4>
-                <div class="text-[11px] text-slate-500 truncate">${cl ? cl.name : 'Cliente'} Â· ${q.guestsPax} Pax Â· ${q.eventVenue || 'LocaciÃ³n'}</div>
+                <div class="text-[11px] text-slate-500 truncate">${cl ? cl.name : 'Cliente'} Â· ${q.guestsPax} Pax Â· ${q.eventVenue || 'Locación'}</div>
               </div>
             </div>
             <div class="text-right shrink-0">
@@ -7943,6 +8093,7 @@ ${state.company.phone}`;
         state.company.address = document.getElementById('comp-address').value.trim();
         state.company.bankDetails = document.getElementById('comp-bank').value;
         state.company.terms = document.getElementById('comp-terms').value;
+        const compOpInput = document.getElementById('comp-operator-name'); if (compOpInput && compOpInput.value.trim()) { state.auth = state.auth || getDefaultState().auth; state.auth.operatorName = compOpInput.value.trim(); updateOperatorNameDisplay(); }
         saveState();
         renderQuoteEditorAndPdf();
         showToast('Datos de Mi Empresa actualizados en todas las cotizaciones y PDF');
@@ -8417,6 +8568,7 @@ ${state.company.phone}`;
       renderClientsGrid();
       renderFinancesView();
       loadCompanyFormInputs();
+      updateOperatorNameDisplay();
       switchView('dashboard');
     });
 
@@ -8459,7 +8611,7 @@ function generateSystemNotifications() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 1. Cotizaciones prÃ³ximas a vencer y vencidas
+  // 1. Cotizaciones próximas a vencer y vencidas
   (state.savedQuotes || []).forEach(q => {
     if (q.status === 'Rechazada' || q.status === 'Cancelada') return;
     const vDate = new Date(q.validUntil + 'T00:00:00');
@@ -8473,9 +8625,9 @@ function generateSystemNotifications() {
         id: `notif-exp-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ CrÃ­tico',
-        title: `CotizaciÃ³n ${q.number} VENCIDA`,
-        message: `${q.eventTitle} (${clientName}) venciÃ³ el ${formatDateHuman(q.validUntil)}. Requiere seguimiento comercial urgente.`,
+        badge: 'ðŸ”´ Crítico',
+        title: `Cotización ${q.number} VENCIDA`,
+        message: `${q.eventTitle} (${clientName}) venció el ${formatDateHuman(q.validUntil)}. Requiere seguimiento comercial urgente.`,
         quoteId: q.id,
         days: diffDays
       });
@@ -8484,8 +8636,8 @@ function generateSystemNotifications() {
         id: `notif-today-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ CrÃ­tico',
-        title: `CotizaciÃ³n ${q.number} vence HOY`,
+        badge: 'ðŸ”´ Crítico',
+        title: `Cotización ${q.number} vence HOY`,
         message: `${q.eventTitle} (${clientName}) vence hoy. Contacta al cliente para confirmar el evento.`,
         quoteId: q.id,
         days: 0
@@ -8495,9 +8647,9 @@ function generateSystemNotifications() {
         id: `notif-tomorrow-${q.id}`,
         type: 'quote_expiring',
         severity: 'critical',
-        badge: 'ðŸ”´ CrÃ­tico',
-        title: `CotizaciÃ³n ${q.number} vence MAÃ‘ANA`,
-        message: `${q.eventTitle} (${clientName}) vence maÃ±ana (${formatDateHuman(q.validUntil)}). Ãšltimo dÃ­a para acordar condiciones.`,
+        badge: 'ðŸ”´ Crítico',
+        title: `Cotización ${q.number} vence MAÃ‘ANA`,
+        message: `${q.eventTitle} (${clientName}) vence mañana (${formatDateHuman(q.validUntil)}). Ãšltimo día para acordar condiciones.`,
         quoteId: q.id,
         days: 1
       });
@@ -8507,7 +8659,7 @@ function generateSystemNotifications() {
         type: 'quote_expiring',
         severity: 'warning',
         badge: 'ðŸŸ¡ Advertencia',
-        title: `CotizaciÃ³n ${q.number} vence en ${diffDays} dÃ­as`,
+        title: `Cotización ${q.number} vence en ${diffDays} días`,
         message: `${q.eventTitle} (${clientName}) vence el ${formatDateHuman(q.validUntil)}.`,
         quoteId: q.id,
         days: diffDays
@@ -8518,15 +8670,15 @@ function generateSystemNotifications() {
         type: 'quote_expiring',
         severity: 'info',
         badge: 'ðŸŸ¢ Informativo',
-        title: `CotizaciÃ³n ${q.number} activa`,
-        message: `${q.eventTitle} (${clientName}) vence en ${diffDays} dÃ­as.`,
+        title: `Cotización ${q.number} activa`,
+        message: `${q.eventTitle} (${clientName}) vence en ${diffDays} días.`,
         quoteId: q.id,
         days: diffDays
       });
     }
   });
 
-  // 2. Eventos prÃ³ximos en Agenda
+  // 2. Eventos próximos en Agenda
   (state.savedQuotes || []).forEach(q => {
     if (q.status !== 'Aprobada') return;
     const eDate = new Date(q.eventDate + 'T00:00:00');
@@ -8541,9 +8693,9 @@ function generateSystemNotifications() {
         id: `notif-event-${q.id}`,
         type: 'event_upcoming',
         severity: isCrit ? 'critical' : 'warning',
-        badge: isCrit ? 'ðŸ”´ CrÃ­tico' : 'ðŸŸ¡ Advertencia',
+        badge: isCrit ? 'ðŸ”´ Crítico' : 'ðŸŸ¡ Advertencia',
         title: diffDays === 0 ? `ðŸŽ‰ Evento HOY: ${q.eventTitle}` : `ðŸ“… Evento en ${diffDays}d: ${q.eventTitle}`,
-        message: `${q.guestsPax} Pax en ${q.eventVenue || 'locaciÃ³n'} (${clientName}). Verifica insumos y personal.`,
+        message: `${q.guestsPax} Pax en ${q.eventVenue || 'locación'} (${clientName}). Verifica insumos y personal.`,
         quoteId: q.id,
         days: diffDays
       });
@@ -8559,7 +8711,7 @@ function generateSystemNotifications() {
           severity: 'warning',
           badge: 'ðŸŸ¡ Advertencia',
           title: `Cierre pendiente: ${q.eventTitle}`,
-          message: `Evento finalizÃ³ hace ${Math.abs(diffDays)} dÃ­as. Registra costos reales, compras extras y liquida.`,
+          message: `Evento finalizó hace ${Math.abs(diffDays)} días. Registra costos reales, compras extras y liquida.`,
           quoteId: q.id,
           days: diffDays
         });
@@ -8576,7 +8728,7 @@ function generateSystemNotifications() {
         id: `notif-payment-${q.id}`,
         type: 'pending_payment',
         severity: diffDays <= 2 ? 'critical' : 'warning',
-        badge: diffDays <= 2 ? 'ðŸ”´ CrÃ­tico' : 'ðŸŸ¡ Advertencia',
+        badge: diffDays <= 2 ? 'ðŸ”´ Crítico' : 'ðŸŸ¡ Advertencia',
         title: `Saldo por cobrar: ${formatCurrency(saldo)}`,
         message: `${q.eventTitle} (${clientName}) tiene saldo pendiente de cobro antes de la entrega.`,
         quoteId: q.id
@@ -8591,7 +8743,7 @@ function generateSystemNotifications() {
         id: `notif-stock-${p.id}`,
         type: 'low_stock',
         severity: 'critical',
-        badge: 'ðŸ”´ CrÃ­tico',
+        badge: 'ðŸ”´ Crítico',
         title: `Insumo agotado: ${p.name}`,
         message: `Existencia en 0 ${p.unit}. Reabastecer en bodega para evitar faltantes en eventos.`,
         productId: p.id
@@ -9038,28 +9190,214 @@ function selectAgendaDay(dateStr) {
   setAgendaViewMode('day');
 }
 
+let currentAgendaQuote = null;
+
 function openAgendaEventDetails(quoteId) {
   const sq = (state.savedQuotes || []).find(q => q.id === quoteId);
-  if (!sq) return;
-  loadSavedQuoteIntoActive(sq);
-
-  // Quick Action Sheet / Confirmation
-  const client = state.clients.find(c => c.id === sq.clientId);
-  const action = confirm(
-    `EVENTO: ${sq.eventTitle} (${sq.number})\n` +
-    `• Fecha: ${formatDateHuman(sq.eventDate)}\n` +
-    `• Pax: ${sq.guestsPax} Personas\n` +
-    `• Cliente: ${client?.name || 'Cliente'}\n` +
-    `• Lugar: ${sq.eventVenue || 'Por definir'}\n` +
-    `• Total: ${formatCurrency(sq.total)}\n\n` +
-    `¿Deseas abrir la Lista de Compras para este evento? (Aceptar = Lista de Compras, Cancelar = Abrir Cotizador)`
-  );
-
-  if (action) {
-    openShoppingListModal(sq);
-  } else {
-    switchView('cotizador');
+  if (!sq) {
+    showToast('Cotización no encontrada');
+    return;
   }
+  currentAgendaQuote = sq;
+
+  const modal = document.getElementById('modal-agenda-event-details');
+  if (!modal) return;
+
+  const client = (state.clients || []).find(c => c.id === sq.clientId);
+  const eventDateObj = new Date(sq.eventDate + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffDays = Math.round((eventDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  let daysText = diffDays === 0 ? 'Â¡Hoy es el evento!' : (diffDays > 0 ? `Faltan ${diffDays} días` : `Finalizó hace ${Math.abs(diffDays)} días`);
+
+  // Status badge styling
+  let statusBadgeClass = 'bg-slate-100 text-slate-700';
+  if (sq.status === 'Aprobada') statusBadgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+  else if (sq.status === 'Borrador') statusBadgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
+  else if (sq.status === 'Rechazada') statusBadgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+
+  // Populate fields
+  const quoteNumEl = document.getElementById('agenda-det-quote-num');
+  if (quoteNumEl) quoteNumEl.textContent = sq.number || 'COT';
+  
+  const badgeEl = document.getElementById('agenda-det-status-badge');
+  if (badgeEl) {
+    badgeEl.textContent = sq.status || 'Borrador';
+    badgeEl.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadgeClass}`;
+  }
+  
+  const titleEl = document.getElementById('agenda-det-title');
+  if (titleEl) titleEl.textContent = sq.eventTitle || 'Evento';
+  
+  const dateEl = document.getElementById('agenda-det-date');
+  if (dateEl) dateEl.textContent = formatDateHuman(sq.eventDate);
+  
+  const daysEl = document.getElementById('agenda-det-days-left');
+  if (daysEl) daysEl.textContent = daysText;
+  
+  const paxEl = document.getElementById('agenda-det-pax');
+  if (paxEl) paxEl.textContent = `${sq.guestsPax || 1} Pax`;
+  
+  const typeEl = document.getElementById('agenda-det-type');
+  if (typeEl) typeEl.textContent = sq.eventType || 'Evento';
+  
+  const venueEl = document.getElementById('agenda-det-venue');
+  if (venueEl) venueEl.textContent = sq.eventVenue || 'Locación por definir';
+  
+  const totalEl = document.getElementById('agenda-det-total');
+  if (totalEl) totalEl.textContent = formatCurrency(sq.total || 0);
+
+  const anticipo = Math.round((Number(sq.total) || 0) * ((Number(sq.depositPct) || 50) / 100));
+  const saldo = Math.max(0, (Number(sq.total) || 0) - anticipo);
+  const balanceNote = document.getElementById('agenda-det-balance-note');
+  if (balanceNote) {
+    balanceNote.textContent = `Anticipo: ${formatCurrency(anticipo)} | Saldo: ${formatCurrency(saldo)}`;
+  }
+
+  // Client info
+  const clientNameEl = document.getElementById('agenda-det-client-name');
+  if (clientNameEl) clientNameEl.textContent = client ? client.name : 'Cliente General';
+  
+  const clientDocEl = document.getElementById('agenda-det-client-doc');
+  if (clientDocEl) clientDocEl.textContent = `Doc: ${client?.doc || '-'}`;
+  
+  const clientEmailEl = document.getElementById('agenda-det-client-email');
+  if (clientEmailEl) clientEmailEl.textContent = client?.email || 'Sin correo';
+  
+  const clientCityEl = document.getElementById('agenda-det-client-city');
+  if (clientCityEl) clientCityEl.textContent = client?.city || 'Colombia';
+  
+  const phoneBtn = document.getElementById('agenda-det-client-phone-btn');
+  const phoneSpan = document.getElementById('agenda-det-client-phone');
+  if (phoneBtn && phoneSpan) {
+    if (client && client.phone && client.phone !== '-') {
+      const cleanPhone = client.phone.replace(/[^0-9+]/g, '');
+      phoneBtn.href = `https://wa.me/${cleanPhone.replace('+', '')}`;
+      phoneSpan.textContent = client.phone;
+      phoneBtn.classList.remove('hidden');
+    } else {
+      phoneSpan.textContent = 'Sin teléfono';
+      phoneBtn.href = '#';
+    }
+  }
+
+  // Items list
+  const itemsContainer = document.getElementById('agenda-det-items-list');
+  const itemsCount = document.getElementById('agenda-det-items-count');
+  const items = sq.items || [];
+  if (itemsCount) itemsCount.textContent = `${items.length} ítems`;
+  if (itemsContainer) {
+    if (items.length === 0) {
+      itemsContainer.innerHTML = '<div class="py-3 text-slate-400 text-center">Sin ítems cotizados</div>';
+    } else {
+      itemsContainer.innerHTML = items.map(it => `
+        <div class="py-2 flex items-center justify-between">
+          <div class="min-w-0 flex-1">
+            <span class="font-bold text-slate-800 dark:text-slate-200">${it.name}</span>
+            <span class="text-[10px] text-slate-400 ml-1.5">${it.qty} ${it.unit || 'und'}</span>
+          </div>
+          <div class="font-extrabold text-slate-900 dark:text-white tabular-nums">${formatCurrency((Number(it.qty) || 0) * (Number(it.price) || 0))}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Action Buttons
+  const btnQuote = document.getElementById('agenda-btn-action-quote');
+  if (btnQuote) {
+    btnQuote.onclick = () => {
+      loadSavedQuoteIntoActiveQuoteById(sq.id);
+      closeAgendaEventDetailsModal();
+      switchView('cotizador');
+    };
+  }
+
+  const btnShop = document.getElementById('agenda-btn-action-shop');
+  if (btnShop) {
+    btnShop.onclick = () => {
+      closeAgendaEventDetailsModal();
+      openShoppingListModal(sq);
+    };
+  }
+
+  const btnCdc = document.getElementById('agenda-btn-action-cdc');
+  if (btnCdc) {
+    btnCdc.onclick = () => {
+      closeAgendaEventDetailsModal();
+      openCuentaCobroModal(sq.fullCopy || sq);
+    };
+  }
+
+  const btnCloseEv = document.getElementById('agenda-btn-action-close-event');
+  if (btnCloseEv) {
+    btnCloseEv.onclick = () => {
+      closeAgendaEventDetailsModal();
+      switchView('rentabilidad');
+      loadEventForClosure(sq.id);
+    };
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeAgendaEventDetailsModal() {
+  document.getElementById('modal-agenda-event-details')?.classList.add('hidden');
+}
+
+// -------------------------------------------------------------
+// OPERATOR / SYSTEM MANAGER MANAGEMENT
+// -------------------------------------------------------------
+function getOperatorName() {
+  if (state.auth && state.auth.operatorName && state.auth.operatorName.trim()) {
+    return state.auth.operatorName.trim();
+  }
+  return 'Alexander';
+}
+
+function updateOperatorNameDisplay() {
+  const name = getOperatorName();
+  const greetingEl = document.getElementById('dash-greeting-name');
+  if (greetingEl) greetingEl.textContent = name;
+  const popoverEl = document.getElementById('popover-operator-name');
+  if (popoverEl) popoverEl.textContent = name;
+  const headerUser = document.getElementById('header-user-name');
+  if (headerUser) headerUser.textContent = name;
+  const sidebarUser = document.getElementById('sidebar-user-name');
+  if (sidebarUser) sidebarUser.textContent = name;
+  const avatarInit = document.getElementById('user-avatar-initial');
+  if (avatarInit) avatarInit.textContent = name.charAt(0).toUpperCase();
+  const sidebarAvatar = document.getElementById('sidebar-user-avatar');
+  if (sidebarAvatar) sidebarAvatar.textContent = name.charAt(0).toUpperCase();
+  const compInput = document.getElementById('comp-operator-name');
+  if (compInput) compInput.value = name;
+}
+
+function openEditOperatorModal() {
+  const current = getOperatorName();
+  const input = document.getElementById('input-modal-operator-name');
+  if (input) input.value = current;
+  document.getElementById('modal-edit-operator')?.classList.remove('hidden');
+  input?.focus();
+}
+
+function closeEditOperatorModal() {
+  document.getElementById('modal-edit-operator')?.classList.add('hidden');
+}
+
+function saveOperatorNameFromModal() {
+  const input = document.getElementById('input-modal-operator-name');
+  const newName = input ? input.value.trim() : '';
+  if (!newName) {
+    showToast('Por favor escribe un nombre');
+    return;
+  }
+  state.auth = state.auth || getDefaultState().auth;
+  state.auth.operatorName = newName;
+  saveState();
+  updateOperatorNameDisplay();
+  closeEditOperatorModal();
+  showToast(`\u2705 Nombre del operador guardado: ${newName}`);
 }
 
 
