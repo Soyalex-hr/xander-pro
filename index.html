@@ -258,8 +258,159 @@
       pointer-events: none;
     }
 
+    /* =====================================================
+       ANTIGRAVITY UNIVERSAL SYSTEM: ALL VIEWS & MODALS
+       ===================================================== */
+    /* View Cards, Modals & Popovers (Light & Dark Glass) */
+    [id^="view-"] > .bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    [id^="view-"] > div.bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    [id^="view-"] section > div.bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    [id^="view-"] .bg-white.rounded-2xl:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    [id^="view-"] .bg-white.rounded-3xl:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    #clients-cards-grid > div,
+    #saved-quotes-mobile-cards > div,
+    [id^="modal-"] > div:not([class*="fixed"]),
+    [id^="modal-"] .bg-white.rounded-2xl,
+    [id^="modal-"] .bg-white.rounded-3xl,
+    #notifications-popover,
+    #user-menu-popover {
+      background: var(--ag-glass-bg) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1px solid var(--ag-glass-border) !important;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 20px 40px -10px rgba(99, 102, 241, 0.06) !important;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.22s cubic-bezier(0.2, 0, 0, 1) !important;
+    }
+
+    html.dark [id^="view-"] > .bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    html.dark [id^="view-"] > div.bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    html.dark [id^="view-"] section > div.bg-white:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    html.dark [id^="view-"] .bg-white.rounded-2xl:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    html.dark [id^="view-"] .bg-white.rounded-3xl:not(#pdf-document-sheet):not(#pdf-render-clone):not(.pdf-pure-white-export),
+    html.dark [id^="view-"] .dark\:bg-slate-800:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    html.dark [id^="view-"] .dark\:bg-slate-900:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    html.dark #clients-cards-grid > div,
+    html.dark #saved-quotes-mobile-cards > div,
+    html.dark [id^="modal-"] > div:not([class*="fixed"]),
+    html.dark [id^="modal-"] .bg-white.rounded-2xl,
+    html.dark [id^="modal-"] .bg-white.rounded-3xl,
+    html.dark [id^="modal-"] .dark\:bg-slate-800,
+    html.dark [id^="modal-"] .dark\:bg-slate-900,
+    html.dark #notifications-popover,
+    html.dark #user-menu-popover {
+      background: rgba(15, 23, 42, 0.78) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5), 0 20px 50px -10px rgba(99, 102, 241, 0.14) !important;
+    }
+
+    /* Modal Backdrop Depth */
+    [id^="modal-"] {
+      backdrop-filter: blur(14px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+    }
+
+    /* Secondary Surfaces (Filters, Striping, Inner Pills) */
+    [id^="view-"] .bg-slate-50:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    [id^="view-"] .bg-slate-100:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    [id^="modal-"] .bg-slate-50:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    [id^="modal-"] .bg-slate-100:not(#pdf-document-sheet *):not(#pdf-render-clone *) {
+      background-color: rgba(248, 250, 252, 0.65) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+    }
+    html.dark [id^="view-"] .bg-slate-50:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    html.dark [id^="view-"] .bg-slate-100:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    html.dark [id^="modal-"] .bg-slate-50:not(#pdf-document-sheet *):not(#pdf-render-clone *),
+    html.dark [id^="modal-"] .bg-slate-100:not(#pdf-document-sheet *):not(#pdf-render-clone *) {
+      background-color: rgba(11, 17, 32, 0.65) !important;
+      border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    /* Table Rows Interactive Hover Highlighting */
+    [id^="view-"] tbody tr:hover:not(#pdf-document-sheet tr):not(#pdf-render-clone tr) {
+      background-color: rgba(99, 102, 241, 0.05) !important;
+      transition: background-color 0.15s ease;
+    }
+    html.dark [id^="view-"] tbody tr:hover:not(#pdf-document-sheet tr):not(#pdf-render-clone tr) {
+      background-color: rgba(99, 102, 241, 0.12) !important;
+    }
+
+    /* Universal Antigravity Form Inputs across Views & Modals */
+    [id^="view-"] input:not([type="checkbox"]):not([type="radio"]):not(#pdf-document-sheet *),
+    [id^="view-"] select:not(#pdf-document-sheet *),
+    [id^="view-"] textarea:not(#pdf-document-sheet *),
+    [id^="modal-"] input:not([type="checkbox"]):not([type="radio"]),
+    [id^="modal-"] select,
+    [id^="modal-"] textarea {
+      border-radius: 0.75rem !important;
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      border: 1px solid rgba(203, 213, 225, 0.85) !important;
+      transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease !important;
+    }
+    [id^="view-"] input:focus:not([type="checkbox"]):not([type="radio"]):not(#pdf-document-sheet *),
+    [id^="view-"] select:focus:not(#pdf-document-sheet *),
+    [id^="view-"] textarea:focus:not(#pdf-document-sheet *),
+    [id^="modal-"] input:focus:not([type="checkbox"]):not([type="radio"]),
+    [id^="modal-"] select:focus,
+    [id^="modal-"] textarea:focus {
+      background-color: rgba(255, 255, 255, 0.98) !important;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 12px -2px rgba(99, 102, 241, 0.1) !important;
+      outline: none !important;
+    }
+    html.dark [id^="view-"] input:not([type="checkbox"]):not([type="radio"]):not(#pdf-document-sheet *),
+    html.dark [id^="view-"] select:not(#pdf-document-sheet *),
+    html.dark [id^="view-"] textarea:not(#pdf-document-sheet *),
+    html.dark [id^="modal-"] input:not([type="checkbox"]):not([type="radio"]),
+    html.dark [id^="modal-"] select,
+    html.dark [id^="modal-"] textarea {
+      background-color: rgba(11, 16, 29, 0.75) !important;
+      border-color: rgba(51, 65, 85, 0.8) !important;
+      color: #f8fafc !important;
+    }
+    html.dark [id^="view-"] input:focus:not([type="checkbox"]):not([type="radio"]):not(#pdf-document-sheet *),
+    html.dark [id^="view-"] select:focus:not(#pdf-document-sheet *),
+    html.dark [id^="view-"] textarea:focus:not(#pdf-document-sheet *),
+    html.dark [id^="modal-"] input:focus:not([type="checkbox"]):not([type="radio"]),
+    html.dark [id^="modal-"] select:focus,
+    html.dark [id^="modal-"] textarea:focus {
+      background-color: rgba(15, 23, 42, 0.95) !important;
+      border-color: #818cf8 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), 0 4px 16px -2px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Cards Hover Elevation */
+    [id^="view-"] .rounded-2xl:hover:not(#pdf-document-sheet):not(#pdf-render-clone):not(#pdf-document-sheet *):not(header):not(nav) {
+      border-color: rgba(99, 102, 241, 0.3) !important;
+    }
+    html.dark [id^="view-"] .rounded-2xl:hover:not(#pdf-document-sheet):not(#pdf-render-clone):not(#pdf-document-sheet *):not(header):not(nav) {
+      border-color: rgba(129, 140, 248, 0.35) !important;
+    }
+
+    /* Primary Actions Button Glow & Micro-motion */
+    button.bg-indigo-600,
+    button.bg-blue-600,
+    button.bg-emerald-600 {
+      transition: all 0.22s cubic-bezier(0.2, 0, 0, 1) !important;
+      box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.35) !important;
+    }
+    button.bg-indigo-600:hover,
+    button.bg-blue-600:hover,
+    button.bg-emerald-600:hover {
+      transform: translateY(-1.5px) !important;
+      box-shadow: 0 8px 20px -3px rgba(79, 70, 229, 0.5) !important;
+      filter: brightness(1.06);
+    }
+    button.bg-indigo-600:active,
+    button.bg-blue-600:active,
+    button.bg-emerald-600:active {
+      transform: translateY(0.5px) scale(0.98) !important;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .ag-ambient-orb, .ag-floating-badge, .ag-tilt-card {
+      .ag-ambient-orb, .ag-floating-badge, .ag-tilt-card, [id^="view-"] .rounded-2xl, button.bg-indigo-600 {
         animation: none !important;
         transform: none !important;
         transition: none !important;
@@ -865,14 +1016,13 @@
   <div id="sidebar-mobile-backdrop" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm hidden lg:hidden transition-opacity duration-300 no-print" onclick="closeMobileSidebar()"></div>
 
   <!-- Left Sidebar Navigation -->
-  <!-- Ambient Luminous Gradient Behind Sidebar for Glass Refraction (No-Print) -->
-  <div class="fixed top-0 bottom-0 left-0 w-80 pointer-events-none z-40 overflow-hidden no-print" aria-hidden="true">
-    <div class="absolute -top-12 -left-12 w-96 h-96 rounded-full bg-gradient-to-br from-indigo-500/25 via-blue-500/20 to-purple-500/20 blur-3xl ag-orb-1"></div>
-    <div class="absolute top-1/2 -left-16 w-80 h-80 rounded-full bg-gradient-to-tr from-cyan-400/20 via-indigo-500/15 to-pink-500/15 blur-3xl ag-orb-2"></div>
-    <div class="absolute -bottom-10 -left-10 w-88 h-88 rounded-full bg-gradient-to-tr from-blue-600/20 via-violet-500/20 to-emerald-400/15 blur-3xl ag-orb-3"></div>
-  </div>
-
   <aside id="app-sidebar" class="hidden no-print fixed top-0 bottom-0 left-0 z-50 w-64 ag-glass-panel flex flex-col shadow-2xl lg:shadow-xl -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out select-none">
+    <!-- Ambient Internal Sidebar Glow (Strictly inside sidebar bounds, zero spillover) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none -z-10 rounded-r-3xl" aria-hidden="true">
+      <div class="absolute -top-10 -left-10 w-64 h-64 rounded-full bg-indigo-500/15 dark:bg-indigo-500/25 blur-3xl"></div>
+      <div class="absolute top-1/2 -left-10 w-64 h-64 rounded-full bg-blue-500/15 dark:bg-blue-500/20 blur-3xl"></div>
+      <div class="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-purple-500/15 dark:bg-purple-500/25 blur-3xl"></div>
+    </div>
     <!-- Sidebar Header: Brand & Logo -->
     <div class="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 shrink-0">
       <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="switchView('cotizador')" title="Ir al Cotizador">
@@ -11245,7 +11395,7 @@ function renderClientsGrid() {
   grid.innerHTML = list.map(c => {
     const m = c.metrics;
     return `
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-blue-400 dark:hover:border-blue-600 transition group">
+      <div class="ag-tilt-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-blue-400 dark:hover:border-blue-600 transition group">
         <div>
           <!-- Header Card -->
           <div class="flex items-start justify-between gap-2">
