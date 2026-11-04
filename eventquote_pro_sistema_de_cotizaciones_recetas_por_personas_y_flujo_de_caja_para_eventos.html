@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="light" style="color-scheme: light;">
 <head>
   <meta charset="UTF-8" />
@@ -87,7 +87,126 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <style>
+    /* =====================================================
+       ANTIGRAVITY DESIGN SYSTEM (SPATIAL, GLASS, WEIGHTLESS)
+       ===================================================== */
+    :root {
+      --ag-glass-bg: rgba(255, 255, 255, 0.78);
+      --ag-glass-border: rgba(226, 232, 240, 0.85);
+      --ag-glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 20px 40px -10px rgba(99, 102, 241, 0.07);
+    }
+    html.dark {
+      --ag-glass-bg: rgba(15, 23, 42, 0.75);
+      --ag-glass-border: rgba(255, 255, 255, 0.08);
+      --ag-glass-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5), 0 20px 50px -10px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Ambient Spatial Depth Floating Blobs */
+    .ag-ambient-orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.22;
+      z-index: 0;
+      will-change: transform;
+    }
+    html.dark .ag-ambient-orb {
+      opacity: 0.32;
+      mix-blend-mode: screen;
+    }
+    .ag-orb-1 {
+      top: -60px;
+      right: 5%;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, #6366f1 15%, #3b82f6 50%, transparent 75%);
+      animation: ag-float-slow 16s ease-in-out infinite alternate;
+    }
+    .ag-orb-2 {
+      top: 38%;
+      left: -60px;
+      width: 440px;
+      height: 440px;
+      background: radial-gradient(circle, #ec4899 15%, #8b5cf6 50%, transparent 75%);
+      animation: ag-float-slow 20s ease-in-out infinite alternate-reverse;
+    }
+    .ag-orb-3 {
+      bottom: 5%;
+      right: 15%;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #06b6d4 15%, #10b981 50%, transparent 75%);
+      animation: ag-float-slow 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes ag-float-slow {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(35px, -30px, 0) scale(1.08); }
+    }
+
+    @keyframes ag-weightless-bounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .ag-floating-badge {
+      animation: ag-weightless-bounce 4s ease-in-out infinite;
+    }
+
+    /* Antigravity Glass Panels */
+    .ag-glass-panel {
+      background: var(--ag-glass-bg) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      border: 1px solid var(--ag-glass-border) !important;
+      box-shadow: var(--ag-glass-shadow) !important;
+    }
+
+    /* Weightless floating card with 3D perspective */
+    .ag-tilt-card {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 20px 40px -10px rgba(99, 102, 241, 0.06);
+    }
+    .ag-tilt-card:hover {
+      box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.08), 0 25px 50px -12px rgba(99, 102, 241, 0.16);
+      border-color: rgba(99, 102, 241, 0.35) !important;
+    }
+    html.dark .ag-tilt-card {
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4), 0 20px 45px -10px rgba(99, 102, 241, 0.1);
+    }
+    html.dark .ag-tilt-card:hover {
+      box-shadow: 0 22px 45px -5px rgba(0, 0, 0, 0.6), 0 25px 60px -10px rgba(99, 102, 241, 0.25);
+      border-color: rgba(129, 140, 248, 0.45) !important;
+    }
+
+    /* Specular Reflection Shimmer */
+    .ag-specular-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    .ag-specular-glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ag-ambient-orb, .ag-floating-badge, .ag-tilt-card {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
@@ -642,7 +761,7 @@
   <div id="sidebar-mobile-backdrop" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm hidden lg:hidden transition-opacity duration-300 no-print" onclick="closeMobileSidebar()"></div>
 
   <!-- Left Sidebar Navigation -->
-  <aside id="app-sidebar" class="hidden no-print fixed top-0 bottom-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-xl lg:shadow-none -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out select-none">
+  <aside id="app-sidebar" class="hidden no-print fixed top-0 bottom-0 left-0 z-50 w-64 ag-glass-panel flex flex-col shadow-2xl lg:shadow-xl -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out select-none">
     <!-- Sidebar Header: Brand & Logo -->
     <div class="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 shrink-0">
       <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="switchView('cotizador')" title="Ir al Cotizador">
@@ -836,9 +955,15 @@
   <!-- ==========================================
        MAIN DASHBOARD WRAPPER (HEADER + CONTENT)
        ========================================== -->
-  <div id="dashboard-wrapper" class="hidden flex-1 flex flex-col min-w-0 min-h-screen lg:ml-64 transition-all duration-300">
+  <div id="dashboard-wrapper" class="hidden flex-1 flex flex-col min-w-0 min-h-screen lg:ml-64 transition-all duration-300 relative">
+    <!-- Spatial Ambient Floating Depth Orbs (No-Print) -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 no-print" aria-hidden="true">
+      <div class="ag-ambient-orb ag-orb-1"></div>
+      <div class="ag-ambient-orb ag-orb-2"></div>
+      <div class="ag-ambient-orb ag-orb-3"></div>
+    </div>
     <!-- Slim Dashboard Header -->
-    <header id="dashboard-header" class="no-print sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors h-16 flex items-center px-4 sm:px-6 justify-between gap-4">
+    <header id="dashboard-header" class="no-print sticky top-0 z-30 ag-glass-panel transition-colors h-16 flex items-center px-4 sm:px-6 justify-between gap-4">
       <!-- Left: Mobile Hamburger / Desktop Toggle + Active View Breadcrumb -->
       <div class="flex items-center gap-3 min-w-0">
         <!-- Sidebar Toggle (Opens Mobile Sidebar or Toggles Desktop Collapse) -->
@@ -936,10 +1061,10 @@
          ========================================== -->
     <section id="view-dashboard" class="space-y-6">
       <!-- 1. Executive Greeting & Quick Action Banner -->
-      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-800 relative overflow-hidden">
+      <div class="ag-tilt-card ag-specular-glow bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-indigo-500/20 relative overflow-hidden">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div class="space-y-1.5">
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-400/30">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold border border-indigo-400/30 ag-floating-badge">
               <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
               <span id="dash-current-date-text">Cargando fecha...</span>
             </div>
@@ -980,7 +1105,7 @@
       <!-- 2. KPI Executive Indicators Grid (6 Cards) -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <!-- KPI 1: Cotizaciones Activas -->
-        <div onclick="switchView('historial')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="switchView('historial')" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cotizaciones</span>
             <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -990,7 +1115,7 @@
         </div>
 
         <!-- KPI 2: Eventos Programados -->
-        <div onclick="switchView('agenda')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="switchView('agenda')" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Eventos</span>
             <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -1000,7 +1125,7 @@
         </div>
 
         <!-- KPI 3: Balance del Mes -->
-        <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="switchView('finanzas')" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance Mes</span>
             <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -1010,7 +1135,7 @@
         </div>
 
         <!-- KPI 4: Ganancia Estimada -->
-        <div onclick="switchView('finanzas')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="switchView('finanzas')" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Est.</span>
             <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
@@ -1020,7 +1145,7 @@
         </div>
 
         <!-- KPI 5: Ganancia Real (Cierres) -->
-        <div onclick="switchView('rentabilidad')" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="switchView('rentabilidad')" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ganancia Real</span>
             <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -1030,7 +1155,7 @@
         </div>
 
         <!-- KPI 6: Alertas Pendientes -->
-        <div onclick="toggleNotificationsPopover()" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer group">
+        <div onclick="toggleNotificationsPopover()" class="ag-tilt-card ag-glass-panel rounded-2xl p-4 shadow-sm transition-all duration-300 cursor-pointer group relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 group-hover:text-blue-600 transition">
             <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Alertas</span>
             <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -1041,7 +1166,7 @@
       </div>
 
       <!-- 3. MÓDULO CENTRAL: ACCIONES PENDIENTES (Requirement 4) -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
+      <div class="ag-glass-panel rounded-3xl p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
             <div class="flex items-center gap-2">
@@ -1067,7 +1192,7 @@
       </div>
 
       <!-- 4. WIDGET DE COTIZACIONES PRÓXIMAS A VENCER (Requirement 6) -->
-      <div id="widget-expiring-quotes-dashboard" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-4">
+      <div id="widget-expiring-quotes-dashboard" class="ag-glass-panel rounded-3xl p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
@@ -1129,7 +1254,7 @@
       <!-- 5. Bottom Section: Upcoming Events Preview + Recent Cash Flow -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <!-- Upcoming Events Preview -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
+        <div class="ag-glass-panel rounded-3xl p-6 shadow-sm space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <span>🎉</span> Próximos Eventos Confirmados
@@ -1144,7 +1269,7 @@
         </div>
 
         <!-- Recent Financial Activity -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
+        <div class="ag-glass-panel rounded-3xl p-6 shadow-sm space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <span>💵</span> Movimientos Financieros Recientes
@@ -4861,7 +4986,8 @@
         if (lockedNotice) lockedNotice.classList.add('hidden');
         if (passwordInput) passwordInput.value = '';
         resetInactivityTimer();
-        switchView('dashboard');
+        initAntigravityMotion();
+      switchView('dashboard');
       } else {
         document.body.classList.add('is-unauthenticated');
         authScreen?.classList.remove('hidden');
@@ -6765,6 +6891,20 @@
         renderEventTypesPills();
       }
       if (viewName === 'agenda') renderAgenda();
+      // Antigravity GSAP Staggered Entrance
+      if (window.gsap && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        const activeContainer = document.getElementById(`view-${viewName}`);
+        if (activeContainer) {
+          const directCards = activeContainer.querySelectorAll(':scope > div, :scope > section, .ag-tilt-card');
+          if (directCards.length > 0) {
+            gsap.fromTo(directCards, 
+              { opacity: 0, y: 14 }, 
+              { opacity: 1, y: 0, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "opacity" }
+            );
+          }
+        }
+      }
+
       if (viewName === 'rentabilidad') {
         populateClosureQuoteSelect();
         renderClosureHistory();
@@ -6781,6 +6921,61 @@
       }
     }
 
+    function initAntigravityMotion() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return; // Respect reduced motion preferences
+      }
+
+      // Delegate mousemove on .ag-tilt-card for 3D tilt
+      document.addEventListener('mousemove', function(e) {
+        const card = e.target.closest('.ag-tilt-card');
+        if (!card) return;
+
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+
+        if (window.gsap) {
+          gsap.to(card, {
+            rotateX: rotateX,
+            rotateY: rotateY,
+            z: 8,
+            transformPerspective: 800,
+            duration: 0.2,
+            ease: "power1.out",
+            overwrite: "auto"
+          });
+        } else {
+          card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(6px)`;
+        }
+      });
+
+      document.addEventListener('mouseout', function(e) {
+        const card = e.target.closest('.ag-tilt-card');
+        if (!card) return;
+        if (!card.contains(e.relatedTarget)) {
+          if (window.gsap) {
+            gsap.to(card, {
+              rotateX: 0,
+              rotateY: 0,
+              z: 0,
+              duration: 0.45,
+              ease: "power2.out",
+              overwrite: "auto"
+            });
+          } else {
+            card.style.transform = '';
+          }
+        }
+      });
+    }
+
+    window.initAntigravityMotion = initAntigravityMotion;
     window.switchView = switchView;
 
     // =========================================================================
@@ -7054,7 +7249,7 @@
       ];
 
       container.innerHTML = cards.map((c, idx) => `
-        <div class="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-blue-400 dark:hover:border-blue-600 transition flex flex-col justify-between space-y-3 group">
+        <div class="ag-tilt-card p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-800/60 backdrop-blur-md shadow-antigravity hover:shadow-antigravity-hover transition-all duration-300 flex flex-col justify-between space-y-3 group hover:-translate-y-1">
           <div>
             <div class="flex items-center justify-between gap-2">
               <span class="text-lg p-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-xs">${c.icon}</span>
@@ -9051,6 +9246,7 @@ ${state.company.phone}`;
       renderFinancesView();
       loadCompanyFormInputs();
       updateOperatorNameDisplay();
+      initAntigravityMotion();
       switchView('dashboard');
     });
 
