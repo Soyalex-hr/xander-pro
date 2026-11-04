@@ -152,6 +152,64 @@
       50% { transform: translateY(-4px); }
     }
 
+    /* Antigravity Sidebar Glass & Interactive Motion */
+    #app-sidebar {
+      background: var(--ag-glass-bg) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+      border-right: 1px solid var(--ag-glass-border) !important;
+      box-shadow: 10px 0 35px -10px rgba(15, 23, 42, 0.08) !important;
+    }
+    .ag-sidebar-btn {
+      position: relative;
+      transition: all 0.22s cubic-bezier(0.2, 0, 0, 1) !important;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .ag-sidebar-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 4px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #60a5fa, #818cf8);
+      transform: scaleY(0);
+      transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+      box-shadow: 0 0 10px rgba(96, 165, 250, 0.9);
+    }
+    .ag-sidebar-btn.ag-active::before {
+      transform: scaleY(1);
+    }
+    .ag-sidebar-btn.ag-active {
+      background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.45), 0 0 15px rgba(79, 70, 229, 0.35) !important;
+      transform: translateX(4px) translateZ(8px) !important;
+    }
+    .ag-sidebar-btn.ag-active .nav-icon-box {
+      background: rgba(255, 255, 255, 0.25) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.35) !important;
+      transform: scale(1.08) !important;
+    }
+    .ag-sidebar-btn:not(.ag-active):hover {
+      background: rgba(99, 102, 241, 0.08) !important;
+      color: #4f46e5 !important;
+      transform: translateX(5px) translateY(-1px) !important;
+      box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.15) !important;
+    }
+    html.dark .ag-sidebar-btn:not(.ag-active):hover {
+      background: rgba(99, 102, 241, 0.16) !important;
+      color: #a5b4fc !important;
+      box-shadow: 0 4px 20px -3px rgba(99, 102, 241, 0.3) !important;
+    }
+    .ag-sidebar-btn:not(.ag-active):hover .nav-icon-box {
+      transform: scale(1.12) rotate(-5deg) !important;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+    }
+
     .ag-floating-badge {
       animation: ag-weightless-bounce 4s ease-in-out infinite;
     }
@@ -681,11 +739,15 @@
       }
     }
     html.dark #app-sidebar {
-      background-color: #0b101d !important;
+      background: rgba(11, 16, 29, 0.8) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
       border-color: #1a2337 !important;
     }
     html.dark #dashboard-header {
-      background-color: rgba(11, 16, 29, 0.95) !important;
+      background: rgba(11, 16, 29, 0.8) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
       border-color: #1e293b !important;
     }
     body.is-unauthenticated #app-sidebar,
@@ -703,7 +765,7 @@
       }
     }
   </style>
-<style id="xp-fixes">.sidebar-nav-btn[data-nav="dashboard"] > div:first-child,.sidebar-nav-btn[data-nav="cotizador"] > div:first-child{background:#dbeafe !important;color:#2563eb !important}.sidebar-nav-btn svg{color:inherit !important}.sidebar-nav-btn[data-nav="dashboard"] svg{color:#2563eb !important}</style>
+<style id="xp-fixes"></style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden is-unauthenticated">
 
@@ -803,11 +865,18 @@
   <div id="sidebar-mobile-backdrop" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm hidden lg:hidden transition-opacity duration-300 no-print" onclick="closeMobileSidebar()"></div>
 
   <!-- Left Sidebar Navigation -->
+  <!-- Ambient Luminous Gradient Behind Sidebar for Glass Refraction (No-Print) -->
+  <div class="fixed top-0 bottom-0 left-0 w-80 pointer-events-none z-40 overflow-hidden no-print" aria-hidden="true">
+    <div class="absolute -top-12 -left-12 w-96 h-96 rounded-full bg-gradient-to-br from-indigo-500/25 via-blue-500/20 to-purple-500/20 blur-3xl ag-orb-1"></div>
+    <div class="absolute top-1/2 -left-16 w-80 h-80 rounded-full bg-gradient-to-tr from-cyan-400/20 via-indigo-500/15 to-pink-500/15 blur-3xl ag-orb-2"></div>
+    <div class="absolute -bottom-10 -left-10 w-88 h-88 rounded-full bg-gradient-to-tr from-blue-600/20 via-violet-500/20 to-emerald-400/15 blur-3xl ag-orb-3"></div>
+  </div>
+
   <aside id="app-sidebar" class="hidden no-print fixed top-0 bottom-0 left-0 z-50 w-64 ag-glass-panel flex flex-col shadow-2xl lg:shadow-xl -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out select-none">
     <!-- Sidebar Header: Brand & Logo -->
     <div class="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 shrink-0">
       <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="switchView('cotizador')" title="Ir al Cotizador">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-600 p-1.5 shadow-md shadow-indigo-600/30 shrink-0 transform group-hover:scale-105 transition-transform duration-300">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-600 p-1.5 shadow-md shadow-indigo-600/30 shrink-0 transform group-hover:scale-105 transition-transform duration-300 ag-floating-badge">
           <img src="./icon-192.svg" alt="Xander Pro" class="w-full h-full object-contain filter drop-shadow" />
         </div>
         <div class="sidebar-header-details min-w-0">
@@ -824,7 +893,7 @@
     <!-- Navigation List (Scrollable) -->
     <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden" aria-label="NavegaciÃ³n del Dashboard">
       <!-- 0. Dashboard Operativo -->
-      <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-blue-600 text-white shadow-md shadow-blue-600/25 font-bold" title="Dashboard Operativo">
+      <button type="button" data-nav="dashboard" onclick="switchView('dashboard')" class="sidebar-nav-btn ag-sidebar-btn ag-active w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer font-bold" title="Dashboard Operativo">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/20 text-white transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2v-8zM10 14a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
         </div>
@@ -835,7 +904,7 @@
       </button>
 
       <!-- 1. Cotizador -->
-      <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Cotizador y PDF">
+      <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Cotizador y PDF">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-indigo-100 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
@@ -846,7 +915,7 @@
       </button>
 
       <!-- 2. Cotizaciones -->
-      <button type="button" data-nav="historial" onclick="switchView('historial')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Cotizaciones Guardadas">
+      <button type="button" data-nav="historial" onclick="switchView('historial')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Cotizaciones Guardadas">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-amber-100 text-amber-600 dark:bg-amber-950/70 dark:text-amber-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
         </div>
@@ -860,7 +929,7 @@
       </button>
 
       <!-- Agenda Operativa -->
-      <button type="button" data-nav="agenda" onclick="switchView('agenda')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Agenda y Calendario de Eventos">
+      <button type="button" data-nav="agenda" onclick="switchView('agenda')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Agenda y Calendario de Eventos">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-purple-100 text-purple-600 dark:bg-purple-950/70 dark:text-purple-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
@@ -871,7 +940,7 @@
       </button>
 
       <!-- 3. Insumos -->
-      <button type="button" data-nav="productos" onclick="switchView('productos')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Productos e Insumos">
+      <button type="button" data-nav="productos" onclick="switchView('productos')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Productos e Insumos">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-emerald-100 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         </div>
@@ -882,7 +951,7 @@
       </button>
 
       <!-- 4. Simulador -->
-      <button type="button" data-nav="simulador" onclick="switchView('simulador')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Simulador de Recetas PRO">
+      <button type="button" data-nav="simulador" onclick="switchView('simulador')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Simulador de Recetas PRO">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-rose-100 text-rose-600 dark:bg-rose-950/70 dark:text-rose-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
         </div>
@@ -896,7 +965,7 @@
       </button>
 
       <!-- 5. Clientes -->
-      <button type="button" data-nav="clientes" onclick="switchView('clientes')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Directorio de Clientes">
+      <button type="button" data-nav="clientes" onclick="switchView('clientes')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Directorio de Clientes">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-cyan-100 text-cyan-600 dark:bg-cyan-950/70 dark:text-cyan-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         </div>
@@ -907,7 +976,7 @@
       </button>
 
       <!-- 6. Finanzas -->
-      <button type="button" data-nav="finanzas" onclick="switchView('finanzas')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Flujo de Caja">
+      <button type="button" data-nav="finanzas" onclick="switchView('finanzas')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Flujo de Caja">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-teal-100 text-teal-600 dark:bg-teal-950/70 dark:text-teal-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
@@ -918,7 +987,7 @@
       </button>
 
       <!-- Cierre y Rentabilidad -->
-      <button type="button" data-nav="rentabilidad" onclick="switchView('rentabilidad')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Cierre de Eventos y Rentabilidad Real">
+      <button type="button" data-nav="rentabilidad" onclick="switchView('rentabilidad')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Cierre de Eventos y Rentabilidad Real">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-violet-100 text-violet-600 dark:bg-violet-950/70 dark:text-violet-400 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </div>
@@ -929,7 +998,7 @@
       </button>
 
       <!-- 7. Empresa -->
-      <button type="button" data-nav="empresa" onclick="switchView('empresa')" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium" title="Mi Empresa & Respaldo">
+      <button type="button" data-nav="empresa" onclick="switchView('empresa')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium" title="Mi Empresa & Respaldo">
         <div class="nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 transition-colors group-hover:scale-105">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
         </div>
@@ -968,7 +1037,7 @@
     <!-- Sidebar Bottom: User Card & Desktop Collapse Toggle -->
     <div class="p-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2 shrink-0 bg-slate-50/50 dark:bg-slate-900/40">
       <!-- User Quick Bar in Sidebar -->
-      <div class="sidebar-user-info flex items-center justify-between p-2 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+      <div class="ag-tilt-card sidebar-user-info flex items-center justify-between p-2.5 rounded-2xl bg-white/70 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-antigravity">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0" id="sidebar-user-avatar">
             A
@@ -6896,12 +6965,12 @@
         const palette = navItemPalettes[navId] || { inactive: 'bg-slate-100 text-slate-600' };
 
         if (isActive) {
-          btn.className = 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer bg-blue-600 text-white shadow-md shadow-blue-600/25 font-bold';
+          btn.className = 'sidebar-nav-btn ag-sidebar-btn ag-active w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer font-bold';
           if (iconBox) {
             iconBox.className = 'nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/20 text-white transition-colors';
           }
         } else {
-          btn.className = 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium';
+          btn.className = 'sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 font-medium';
           if (iconBox) {
             iconBox.className = `nav-icon-box w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${palette.inactive} transition-colors group-hover:scale-105`;
           }
