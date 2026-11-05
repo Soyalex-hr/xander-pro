@@ -5320,18 +5320,6 @@
       showToast('Sesión cerrada con éxito.');
     }
 
-    function quickFillLogin() {
-      const u = document.getElementById('login-username');
-      const p = document.getElementById('login-password');
-      if (u) u.value = 'admin';
-      if (p) p.value = 'Admin2026*';
-      sessionStorage.removeItem('eq_lockout_until');
-      sessionStorage.removeItem('eq_failed_attempts');
-      const lb = document.getElementById('auth-lockout-banner');
-      if (lb) lb.classList.add('hidden');
-      handleLoginSubmit();
-    }
-    window.quickFillLogin = quickFillLogin;
 
     function handleLoginSubmit() {
       const userEl = document.getElementById('login-username');
@@ -5372,12 +5360,7 @@
                           cleanUser === expectedUser ||
                           cleanUser === opName;
 
-      const isPasswordMatch = cleanPwd === expectedPassword ||
-                              cleanPwd.toLowerCase() === expectedPassword.toLowerCase() ||
-                              cleanPwd === 'Admin2026*' ||
-                              cleanPwd.toLowerCase() === 'admin2026*' ||
-                              cleanPwd.toLowerCase() === 'admin' ||
-                              cleanPwd === '123456';
+      const isPasswordMatch = cleanPwd === expectedPassword;
 
       if (isUserMatch && isPasswordMatch) {
         failedLoginAttempts = 0;
@@ -5404,7 +5387,7 @@
         showToast('Bienvenido a Xander Pro, ' + (typeof getOperatorName === 'function' ? getOperatorName() : 'Alexander'));
       } else {
         if (lockoutExpiry && Date.now() < lockoutExpiry) {
-          showToast('Acceso temporalmente bloqueado. Usa el bot\u00F3n de autocompletar para ingresar.');
+          showToast('Acceso temporalmente bloqueado por seguridad.');
           return;
         }
 
@@ -5415,10 +5398,10 @@
           const lockTime = Date.now() + 30000;
           sessionStorage.setItem('eq_lockout_until', lockTime.toString());
           startLockoutCountdown(30);
-          showToast('Demasiados intentos fallidos. Puedes pulsar "Desbloquear" para reintentar.');
+          showToast('Demasiados intentos fallidos. Acceso bloqueado por 30 segundos.');
         } else {
           if (errorMsg && errorText) {
-            errorText.textContent = `Credenciales incorrectas (Intento ${failedLoginAttempts}/5). Clave predeterminada: Admin2026*`;
+            errorText.textContent = `Credenciales incorrectas (Intento ${failedLoginAttempts}/5).`;
             errorMsg.classList.remove('hidden');
           }
         }
@@ -9241,7 +9224,7 @@ ${state.company.phone}`;
         const conf = document.getElementById('chg-conf-pwd').value;
 
         const expectedPwd = state.auth?.password || 'Admin2026*';
-        if (curr !== expectedPwd && curr !== 'Admin2026*') {
+        if (curr !== expectedPwd) {
           showToast('❌ La contraseña actual no es correcta.');
           return;
         }
