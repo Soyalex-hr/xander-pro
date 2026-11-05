@@ -2512,7 +2512,7 @@
       <!-- Quick Search Bar for Clients -->
       <div class="relative w-full">
         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
-        <input type="text" id="client-search-input" placeholder="Buscar cliente por nombre, NIT/CC, teléfono o correo..." class="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input type="text" id="client-search-input" oninput="renderClientsGrid()" onkeyup="renderClientsGrid()" placeholder="Buscar cliente por nombre, NIT/CC, teléfono o correo..." class="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clients-cards-grid"></div>
@@ -6936,6 +6936,80 @@
       }).join('');
     }
 
+    function renderFinancesView() {
+      const filterType = document.getElementById('finance-filter-type')?.value || 'all';
+      const finances = state.finances || [];
+      const totalIncome = finances.filter(f => f && f.type === 'ingreso').reduce((a, b) => a + (Number(b.amount) || 0), 0);
+      const totalExpense = finances.filter(f => f && f.type === 'egreso').reduce((a, b) => a + (Number(b.amount) || 0), 0);
+      const netBalance = totalIncome - totalExpense;
+
+      const incEl = document.getElementById('kpi-total-income');
+      const expEl = document.getElementById('kpi-total-expense');
+      const balEl = document.getElementById('kpi-net-balance');
+      if (incEl) incEl.textContent = formatCurrency(totalIncome);
+      if (expEl) expEl.textContent = formatCurrency(totalExpense);
+      if (balEl) balEl.textContent = formatCurrency(netBalance);
+
+      const tbody = document.getElementById('finance-movements-tbody');
+      if (tbody) {
+        const filtered = finances.filter(f => f && (filterType === 'all' || f.type === filterType));
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay movimientos financieros registrados.</td></tr>';
+        } else {
+          tbody.innerHTML = filtered.map(f => {
+            const isInc = f.type === 'ingreso';
+            return `
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                <td class="py-2.5 px-3 tabular-nums text-slate-500">${formatDateHuman(f.date)}</td>
+                <td class="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">${f.concept || 'Movimiento de caja'}</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">${f.category || 'General'} · ${f.method || 'Efectivo'}</span>
+                </td>
+                <td class="py-2.5 px-3 text-right font-extrabold tabular-nums ${isInc ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}">
+                  ${isInc ? '+' : '-'}${formatCurrency(f.amount || 0)}
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button type="button" data-del-fin="${f.id}" class="del-fin-btn text-slate-400 hover:text-rose-600 font-bold cursor-pointer" title="Eliminar">✕</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // Update Chart.js
+      const ctx = document.getElementById('finance-chart-canvas');
+      if (ctx && typeof Chart !== 'undefined') {
+        if (financeChartInstance) {
+          try { financeChartInstance.destroy(); } catch (e) {}
+        }
+        try {
+          financeChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Ingresos (Anticipos)', 'Egresos (Compras)', 'Utilidad Neta'],
+              datasets: [{
+                label: 'Monto ($ COP)',
+                data: [totalIncome, totalExpense, Math.max(0, netBalance)],
+                backgroundColor: ['#059669', '#e11d48', '#4f46e5'],
+                borderRadius: 8
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              }
+            }
+          });
+        } catch (err) {
+          console.warn('Finance chart init note:', err);
+        }
+      }
+    }
+    window.renderFinancesView = renderFinancesView;
+
     function loadCompanyFormInputs() {
       const c = state.company;
       document.getElementById('comp-name').value = c.name;
@@ -11300,9 +11374,9 @@ function getClientIntelligenceMetrics(clientId) {
 
   // Incomes collected for this client from finances
   const clientObj = state.clients.find(c => c.id === clientId);
-  const clientName = clientObj ? clientObj.name.toLowerCase() : '';
+  const clientName = clientObj ? (clientObj.name || '').toLowerCase() : '';
   const totalCollected = (state.finances || [])
-    .filter(f => f.type === 'ingreso' && (f.clientId === clientId || (clientName && f.concept.toLowerCase().includes(clientName))))
+    .filter(f => f && f.type === 'ingreso' && (f.clientId === clientId || (clientName && (f.concept || '').toLowerCase().includes(clientName))))
     .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
 
   // Latest quote
@@ -11335,6 +11409,7 @@ function getClientIntelligenceMetrics(clientId) {
   };
 }
 
+window.renderClientsGrid = renderClientsGrid;
 function renderClientsGrid() {
   const grid = document.getElementById('clients-cards-grid');
   if (!grid) return;
