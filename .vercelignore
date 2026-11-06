@@ -1,0 +1,4 @@
+# Archivos que no se publican en Vercel
+db/
+*.bak
+*.bak*

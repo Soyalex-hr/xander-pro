@@ -1,5 +1,5 @@
-// Service Worker for Xander Pro PWA (Network-First for HTML, Cache-First for Assets)
-const CACHE_NAME = 'xander-pro-v28';
+// Service Worker for Xander Pro PWA (Network-First para código de la app, Cache-First para imágenes)
+const CACHE_NAME = 'xander-pro-v29';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,7 +12,18 @@ const ASSETS_TO_CACHE = [
   './app.ico',
   './img/cabana-1.svg',
   './img/cabana-2.svg',
-  './img/cabana-3.svg'
+  './img/cabana-3.svg',
+  './css/app.css',
+  './js/tailwind-config.js',
+  './js/01-core.js',
+  './js/02-auth-pwa.js',
+  './js/03-cotizador-eventos.js',
+  './js/04-clientes-finanzas-cobro.js',
+  './js/05-navegacion-dashboard.js',
+  './js/06-modulos-avanzados.js',
+  './js/07-versiones-cotizacion.js',
+  './js/08-hospedaje-catalogo.js',
+  './js/09-hospedaje-cotizador.js'
 ];
 
 self.addEventListener('install', event => {
@@ -75,7 +86,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Strategy: CACHE FIRST for static assets (images, icons, manifest)
+  // Código de la app (JS/CSS/JSON): NETWORK FIRST para que cada despliegue llegue
+  // de inmediato; si no hay conexión se usa la copia guardada.
+  const path = new URL(event.request.url).pathname;
+  if (/\.(js|css|json)$/.test(path)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Strategy: CACHE FIRST for static assets (images, icons)
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) return cachedResponse;
