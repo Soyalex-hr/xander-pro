@@ -541,6 +541,7 @@ function openSidebarMenuForView(viewName) {
     cabanas: 'hospedaje',
     'cotizador-cabanas': 'hospedaje',
     servicios: 'hospedaje',
+    'dia-sol': 'hospedaje',
     cotizador: 'eventos',
     historial: 'eventos',
     productos: 'eventos',

@@ -92,6 +92,7 @@
       empresa: `<svg class="w-5 h-5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`,
       cabanas: `<svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`,
       'cotizador-cabanas': `<svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>`
+      ,'dia-sol': `<svg class="w-5 h-5 text-orange-500 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`
       ,servicios: `<svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>`
     };
 
@@ -108,11 +109,12 @@
       empresa: { title: 'Mi Empresa & Respaldo', subtitle: 'Identidad corporativa, t\u00E9rminos comerciales y copias JSON' },
       cabanas: { title: 'Cabañas & Catálogos', subtitle: 'Hospedajes, capacidades, tarifas base, políticas de niños y tours' },
       'cotizador-cabanas': { title: 'Cotizador de Hospedaje', subtitle: 'Presupuesto de cabañas, huéspedes, planes de alimentación y servicios' },
+      'dia-sol': { title: 'Cotizador Día de Sol', subtitle: 'Entradas por persona, adicionales, PDF e historial de pasadías' },
       servicios: { title: 'Servicios Adicionales', subtitle: 'Servicios turísticos, experiencias y conceptos para las cotizaciones' }
     };
 
     function switchView(viewName) {
-      const views = ['dashboard', 'cotizador', 'historial', 'productos', 'simulador', 'clientes', 'finanzas', 'empresa', 'agenda', 'rentabilidad', 'cabanas', 'cotizador-cabanas', 'servicios'];
+      const views = ['dashboard', 'cotizador', 'historial', 'productos', 'simulador', 'clientes', 'finanzas', 'empresa', 'agenda', 'rentabilidad', 'cabanas', 'cotizador-cabanas', 'servicios', 'dia-sol'];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.classList.toggle('hidden', v !== viewName);
@@ -197,6 +199,7 @@
         if (typeof loadCabinQuoteIntoEditor === 'function') loadCabinQuoteIntoEditor();
       }
       if (viewName === 'agenda') renderAgenda();
+      if (viewName === 'dia-sol' && typeof renderDayPassView === 'function') renderDayPassView();
       // Antigravity GSAP Staggered Entrance
       if (window.gsap && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
         const activeContainer = document.getElementById(`view-${viewName}`);
@@ -1987,7 +1990,9 @@ ${state.company.phone}`;
         };
         state.clients.unshift(newClient);
         const quickTarget = window.__quickClientTarget || 'event';
-        if (quickTarget === 'cabin' && state.activeCabinQuote) {
+        if (quickTarget === 'daypass' && state.activeDayPass) {
+          state.activeDayPass.clientId = newClient.id;
+        } else if (quickTarget === 'cabin' && state.activeCabinQuote) {
           state.activeCabinQuote.clientId = newClient.id;
         } else if (state.activeQuote) {
           state.activeQuote.clientId = newClient.id;
@@ -1996,7 +2001,12 @@ ${state.company.phone}`;
         document.getElementById('modal-client')?.classList.add('hidden');
         populateClientSelect();
         renderClientsGrid();
-        if (quickTarget === 'cabin') {
+        if (quickTarget === 'daypass') {
+          if (typeof populateDayPassClients === 'function') populateDayPassClients();
+          const dsSel = document.getElementById('ds-client-select');
+          if (dsSel) dsSel.value = newClient.id;
+          if (typeof recalcDayPass === 'function') recalcDayPass();
+        } else if (quickTarget === 'cabin') {
           if (typeof populateCabinQuotePickers === 'function') populateCabinQuotePickers();
           const hosSel = document.getElementById('hos-client-select');
           if (hosSel) hosSel.value = newClient.id;

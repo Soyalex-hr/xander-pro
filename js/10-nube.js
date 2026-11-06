@@ -19,10 +19,10 @@
   const ARRAY_COLLECTIONS = [
     'eventTypes', 'clients', 'products', 'savedQuotes', 'finances',
     'cabins', 'childPolicies', 'mealPlans', 'tourServices', 'cabinQuotes',
-    'eventClosures', 'notifications'
+    'eventClosures', 'notifications', 'dayPassExtras', 'dayPassQuotes'
   ];
   const SETTINGS_COLLECTION = '_settings';
-  const SETTINGS_KEYS = ['company', 'shoppingLists', 'priceHistory'];
+  const SETTINGS_KEYS = ['company', 'shoppingLists', 'priceHistory', 'dayPassConfig'];
   // Lo que NO se sincroniza: auth (preferencias del dispositivo), users (los gestiona el servidor),
   // activeQuote / activeCabinQuote (borradores abiertos en cada dispositivo).
 
@@ -521,7 +521,7 @@
     if (!upload) {
       // Empresa nueva sin datos: se conservan solo catálogos base
       const def = getDefaultState();
-      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications'].forEach(k => { state[k] = []; });
+      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications', 'dayPassQuotes'].forEach(k => { state[k] = []; });
       state.eventTypes = def.eventTypes;
       state.childPolicies = def.childPolicies;
       state.mealPlans = def.mealPlans;
@@ -531,6 +531,7 @@
       state.company = Object.assign({}, def.company, { name: company.name, nit: company.nit || def.company?.nit || '' });
       state.activeQuote = def.activeQuote;
       state.activeCabinQuote = null;
+      state.activeDayPass = null;
     }
     sync.saveLocal();
     if (cloud.canWrite()) {
