@@ -201,6 +201,7 @@ function renderDayPassExtrasPicker() {
           <span class="text-[10px] text-slate-400">Cant.</span>
           <input type="number" min="0" value="${qty}" ${checked ? '' : 'disabled'} oninput="setDayPassExtraQty('${ex.id}', this.value)" class="w-16 rounded-lg border border-slate-300 dark:border-slate-700 px-2 py-1.5 text-xs font-bold text-center tabular-nums bg-white dark:bg-slate-800" />
         </span>` : ''}
+        <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openDayPassExtraModal('${ex.id}')" class="shrink-0 w-11 h-11 sm:w-9 sm:h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950/40 flex items-center justify-center transition cursor-pointer" title="Editar nombre y valor" aria-label="Editar ${dsEsc(ex.name)}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
       </label>`;
   }).join('');
 }
