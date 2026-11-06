@@ -97,8 +97,86 @@
     companyId() { return this.get()?.company?.id || null; },
     canWrite() { return this.get()?.user?.role !== 'Consulta'; }
   };
-  const snapKey = () => 'xp_sync_snap_' + cloud.companyId();
-  const cursorKey = () => 'xp_sync_cursor_' + cloud.companyId();
+  // ---------------------------------------------------------------------------
+  // Copia local: localStorage (rápido, ~5 MB) + IndexedDB (cientos de MB).
+  // Si localStorage se llena, la copia completa queda en IndexedDB y se usa al abrir.
+  // ---------------------------------------------------------------------------
+  const LS_STATE = 'xander_pro_state_v1';
+  const IDB_KEY = 'main_state_json';
+  const LS_IN_IDB = 'xp_state_in_idb';
+  let persistApplying = false;
+
+  function persistLocal() {
+    state.__savedAt = Date.now();
+    let json;
+    try { json = JSON.stringify(state); } catch (e) { console.error('[nube] no se pudo serializar el estado', e); return; }
+    let okLS = true;
+    try { localStorage.setItem(LS_STATE, json); } catch { okLS = false; }
+    if (okLS) { try { localStorage.removeItem(LS_IN_IDB); } catch {} }
+    else {
+      // localStorage lleno: se libera para no dejar una copia vieja que confunda al abrir
+      try { localStorage.removeItem(LS_STATE); localStorage.setItem(LS_IN_IDB, '1'); } catch {}
+    }
+    try { if (typeof XanderDB !== 'undefined') XanderDB.set(IDB_KEY, json).catch(() => {}); } catch {}
+  }
+
+  // Al abrir: si IndexedDB tiene una copia más reciente que localStorage, se usa esa
+  async function restoreFromIDB() {
+    try {
+      if (typeof XanderDB === 'undefined') return false;
+      const json = await XanderDB.get(IDB_KEY);
+      if (!json || typeof json !== 'string') return false;
+      const idb = JSON.parse(json);
+      if (!idb || !idb.company || !idb.products) return false;
+      const forced = localStorage.getItem(LS_IN_IDB) === '1';
+      if (!forced && (idb.__savedAt || 0) <= (state.__savedAt || 0)) return false;
+      state = idb;
+      try { if (typeof migrateCabanasState === 'function') migrateCabanasState(); } catch {}
+      if (!state.auth) state.auth = getDefaultState().auth;
+      return true;
+    } catch (e) {
+      console.warn('[nube] no se pudo leer IndexedDB', e);
+      return false;
+    }
+  }
+
+  let ready = false;
+  const restorePromise = restoreFromIDB().then(changed => {
+    ready = true;
+    if (changed) { try { if (typeof migrateState === 'function') migrateState(); } catch {} }
+    if (changed || pendingSaveBeforeReady) persistLocal();
+    if (changed) { try { refreshUI(); if (typeof switchView === 'function') { const v = currentView(); if (v) switchView(v); } } catch {} }
+    return changed;
+  });
+
+  // ---------------------------------------------------------------------------
+  // Estado de sincronización (qué versión de cada registro tiene la nube y hasta
+  // dónde se descargó). Se guarda DENTRO del estado (state.__sync) para que los
+  // datos y su estado de sincronización nunca queden desalineados.
+  // ---------------------------------------------------------------------------
+  let metaCache = null;
+  function meta() {
+    const cid = cloud.companyId();
+    if (!cid) return null;
+    if (metaCache && metaCache.companyId === cid) {
+      if (state.__sync !== metaCache) state.__sync = metaCache; // p. ej. después de importar un respaldo
+      return metaCache;
+    }
+    const m = state.__sync;
+    if (m && m.companyId === cid && m.snap) { metaCache = m; return m; }
+    // Migración desde la versión anterior (claves sueltas en localStorage)
+    const oldSnap = lsGet('xp_sync_snap_' + cid, null);
+    if (oldSnap) {
+      metaCache = state.__sync = { companyId: cid, snap: oldSnap, cursor: lsGet('xp_sync_cursor_' + cid, null) };
+      lsDel('xp_sync_snap_' + cid); lsDel('xp_sync_cursor_' + cid);
+      return metaCache;
+    }
+    return null;
+  }
+  function newMeta() {
+    metaCache = state.__sync = { companyId: cloud.companyId(), snap: {}, cursor: null };
+    return metaCache;
+  }
 
   // ---------------------------------------------------------------------------
   // Indicador de estado de sincronización (tarjeta de usuario del sidebar)
@@ -125,6 +203,75 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Fotos: se suben a Vercel Blob y el registro guarda solo el enlace
+  // ---------------------------------------------------------------------------
+  let blobAvailable = null; // null = no se sabe todavía
+  const isDataImage = u => typeof u === 'string' && u.startsWith('data:image/');
+
+  async function uploadImage(dataUrl, name) {
+    if (!cloud.active() || !cloud.canWrite() || blobAvailable === false || !navigator.onLine) return null;
+    try {
+      const r = await api('POST', '/api/upload', { dataUrl, name }, 60000);
+      if (r.status === 200 && r.data?.url) { blobAvailable = true; return r.data.url; }
+      if (r.status === 503 && r.data?.noBlob) blobAvailable = false;
+      else console.warn('[nube] subida de foto', r.status, r.data?.error);
+    } catch (e) { /* sin conexión: se reintenta en la próxima sincronización */ }
+    return null;
+  }
+
+  // Sube las fotos que aún están dentro de los datos (fotos antiguas o tomadas sin conexión)
+  let migratingPhotos = false;
+  async function migratePhotos() {
+    if (migratingPhotos || !cloud.active() || !cloud.canWrite() || blobAvailable === false || !navigator.onLine) return 0;
+    migratingPhotos = true;
+    let moved = 0;
+    try {
+      for (const cab of (state.cabins || [])) {
+        for (const ph of (cab.photos || [])) {
+          if (!isDataImage(ph?.url)) continue;
+          const url = await uploadImage(ph.url, `${cab.code || 'cabana'}-${cab.name || ''}`);
+          if (!url) { if (blobAvailable === false) return moved; continue; }
+          ph.url = url;
+          moved++;
+        }
+      }
+      if (moved) { persistLocal(); sync.schedulePush(); refreshUI(); }
+    } finally { migratingPhotos = false; }
+    return moved;
+  }
+
+  // Para el PDF: las fotos de Blob se piden a través de /api/media (mismo dominio)
+  window.xpPdfImageUrl = function (u) {
+    if (typeof u === 'string' && /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\//.test(u)) {
+      return '/api/media?url=' + encodeURIComponent(u);
+    }
+    return u;
+  };
+
+  // Al elegir fotos en el formulario de cabaña, se suben de inmediato
+  const legacyPhotoUpload = window.handleCabinPhotoUpload;
+  if (typeof legacyPhotoUpload === 'function') {
+    window.handleCabinPhotoUpload = async function handleCabinPhotoUploadCloud(event) {
+      await legacyPhotoUpload.apply(this, arguments);
+      if (!cloud.active()) return;
+      let photos;
+      try { photos = currentEditingCabinPhotos; } catch { return; }
+      const pending = (photos || []).filter(p => isDataImage(p.url));
+      if (!pending.length) return;
+      toast(`Subiendo ${pending.length} foto(s) a la nube…`);
+      let ok = 0;
+      for (const p of pending) {
+        const url = await uploadImage(p.url, p.caption || 'foto');
+        if (url) { p.url = url; ok++; }
+      }
+      try { renderCabinPhotosPreview(); } catch {}
+      if (ok === pending.length) toast('✅ Fotos guardadas en la nube');
+      else if (blobAvailable === false) toast('Las fotos se guardaron en este dispositivo (almacenamiento de fotos no conectado)');
+      else toast('Sin conexión: las fotos se subirán automáticamente al volver la conexión');
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // Motor de sincronización
   // ---------------------------------------------------------------------------
   const sync = {
@@ -132,7 +279,6 @@
     pollTimer: null,
     running: false,
     again: false,
-    applying: false,
 
     localItems() {
       const items = new Map();
@@ -153,7 +299,9 @@
     },
 
     diff() {
-      const snap = lsGet(snapKey(), {});
+      const m = meta();
+      if (!m) return [];
+      const snap = m.snap;
       const changes = [];
       const local = this.localItems();
       for (const [k, it] of local) {
@@ -173,7 +321,7 @@
     pendingCount() { return cloud.active() ? this.diff().length : 0; },
 
     schedulePush() {
-      if (!cloud.active() || this.applying) return;
+      if (!cloud.active() || persistApplying) return;
       clearTimeout(this.pushTimer);
       if (cloud.canWrite()) setStatus('pending', 'Guardando cambios…');
       this.pushTimer = setTimeout(() => this.run(), PUSH_DEBOUNCE_MS);
@@ -181,9 +329,10 @@
 
     async push() {
       if (!cloud.canWrite()) return 0;
+      const m = meta();
+      if (!m) return 0;
       const changes = this.diff();
       if (!changes.length) return 0;
-      const snap = lsGet(snapKey(), {});
       let sent = 0;
       let batch = [], bytes = 0;
       const flush = async () => {
@@ -194,11 +343,11 @@
         if (r.status === 401) throw Object.assign(new Error('Sesión vencida'), { expired: true });
         if (r.status !== 200) throw new Error(r.data?.error || 'No se pudieron guardar los cambios');
         for (const c of batch) {
-          if (c.deleted) delete snap[c.key]; else snap[c.key] = c.hash;
+          if (c.deleted) delete m.snap[c.key]; else m.snap[c.key] = c.hash;
         }
-        lsSet(snapKey(), snap);
         sent += batch.length;
         batch = []; bytes = 0;
+        this.saveLocal();
       };
       for (const c of changes) {
         if (batch.length && (bytes + c.size > MAX_BATCH_BYTES || batch.length >= MAX_BATCH_ITEMS)) await flush();
@@ -208,16 +357,22 @@
       return sent;
     },
 
-    // Aplica registros del servidor al estado local
+    // Aplica registros del servidor al estado local.
+    // Solo se aplica una versión que este dispositivo NO conoce todavía: si el servidor
+    // devuelve la misma versión que ya está en el snapshot (p. ej. por la ventana de
+    // repaso de 30 s), se ignora para no pisar ediciones locales pendientes de subir.
     apply(records, snap) {
       let changed = 0;
       for (const r of records) {
         const k = r.collection + '\u0000' + r.id;
         if (r.collection === SETTINGS_COLLECTION) {
-          if (!SETTINGS_KEYS.includes(r.id) || r.deleted) { delete snap[k]; continue; }
+          if (!SETTINGS_KEYS.includes(r.id)) continue;
+          if (r.deleted) { delete snap[k]; continue; }
           const json = JSON.stringify(r.data);
+          const h = hash(json);
+          if (snap[k] === h) continue;
           if (JSON.stringify(state[r.id]) !== json) { state[r.id] = r.data; changed++; }
-          snap[k] = hash(json);
+          snap[k] = h;
           continue;
         }
         if (!ARRAY_COLLECTIONS.includes(r.collection)) continue;
@@ -225,60 +380,71 @@
         const arr = state[r.collection];
         const idx = arr.findIndex(x => x && String(x.id) === r.id);
         if (r.deleted) {
+          if (!(k in snap)) continue; // ya se sabía que no existe (o es nuevo en este dispositivo)
           if (idx !== -1) { arr.splice(idx, 1); changed++; }
           delete snap[k];
         } else {
           const json = JSON.stringify(r.data);
+          const h = hash(json);
+          if (snap[k] === h) continue;
           if (idx === -1) { arr.push(r.data); changed++; }
           else if (JSON.stringify(arr[idx]) !== json) { arr[idx] = r.data; changed++; }
-          snap[k] = hash(json);
+          snap[k] = h;
         }
       }
       return changed;
     },
 
-    async pull(fromScratch = false) {
-      const snap = lsGet(snapKey(), {});
-      let cursor = fromScratch ? null : lsGet(cursorKey(), null);
-      let first = true, changed = 0, total = null, more = true, guard = 0;
+    async pull() {
+      const m = meta();
+      if (!m) return { changed: 0 };
+      let cursor = m.cursor;
+      let first = true, changed = 0, more = true, guard = 0;
       while (more && guard++ < 500) {
         let qs = '';
         if (cursor) {
           qs = `?ts=${encodeURIComponent(cursor.ts)}&col=${encodeURIComponent(cursor.col || '')}&id=${encodeURIComponent(cursor.id || '')}`;
-          if (first && !fromScratch) qs += '&back=30';
+          if (first) qs += '&back=30';
         }
         const r = await api('GET', '/api/sync' + qs, null, 60000);
         if (r.status === 401) throw Object.assign(new Error('Sesión vencida'), { expired: true });
         if (r.status !== 200) throw new Error(r.data?.error || 'No se pudieron descargar los datos');
-        if (first && r.data.total !== undefined) total = r.data.total;
-        changed += this.apply(r.data.records || [], snap);
+        changed += this.apply(r.data.records || [], m.snap);
         if (r.data.next) cursor = r.data.next;
         else if (!cursor && r.data.serverCursor) cursor = { ts: r.data.serverCursor, col: '', id: '' };
         more = !!r.data.more;
         first = false;
       }
-      lsSet(snapKey(), snap);
-      if (cursor) lsSet(cursorKey(), cursor);
-      return { changed, total };
+      if (cursor) m.cursor = cursor;
+      return { changed };
     },
 
     saveLocal() {
-      this.applying = true;
-      try { originalSaveState(); } finally { this.applying = false; }
+      persistApplying = true;
+      try { persistLocal(); } finally { persistApplying = false; }
     },
 
     async run() {
-      if (!cloud.active()) return;
+      if (!cloud.active() || !ready) return;
       if (this.running) { this.again = true; return; }
       if (!navigator.onLine) { setStatus('offline', this.pendingCount() ? 'Sin conexión · cambios pendientes' : 'Sin conexión'); return; }
       this.running = true;
       try {
-        if (cloud.canWrite() && this.diff().length) setStatus('busy', 'Sincronizando…');
-        await this.push();
-        const { changed } = await this.pull(false);
-        if (changed) { this.saveLocal(); refreshUI(); }
+        if (!meta() || !meta().cursor) {
+          // Este dispositivo no tiene el estado de sincronización de la empresa: empezar de cero
+          await firstSync(cloud.get().company);
+        } else {
+          if (cloud.canWrite() && this.diff().length) setStatus('busy', 'Sincronizando…');
+          // Primero se bajan los cambios de los demás y después se suben los propios
+          const { changed } = await this.pull();
+          this.saveLocal();
+          if (changed) refreshUI();
+          await this.push();
+        }
         setStatus('ok', 'Sincronizado ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }));
+        migratePhotos();
       } catch (e) {
+        hideOverlay();
         if (e.expired) return sessionExpired();
         if (e instanceof NetworkError) setStatus('offline', this.pendingCount() ? 'Sin conexión · cambios pendientes' : 'Sin conexión');
         else { setStatus('error', 'Error al sincronizar'); console.error('[nube]', e); }
@@ -307,9 +473,9 @@
   // Primera sincronización de este dispositivo con la empresa (o cambio de empresa)
   async function firstSync(company) {
     const backupKey = 'xander_pro_state_backup_before_cloud';
-    if (!localStorage.getItem(backupKey)) {
-      try { localStorage.setItem(backupKey, JSON.stringify(state)); } catch {}
-    }
+    try {
+      if (typeof XanderDB !== 'undefined' && !(await XanderDB.get(backupKey))) await XanderDB.set(backupKey, JSON.stringify(state));
+    } catch {}
     showOverlay('Conectando con la nube…', `Descargando los datos de ${company.name}`);
     // Descarga completa sin aplicar todavía, para decidir qué hacer
     const records = [];
@@ -317,6 +483,7 @@
     while (more && guard++ < 500) {
       const qs = cursor ? `?ts=${encodeURIComponent(cursor.ts)}&col=${encodeURIComponent(cursor.col)}&id=${encodeURIComponent(cursor.id)}` : '';
       const r = await api('GET', '/api/sync' + qs, null, 60000);
+      if (r.status === 401) { hideOverlay(); throw Object.assign(new Error('Sesión vencida'), { expired: true }); }
       if (r.status !== 200) throw new Error(r.data?.error || 'No se pudieron descargar los datos');
       if (first) { total = r.data.total || 0; serverCursor = r.data.serverCursor; }
       records.push(...(r.data.records || []));
@@ -325,18 +492,16 @@
       first = false;
     }
 
-    lsSet(snapKey(), {});
+    const m = newMeta();
     if (total > 0) {
       // La empresa ya tiene datos: este dispositivo adopta los de la nube
       for (const col of ARRAY_COLLECTIONS) state[col] = [];
-      const snap = {};
-      sync.apply(records, snap);
-      lsSet(snapKey(), snap);
-      if (cursor) lsSet(cursorKey(), cursor);
-      else if (serverCursor) lsSet(cursorKey(), { ts: serverCursor, col: '', id: '' });
+      sync.apply(records, m.snap);
+      m.cursor = cursor || (serverCursor ? { ts: serverCursor, col: '', id: '' } : null);
       if (!Array.isArray(state.eventTypes) || !state.eventTypes.length) state.eventTypes = getDefaultState().eventTypes;
       sync.saveLocal();
       hideOverlay();
+      refreshUI();
       return;
     }
 
@@ -369,11 +534,18 @@
     }
     sync.saveLocal();
     if (cloud.canWrite()) {
+      // Primero las fotos (así los registros suben livianos), luego los datos
+      if (upload) {
+        showOverlay('Subiendo fotos a la nube…', 'Esto puede tardar unos segundos la primera vez');
+        try { await migratePhotos(); } finally { hideOverlay(); }
+      }
       showOverlay('Subiendo datos a la nube…', 'Esto puede tardar unos segundos la primera vez');
       try { await sync.push(); } finally { hideOverlay(); }
     }
-    const p = await sync.pull(true);
-    if (p.changed) sync.saveLocal();
+    m.cursor = serverCursor ? { ts: serverCursor, col: '', id: '' } : null;
+    const p = await sync.pull();
+    sync.saveLocal();
+    if (p.changed) refreshUI();
   }
 
   // ---------------------------------------------------------------------------
@@ -478,7 +650,6 @@
   const legacyLogin = window.handleLoginSubmit;
   const legacyCheckSession = window.checkActiveSession;
   const legacyLogout = window.logout;
-  const originalSaveState = window.saveState;
   let loginBusy = false;
 
   function loginError(text) {
@@ -510,19 +681,12 @@
   }
 
   async function onCloudLogin(data, remember) {
-    const prevCompany = cloud.companyId();
+    await restorePromise;
+    metaCache = null;
     cloud.set(data.user, data.company, remember);
     setLoggedUserLocal(data.user, remember);
-    const firstTime = prevCompany !== data.company.id || !lsGet(cursorKey(), null);
-    try {
-      if (firstTime) await firstSync(data.company);
-      else await sync.run();
-    } catch (e) {
-      hideOverlay();
-      if (e instanceof NetworkError) toast('Sin conexión: trabajarás con los datos de este dispositivo');
-      else { console.error('[nube]', e); toast('No se pudo sincronizar: ' + e.message); }
-    }
-    sync.saveLocal();
+    // run() hace la primera sincronización si este dispositivo aún no la tiene para esta empresa
+    await sync.run();
     sync.start();
     setAuthenticated(true);
     mountStatus();
@@ -578,7 +742,7 @@
             cloud.set(r.data.user, r.data.company, c.remember);
             setLoggedUserLocal(r.data.user, c.remember);
             sync.start();
-            sync.run();
+            restorePromise.then(() => sync.run());
             renderCompaniesCard();
           }
         } catch (e) {
@@ -620,15 +784,20 @@
       api('POST', '/api/auth/logout').catch(() => {});
       sync.stop();
       cloud.clear();
+      metaCache = null;
       setStatus('local', 'Solo en este dispositivo');
     }
     return legacyLogout();
   };
 
   // Cada guardado local programa la subida a la nube
+  let pendingSaveBeforeReady = false;
   window.saveState = function saveStateCloud() {
-    originalSaveState();
-    if (cloud.active() && !sync.applying) sync.schedulePush();
+    // Mientras se carga la copia de IndexedDB no se escribe nada (evita pisarla con datos de ejemplo)
+    if (!ready) { pendingSaveBeforeReady = true; return; }
+    if (cloud.active()) meta(); // vuelve a enlazar el estado de sincronización si el estado fue reemplazado (importar respaldo)
+    persistLocal();
+    if (cloud.active() && !persistApplying) sync.schedulePush();
   };
 
   // ---------------------------------------------------------------------------

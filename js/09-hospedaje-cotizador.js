@@ -997,7 +997,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
     <div class="pdf-avoid-break rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-xs">
       <div class="flex flex-row items-stretch">
         <div class="shrink-0 bg-slate-100" role="img" aria-label="${cabin.name}"
-             style="width:240px;min-width:240px;height:160px;background-image:url('${mainPhoto.url}'), url('img/cabana-1.svg');background-size:cover;background-position:center;background-repeat:no-repeat;"></div>
+             style="width:240px;min-width:240px;height:160px;background-image:url('${(window.xpPdfImageUrl ? window.xpPdfImageUrl(mainPhoto.url) : mainPhoto.url)}'), url('img/cabana-1.svg');background-size:cover;background-position:center;background-repeat:no-repeat;"></div>
         <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
           <div>
             <div class="flex items-center justify-between">
