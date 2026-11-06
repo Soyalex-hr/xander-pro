@@ -1,5 +1,5 @@
 // Service Worker for Xander Pro PWA (Network-First for HTML, Cache-First for Assets)
-const CACHE_NAME = 'xander-pro-v26';
+const CACHE_NAME = 'xander-pro-v27';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -43,6 +43,11 @@ self.addEventListener('message', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
+  // Solo gestionar archivos de la propia app. Las imágenes y librerías externas
+  // (Unsplash, CDN) las carga el navegador directamente: la CSP de Vercel no
+  // permite que el Service Worker las descargue y las fotos quedaban en blanco.
+  if (new URL(event.request.url).origin !== self.location.origin) return;
 
   const isNavigation = event.request.mode === 'navigate' ||
     (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
