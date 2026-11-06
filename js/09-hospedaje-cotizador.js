@@ -205,7 +205,7 @@ function startNewCabinQuote() {
     discountAmount: 0,
     depositPercentage: 50,
     expirationDate: expDate.toISOString().slice(0, 10),
-    observations: 'Check-in: 3:00 PM | Check-out: 12:00 M.',
+    observations: getDefaultCabinObservations(),
     pricing: {},
     createdBy: (typeof getOperatorName === 'function' ? getOperatorName() : 'Alexander'),
     createdAt: new Date().toISOString().slice(0, 10)
@@ -274,6 +274,7 @@ function loadCabinQuoteIntoEditor(quoteId = null) {
   if (depPctIn) depPctIn.disabled = q.requiresDeposit === false;
   if (expIn) expIn.value = q.expirationDate || '';
   if (obsIn) obsIn.value = q.observations || '';
+  updateDefaultObservationsHint();
 
   handleCabinSelectionChange(false);
   handleCabinDatesChange(false);
@@ -929,6 +930,53 @@ function renderLiveFormulaBreakdown(cabin, calc) {
 }
 
 // 12. RENDERIZADOR DEL DOCUMENTO OFICIAL PDF DE HOSPEDAJE (SOLID WHITE PAPER)
+// Observaciones predeterminadas de las cotizaciones de cabaña (se guardan con los datos
+// de la empresa, así que se comparten entre usuarios y dispositivos)
+function getDefaultCabinObservations() {
+  const t = state.company && typeof state.company.cabinDefaultObservations === 'string' ? state.company.cabinDefaultObservations.trim() : '';
+  return t || 'Check-in: 3:00 PM | Check-out: 12:00 M.';
+}
+
+function saveDefaultCabinObservations() {
+  const el = document.getElementById('hos-observations-input');
+  const text = (el?.value || '').trim();
+  if (!text) { showToast('Escribe el texto que quieres dejar como predeterminado'); return; }
+  if (!state.company) state.company = {};
+  state.company.cabinDefaultObservations = text;
+  saveState();
+  updateDefaultObservationsHint();
+  showToast('⭐ Texto guardado: saldrá en todas las cotizaciones nuevas de cabaña');
+}
+
+function applyDefaultCabinObservations() {
+  const el = document.getElementById('hos-observations-input');
+  if (!el) return;
+  const def = getDefaultCabinObservations();
+  if (el.value.trim() && el.value.trim() !== def && !confirm('¿Reemplazar las observaciones actuales por el texto predeterminado?')) return;
+  el.value = def;
+  if (state.activeCabinQuote) state.activeCabinQuote.observations = def;
+  if (typeof handleCabinQuoteInputChange === 'function') handleCabinQuoteInputChange();
+}
+
+function updateDefaultObservationsHint() {
+  const hint = document.getElementById('hos-observations-default-hint');
+  if (!hint) return;
+  const has = !!(state.company && state.company.cabinDefaultObservations && state.company.cabinDefaultObservations.trim());
+  hint.textContent = has
+    ? '⭐ Hay un texto predeterminado guardado: sale automáticamente en cada cotización nueva.'
+    : 'Este texto sale en el PDF. Guárdalo como predeterminado para que aparezca en cada cotización nueva.';
+}
+
+// Fecha legible para el PDF: "vie. 6 nov. 2026" (sin partirse en dos renglones)
+function pdfStayDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  const dias = ['dom.', 'lun.', 'mar.', 'mié.', 'jue.', 'vie.', 'sáb.'];
+  const meses = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
+  return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 function renderCabinQuotePdfSheet(q, cabin, calc) {
   const sheet = document.getElementById('pdf-cabin-document-sheet');
   if (!sheet) return;
@@ -996,21 +1044,23 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
       </div>
       <div class="sm:border-l sm:border-slate-200 sm:pl-3.5">
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Detalles de Estadía</span>
-        <div class="flex items-center gap-2 mt-1">
-          <div class="px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 text-xs font-black">
-            📥 Check-in: ${q.checkInDate || '-'} <span class="text-[10px] font-bold text-teal-700">(3:00 PM)</span>
+        <div class="grid grid-cols-2 gap-2 mt-1.5">
+          <div class="px-2.5 py-2 rounded-xl bg-teal-50 border border-teal-200">
+            <span class="block text-[9px] font-extrabold uppercase tracking-wider text-teal-700 whitespace-nowrap">Entrada · Check-in</span>
+            <strong class="block text-xs font-black text-teal-900 whitespace-nowrap">${pdfStayDate(q.checkInDate)}</strong>
+            <span class="block text-[10px] font-bold text-teal-700 whitespace-nowrap">Desde las 3:00 p. m.</span>
           </div>
-          <span class="text-slate-400 font-bold">➔</span>
-          <div class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-900 text-xs font-black">
-            📤 Check-out: ${q.checkOutDate || '-'} <span class="text-[10px] font-bold text-slate-600">(12:00 M.)</span>
+          <div class="px-2.5 py-2 rounded-xl bg-slate-100 border border-slate-200">
+            <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Salida · Check-out</span>
+            <strong class="block text-xs font-black text-slate-900 whitespace-nowrap">${pdfStayDate(q.checkOutDate)}</strong>
+            <span class="block text-[10px] font-bold text-slate-500 whitespace-nowrap">Hasta las 12:00 m.</span>
           </div>
         </div>
-        <div class="text-slate-700 text-[11px] font-bold mt-1.5 flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded bg-teal-700 text-white text-[10px] font-black">${calc.nights} Noche(s)</span>
-          <span>· Estadía completa en cabaña</span>
-        </div>
-        <div class="text-slate-600 text-[11px] mt-1">
-          👥 <strong>${q.adults}</strong> Adultos · 👶 <strong>${q.kids5to10 + q.kids0to4}</strong> Niños · 🐾 <strong>${q.pets}</strong> Mascotas
+        <div class="text-slate-700 text-[11px] font-bold mt-2 flex items-center gap-2 flex-wrap">
+          <span class="px-2 py-0.5 rounded bg-teal-700 text-white text-[10px] font-black whitespace-nowrap">${calc.nights} noche(s)</span>
+          <span class="whitespace-nowrap">👥 ${q.adults} adulto(s)</span>
+          <span class="whitespace-nowrap">👶 ${(Number(q.kids5to10) || 0) + (Number(q.kids0to4) || 0)} niño(s)</span>
+          <span class="whitespace-nowrap">🐾 ${q.pets || 0} mascota(s)</span>
         </div>
       </div>
     </div><!-- Visual Cabin Card in PDF -->
@@ -1029,7 +1079,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
               </span>
             </div>
             <h3 class="text-sm font-black text-slate-900 mt-1">${cabin.name}</h3>
-            <p class="text-[11px] text-slate-600 mt-0.5 line-clamp-2">${cabin.description || ''}</p>
+            <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed whitespace-pre-line">${cabin.description || ''}</p>
           </div>
 
           <!-- Included Amenities Badges -->
