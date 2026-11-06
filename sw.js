@@ -1,5 +1,5 @@
 // Service Worker for Xander Pro PWA (Network-First para código de la app, Cache-First para imágenes)
-const CACHE_NAME = 'xander-pro-v29';
+const CACHE_NAME = 'xander-pro-v30';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -23,7 +23,8 @@ const ASSETS_TO_CACHE = [
   './js/06-modulos-avanzados.js',
   './js/07-versiones-cotizacion.js',
   './js/08-hospedaje-catalogo.js',
-  './js/09-hospedaje-cotizador.js'
+  './js/09-hospedaje-cotizador.js',
+  './js/10-nube.js'
 ];
 
 self.addEventListener('install', event => {
@@ -62,6 +63,9 @@ self.addEventListener('fetch', event => {
   // (Unsplash, CDN) las carga el navegador directamente: la CSP de Vercel no
   // permite que el Service Worker las descargue y las fotos quedaban en blanco.
   if (new URL(event.request.url).origin !== self.location.origin) return;
+
+  // La API nunca se guarda en caché: siempre datos frescos del servidor
+  if (new URL(event.request.url).pathname.startsWith('/api/')) return;
 
   const isNavigation = event.request.mode === 'navigate' ||
     (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));

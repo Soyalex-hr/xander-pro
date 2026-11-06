@@ -25,9 +25,16 @@ CREATE TABLE IF NOT EXISTS users (
   role           text NOT NULL DEFAULT 'Operador',   -- Administrador | Operador | Consulta
   password_hash  text NOT NULL,                      -- formato: scrypt$<sal>$<hash>
   active         boolean NOT NULL DEFAULT true,
+  is_superadmin  boolean NOT NULL DEFAULT false,     -- puede crear y ver empresas
+  failed_attempts integer NOT NULL DEFAULT 0,        -- protección contra fuerza bruta
+  locked_until   timestamptz,
   created_at     timestamptz NOT NULL DEFAULT now(),
   last_login_at  timestamptz
 );
+-- Columnas agregadas después de la primera versión (idempotente)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_superadmin boolean NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_attempts integer NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until timestamptz;
 CREATE UNIQUE INDEX IF NOT EXISTS users_username_uq ON users (lower(username));
 CREATE INDEX IF NOT EXISTS users_company_idx ON users (company_id);
 
@@ -63,7 +70,7 @@ CREATE TABLE IF NOT EXISTS records (
   PRIMARY KEY (company_id, collection, id)
 );
 -- Sincronización incremental: "dame lo que cambió desde X"
-CREATE INDEX IF NOT EXISTS records_sync_idx ON records (company_id, updated_at);
+CREATE INDEX IF NOT EXISTS records_sync_idx ON records (company_id, updated_at, collection, id);
 CREATE INDEX IF NOT EXISTS records_collection_idx ON records (company_id, collection) WHERE NOT deleted;
 
 -- Bitácora de cambios (quién cambió qué y cuándo). Útil para auditoría
