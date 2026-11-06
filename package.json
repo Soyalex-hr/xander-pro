@@ -1,0 +1,9 @@
+{
+  "name": "xander-pro",
+  "private": true,
+  "type": "module",
+  "description": "Xander Pro — PWA de cotizaciones con API en Vercel y base de datos Neon",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0"
+  }
+}
