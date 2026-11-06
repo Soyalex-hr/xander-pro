@@ -1,5 +1,5 @@
 // Service Worker for Xander Pro PWA (Network-First for HTML, Cache-First for Assets)
-const CACHE_NAME = 'xander-pro-v27';
+const CACHE_NAME = 'xander-pro-v28';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,7 +9,10 @@ const ASSETS_TO_CACHE = [
   './icon-512.svg',
   './icon-192.png',
   './icon-512.png',
-  './app.ico'
+  './app.ico',
+  './img/cabana-1.svg',
+  './img/cabana-2.svg',
+  './img/cabana-3.svg'
 ];
 
 self.addEventListener('install', event => {

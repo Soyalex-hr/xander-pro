@@ -6262,8 +6262,8 @@
             bbq: true,
             status: 'active',
             photos: [
-              { id: 'ph-1', url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80', isMain: true, caption: 'Vista Exterior' },
-              { id: 'ph-2', url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', isMain: false, caption: 'Sala y Chimenea' }
+              { id: 'ph-1', url: 'img/cabana-1.svg', isMain: true, caption: 'Vista Exterior' },
+              { id: 'ph-2', url: 'img/cabana-2.svg', isMain: false, caption: 'Sala y Chimenea' }
             ],
             observations: 'Check-in: 3:00 PM | Check-out: 12:00 M. Se prohíbe el uso de bafles de alta potencia después de las 11:00 PM.'
           },
@@ -6289,7 +6289,7 @@
             bbq: true,
             status: 'active',
             photos: [
-              { id: 'ph-3', url: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80', isMain: true, caption: 'Frente al Río' }
+              { id: 'ph-3', url: 'img/cabana-3.svg', isMain: true, caption: 'Frente al Río' }
             ],
             observations: 'No se admiten mascotas por normatividad de reserva natural. Desayuno incluido opcional.'
           }
@@ -14030,6 +14030,20 @@ function migrateCabanasState() {
   if (!Array.isArray(state.cabinQuotes)) {
     state.cabinQuotes = def.cabinQuotes || [];
   }
+  // Fotos de ejemplo: reemplaza las de Unsplash (externas) por las ilustraciones locales de la app
+  const demoPhotoMap = {
+    'photo-1542314831-068cd1dbfeeb': 'img/cabana-1.svg',
+    'photo-1512917774080-9991f1c4c750': 'img/cabana-2.svg',
+    'photo-1587061949409-02df41d5e562': 'img/cabana-3.svg'
+  };
+  (state.cabins || []).forEach(cab => {
+    (cab.photos || []).forEach(ph => {
+      if (ph && typeof ph.url === 'string' && ph.url.includes('images.unsplash.com')) {
+        const key = Object.keys(demoPhotoMap).find(k => ph.url.includes(k));
+        ph.url = key ? demoPhotoMap[key] : 'img/cabana-1.svg';
+      }
+    });
+  });
   if (!Array.isArray(state.users) || state.users.length === 0) {
     state.users = def.users || [
       { id: 'usr-1', username: 'admin', name: (typeof getOperatorName === 'function' ? getOperatorName() : 'Alexander'), role: 'Administrador', password: 'Admin2026*', active: true }
@@ -14325,7 +14339,7 @@ function renderCabinsGrid() {
   }
 
   container.innerHTML = cabins.map(cab => {
-    const mainPhoto = (cab.photos || []).find(p => p.isMain) || (cab.photos || [])[0] || { url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80' };
+    const mainPhoto = (cab.photos || []).find(p => p.isMain) || (cab.photos || [])[0] || { url: 'img/cabana-1.svg' };
     const isActive = cab.status === 'active';
 
     return `
@@ -14333,7 +14347,7 @@ function renderCabinsGrid() {
         <div>
           <!-- Photo Container -->
           <div class="relative h-48 w-full bg-slate-900 overflow-hidden">
-            <img src="${mainPhoto.url}" alt="${cab.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <img src="${mainPhoto.url}" alt="${cab.name}" onerror="this.onerror=null;this.src='img/cabana-1.svg'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/30"></div>
             
             <!-- Badges over photo -->
@@ -14568,7 +14582,7 @@ function renderCabinPhotosPreview() {
 
   container.innerHTML = currentEditingCabinPhotos.map((p, idx) => `
     <div class="relative w-20 h-16 rounded-xl overflow-hidden border ${p.isMain ? 'border-2 border-teal-500 shadow-md' : 'border-slate-200 dark:border-slate-700'} group">
-      <img src="${p.url}" alt="Foto" class="w-full h-full object-cover" />
+      <img src="${p.url}" alt="Foto" onerror="this.onerror=null;this.src='img/cabana-1.svg'" class="w-full h-full object-cover" />
       ${p.isMain ? '<span class="absolute top-1 left-1 px-1.5 py-0.2 rounded text-[9px] font-black bg-teal-600 text-white">Principal</span>' : ''}
       <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-around p-1">
         ${!p.isMain ? `
@@ -14633,7 +14647,7 @@ function saveCabinFromForm() {
   if (currentEditingCabinPhotos.length === 0) {
     currentEditingCabinPhotos.push({
       id: 'ph-default',
-      url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+      url: 'img/cabana-1.svg',
       isMain: true,
       caption: 'Vista Principal'
     });
@@ -15977,7 +15991,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
   };
 
   const mainPhoto = (cabin.photos || []).find(p => p.isMain) || (cabin.photos || [])[0] || {
-    url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80'
+    url: 'img/cabana-1.svg'
   };
 
   sheet.innerHTML = `
@@ -16045,7 +16059,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
     <div class="pdf-avoid-break rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-xs">
       <div class="flex flex-row items-stretch">
         <div class="shrink-0 bg-slate-100" role="img" aria-label="${cabin.name}"
-             style="width:240px;min-width:240px;height:160px;background-image:url('${mainPhoto.url}');background-size:cover;background-position:center;background-repeat:no-repeat;"></div>
+             style="width:240px;min-width:240px;height:160px;background-image:url('${mainPhoto.url}'), url('img/cabana-1.svg');background-size:cover;background-position:center;background-repeat:no-repeat;"></div>
         <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
           <div>
             <div class="flex items-center justify-between">
