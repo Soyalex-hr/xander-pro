@@ -1,17 +1,6 @@
 // GET /api/health — comprueba la conexión con Neon (no expone credenciales)
 import { neon } from '@neondatabase/serverless';
-import { put } from '@vercel/blob';
-import { blobConfigured, blobOptions } from './upload.js';
-
-// Prueba de escritura en Blob: sobrescribe siempre el mismo archivo diminuto
-async function testBlob() {
-  try {
-    const r = await put('diagnostico/ping.txt', 'ok ' + new Date().toISOString(), { access: 'public', addRandomSuffix: false, allowOverwrite: true, contentType: 'text/plain', ...blobOptions() });
-    return { ok: true, host: new URL(r.url).host };
-  } catch (e) {
-    return { ok: false, error: String(e && e.message || e).slice(0, 300) };
-  }
-}
+import { blobConfigured } from './upload.js';
 
 export default async function handler(req, res) {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
@@ -31,7 +20,6 @@ export default async function handler(req, res) {
       serverTime: info.now,
       initialized: !!tbl.companies,
       blob: blobConfigured(),
-      blobTest: (req.query && req.query.blobtest) ? await testBlob() : undefined,
       project: process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || ''
     });
   } catch (err) {
