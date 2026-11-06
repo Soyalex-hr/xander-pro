@@ -16,8 +16,14 @@ export function blobToken() {
   const k = Object.keys(process.env).find(n => /BLOB_READ_WRITE_TOKEN$/.test(n) && process.env[n]);
   return k ? process.env[k] : null;
 }
+// Las conexiones nuevas de Vercel Blob usan OIDC (BLOB_STORE_ID + token del despliegue)
+// en lugar de BLOB_READ_WRITE_TOKEN; el SDK se autentica solo en ese caso.
 export function blobConfigured() {
-  return !!blobToken();
+  return !!blobToken() || !!process.env.BLOB_STORE_ID;
+}
+export function blobOptions() {
+  const t = blobToken();
+  return t ? { token: t } : {};
 }
 
 export default handler(async (req, res) => {
@@ -46,7 +52,7 @@ export default handler(async (req, res) => {
     contentType,
     addRandomSuffix: false,
     cacheControlMaxAge: 60 * 60 * 24 * 365,
-    ...(globalThis.__XP_TEST_BLOB__ ? {} : { token: blobToken() })
+    ...(globalThis.__XP_TEST_BLOB__ ? {} : blobOptions())
   });
   send(res, 200, { ok: true, url: blob.url, pathname: blob.pathname || pathname, size: buffer.length });
 });
