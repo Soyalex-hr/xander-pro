@@ -845,3 +845,10 @@
     html.dark .hos-tab-btn.hos-tab-active { background:#0f172a; color:#5eead4; }
     @media (max-width: 767.98px) { .hos-tab-btn { min-height:44px; } }
   
+    .agenda-seg { padding: 0.35rem 0.7rem; border-radius: 0.6rem; font-size: 0.75rem; font-weight: 700; color: #475569; transition: all .15s ease; cursor: pointer; min-height: 32px; }
+    .agenda-seg:hover { background: rgba(255,255,255,.8); color: #0f172a; }
+    html.dark .agenda-seg { color: #cbd5e1; }
+    html.dark .agenda-seg:hover { background: rgba(51,65,85,.6); color: #fff; }
+    .agenda-seg.agenda-seg-active { background: #4f46e5; color: #fff; box-shadow: 0 2px 8px -2px rgba(79,70,229,.5); }
+    @media (max-width: 1023.98px) { .agenda-seg { min-height: 40px; } }
+    @media (max-width: 639.98px) { #view-agenda select { padding-left: .5rem; padding-right: 1.4rem; text-overflow: ellipsis; } }

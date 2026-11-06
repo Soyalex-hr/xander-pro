@@ -381,19 +381,14 @@ function setAgendaViewMode(mode) {
   agendaViewMode = mode;
   ['month', 'week', 'day'].forEach(m => {
     const btn = document.getElementById(`btn-agenda-view-${m}`);
-    if (btn) {
-      if (m === mode) {
-        btn.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white shadow-xs transition';
-      } else {
-        btn.className = 'px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
-      }
-    }
+    if (btn) btn.className = m === mode ? 'agenda-seg agenda-seg-active' : 'agenda-seg';
   });
   renderAgenda();
 }
 
 function navigateAgenda(offset) {
   if (agendaViewMode === 'month') {
+    agendaCurrentDate.setDate(1);
     agendaCurrentDate.setMonth(agendaCurrentDate.getMonth() + offset);
   } else if (agendaViewMode === 'week') {
     agendaCurrentDate.setDate(agendaCurrentDate.getDate() + (offset * 7));
@@ -408,244 +403,261 @@ function navigateAgendaToday() {
   renderAgenda();
 }
 
+// Fecha local en formato AAAA-MM-DD (toISOString usa UTC y en la noche cambia de día)
+function agendaYmd(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const AGENDA_STATUS_LABEL = { Aprobada: 'Confirmada', Enviada: 'Enviada', Borrador: 'Borrador', Rechazada: 'Rechazada', Vencida: 'Vencida' };
+
+// Reúne eventos y estadías de cabañas en una sola lista por día
+function buildAgendaItems() {
+  const selectedStatus = document.getElementById('agenda-filter-status')?.value || 'active';
+  const selectedClient = document.getElementById('agenda-filter-client')?.value || 'all';
+  const selectedType = document.getElementById('agenda-filter-type')?.value || 'all';
+  const statusOk = st => selectedStatus === 'all' ? true
+    : selectedStatus === 'active' ? !['Rechazada', 'Vencida'].includes(st)
+    : st === selectedStatus;
+  const items = [];
+
+  if (selectedType !== 'cabin') {
+    (state.savedQuotes || []).forEach(sq => {
+      if (!sq.eventDate || !statusOk(sq.status)) return;
+      if (selectedClient !== 'all' && sq.clientId !== selectedClient) return;
+      const client = (state.clients || []).find(c => c.id === sq.clientId);
+      items.push({
+        kind: 'event', id: sq.id, date: sq.eventDate, status: sq.status,
+        title: sq.eventTitle || 'Evento', client: client?.name || 'Cliente',
+        sub: `${sq.guestsPax || 0} Pax · ${sq.eventType || 'Evento'}`,
+        venue: sq.eventVenue || '', number: sq.number || '', total: sq.total || (sq.pricing?.total) || 0,
+        type: sq.eventType || 'Evento', pax: sq.guestsPax || 0
+      });
+    });
+  }
+
+  if (selectedType !== 'event') {
+    (state.cabinQuotes || []).forEach(cq => {
+      if (!cq.checkInDate || !cq.checkOutDate || !statusOk(cq.status)) return;
+      if (selectedClient !== 'all' && cq.clientId !== selectedClient) return;
+      const cabin = (state.cabins || []).find(c => c.id === cq.cabinId);
+      const client = (state.clients || []).find(c => c.id === cq.clientId);
+      const guests = (Number(cq.adults) || 0) + (Number(cq.kids5to10) || 0) + (Number(cq.kids0to4) || 0);
+      const dCur = new Date(cq.checkInDate + 'T00:00:00');
+      const dEnd = new Date(cq.checkOutDate + 'T00:00:00');
+      let night = 1;
+      const nights = Math.max(1, Math.round((dEnd - dCur) / 86400000));
+      while (dCur < dEnd && night <= 366) {
+        items.push({
+          kind: 'cabin', id: cq.id, date: agendaYmd(dCur), status: cq.status,
+          title: cabin ? cabin.name : 'Cabaña', client: client?.name || 'Cliente',
+          sub: `${guests} huésp. · noche ${night}/${nights}`,
+          isCheckIn: night === 1, checkIn: cq.checkInDate, checkOut: cq.checkOutDate,
+          number: cq.number || '', total: cq.pricing ? cq.pricing.total : (cq.total || 0),
+          type: 'Hospedaje', pax: guests, nights
+        });
+        dCur.setDate(dCur.getDate() + 1);
+        night++;
+      }
+    });
+  }
+  // Primero las entradas de hospedaje y los confirmados
+  items.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'cabin' ? -1 : 1) || ((b.status === 'Aprobada') - (a.status === 'Aprobada')));
+  return items;
+}
+
+function agendaChip(it, compact) {
+  const confirmed = it.status === 'Aprobada';
+  const open = it.kind === 'cabin' ? `openAgendaCabinQuoteDetails('${it.id}')` : `openAgendaEventDetails('${it.id}')`;
+  const base = it.kind === 'cabin'
+    ? (confirmed ? 'bg-teal-600 text-white border-teal-600' : 'bg-teal-50 text-teal-800 border-teal-300 dark:bg-teal-950/50 dark:text-teal-200 dark:border-teal-700')
+    : (confirmed ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 text-indigo-800 border-indigo-300 dark:bg-indigo-950/50 dark:text-indigo-200 dark:border-indigo-700');
+  const icon = it.kind === 'cabin' ? (it.isCheckIn ? '⤵' : '') : '';
+  const tip = `${it.kind === 'cabin' ? 'Hospedaje' : 'Evento'} · ${it.title} · ${it.client} · ${AGENDA_STATUS_LABEL[it.status] || it.status}${it.number ? ' · ' + it.number : ''}`;
+  if (compact) {
+    return `<button type="button" onclick="event.stopPropagation(); ${open}" title="${tip.replace(/"/g, '&quot;')}" class="w-full text-left px-1.5 py-0.5 rounded-md border text-[10px] leading-tight font-bold truncate ${base} hover:opacity-90 transition cursor-pointer">${icon ? `<span class="mr-0.5">${icon}</span>` : ''}${it.kind === 'cabin' ? '🏡 ' : ''}${it.title}${it.kind === 'cabin' ? ' · ' + it.client.split(' ')[0] : ''}</button>`;
+  }
+  return `<button type="button" onclick="event.stopPropagation(); ${open}" title="${tip.replace(/"/g, '&quot;')}" class="w-full text-left p-2 rounded-xl border ${base} hover:opacity-95 transition cursor-pointer space-y-0.5">
+    <div class="flex items-center justify-between gap-1">
+      <span class="text-[9px] font-extrabold uppercase tracking-wide opacity-80">${it.kind === 'cabin' ? (it.isCheckIn ? 'Entrada · Hospedaje' : 'Hospedaje') : it.type}</span>
+      <span class="text-[9px] font-bold opacity-80">${AGENDA_STATUS_LABEL[it.status] || it.status || ''}</span>
+    </div>
+    <div class="text-xs font-extrabold truncate">${it.kind === 'cabin' ? '🏡 ' : ''}${it.title}</div>
+    <div class="text-[10px] opacity-80 truncate">${it.client} · ${it.sub}</div>
+  </button>`;
+}
+
+// Ajusta el alto del calendario al espacio visible (sin scroll de la página en escritorio)
+function fitAgendaHeight() {
+  const container = document.getElementById('agenda-calendar-container');
+  if (!container || container.offsetParent === null) return;
+  if (window.innerWidth < 1024) { container.style.height = ''; return; }
+  let h = Math.max(440, Math.floor(window.innerHeight - (container.getBoundingClientRect().top + window.scrollY) - 16));
+  container.style.height = h + 'px';
+  // Descuenta márgenes inferiores del diseño para que la página no tenga scroll
+  const over = document.documentElement.scrollHeight - window.innerHeight;
+  if (over > 0 && h - over >= 440) { h -= over; container.style.height = h + 'px'; }
+}
+window.addEventListener('resize', () => { if (document.getElementById('view-agenda') && !document.getElementById('view-agenda').classList.contains('hidden')) { fitAgendaHeight(); renderAgenda(); } });
+
 function renderAgenda() {
   const container = document.getElementById('agenda-calendar-container');
   const titleEl = document.getElementById('agenda-current-title');
   if (!container) return;
 
-  // Populate client filter if not yet populated
+  // Filtro de clientes (se rellena siempre para incluir clientes nuevos)
   const clFilter = document.getElementById('agenda-filter-client');
-  if (clFilter && clFilter.options.length <= 1) {
-    (state.clients || []).forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = c.name;
-      clFilter.appendChild(opt);
-    });
+  if (clFilter) {
+    const cur = clFilter.value || 'all';
+    clFilter.innerHTML = '<option value="all">Todos los clientes</option>' + (state.clients || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    clFilter.value = Array.from(clFilter.options).some(o => o.value === cur) ? cur : 'all';
   }
 
-  const selectedStatus = document.getElementById('agenda-filter-status')?.value || 'all';
-  const selectedClient = document.getElementById('agenda-filter-client')?.value || 'all';
-
-  // Filter events from savedQuotes
-  const events = (state.savedQuotes || []).filter(sq => {
-    if (!sq.eventDate) return false;
-    if (selectedStatus !== 'all' && sq.status !== selectedStatus) return false;
-    if (selectedClient !== 'all' && sq.clientId !== selectedClient) return false;
-    return true;
-  });
-  // Include cabin informative stay requests spanning check-in to check-out
-  (state.cabinQuotes || []).forEach(cq => {
-    if (!cq.checkInDate || !cq.checkOutDate) return;
-    if (selectedStatus !== 'all' && cq.status !== selectedStatus) return;
-    if (selectedClient !== 'all' && cq.clientId !== selectedClient) return;
-
-    const cabin = (state.cabins || []).find(c => c.id === cq.cabinId);
-    const client = (state.clients || []).find(c => c.id === cq.clientId);
-
-    const dCur = new Date(cq.checkInDate + 'T00:00:00');
-    const dEnd = new Date(cq.checkOutDate + 'T00:00:00');
-
-    while (dCur < dEnd) {
-      const dStr = dCur.toISOString().slice(0, 10);
-      events.push({
-        id: cq.id,
-        isCabinQuote: true,
-        cabinQuote: cq,
-        eventDate: dStr,
-        eventTitle: `🏡 Solicitud Hospedaje: ${cabin ? cabin.name : 'Cabaña'} - ${client ? client.name : 'Cliente'} (${cq.number})`,
-        eventType: 'Hospedaje Cabaña',
-        guestsPax: (cq.adults || 0) + (cq.kids5to10 || 0),
-        clientId: cq.clientId,
-        status: cq.status,
-        total: cq.pricing ? cq.pricing.total : (cq.total || 0)
-      });
-      dCur.setDate(dCur.getDate() + 1);
-    }
-  });
-
+  const items = buildAgendaItems();
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   if (titleEl) {
     if (agendaViewMode === 'month') {
       titleEl.textContent = `${monthNames[agendaCurrentDate.getMonth()]} ${agendaCurrentDate.getFullYear()}`;
     } else if (agendaViewMode === 'week') {
-      const startOfWeek = new Date(agendaCurrentDate);
-      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(endOfWeek.getDate() + 6);
-      titleEl.textContent = `Semana ${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()].slice(0, 3)} – ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()].slice(0, 3)} ${endOfWeek.getFullYear()}`;
+      const s = new Date(agendaCurrentDate); s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
+      const e = new Date(s); e.setDate(e.getDate() + 6);
+      titleEl.textContent = `${s.getDate()} ${monthNames[s.getMonth()].slice(0, 3)} – ${e.getDate()} ${monthNames[e.getMonth()].slice(0, 3)} ${e.getFullYear()}`;
     } else {
       titleEl.textContent = `${agendaCurrentDate.getDate()} de ${monthNames[agendaCurrentDate.getMonth()]} de ${agendaCurrentDate.getFullYear()}`;
     }
   }
 
-  if (agendaViewMode === 'month') {
-    renderAgendaMonth(container, events);
-  } else if (agendaViewMode === 'week') {
-    renderAgendaWeek(container, events);
-  } else {
-    renderAgendaDay(container, events);
+  // Resumen del periodo
+  const counts = document.getElementById('agenda-period-counts');
+  fitAgendaHeight();
+  if (agendaViewMode === 'month') renderAgendaMonth(container, items);
+  else if (agendaViewMode === 'week') renderAgendaWeek(container, items);
+  else renderAgendaDay(container, items);
+  if (counts) {
+    const range = agendaViewMode === 'month'
+      ? items.filter(i => i.date.slice(0, 7) === agendaYmd(agendaCurrentDate).slice(0, 7))
+      : agendaViewMode === 'week'
+        ? (() => { const s = new Date(agendaCurrentDate); s.setDate(s.getDate() - ((s.getDay() + 6) % 7)); const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(s); d.setDate(d.getDate() + i); return agendaYmd(d); }); return items.filter(i => days.includes(i.date)); })()
+        : items.filter(i => i.date === agendaYmd(agendaCurrentDate));
+    const ev = new Set(range.filter(i => i.kind === 'event').map(i => i.id)).size;
+    const cb = new Set(range.filter(i => i.kind === 'cabin').map(i => i.id)).size;
+    counts.textContent = `${ev} evento(s) · ${cb} hospedaje(s)`;
   }
 }
 
-function renderAgendaMonth(container, events) {
+function renderAgendaMonth(container, items) {
   const year = agendaCurrentDate.getFullYear();
   const month = agendaCurrentDate.getMonth();
-  const firstDay = new Date(year, month, 1).getDay(); // 0 is Sun
+  const first = new Date(year, month, 1);
+  const startOffset = (first.getDay() + 6) % 7; // lunes = 0
   const totalDays = new Date(year, month + 1, 0).getDate();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const weeks = Math.ceil((startOffset + totalDays) / 7);
+  const todayStr = agendaYmd(new Date());
+  const desktop = window.innerWidth >= 1024;
+  // Cuántos elementos caben por día según el alto disponible
+  const cellH = desktop ? Math.max(70, (container.clientHeight - 60) / weeks) : 96;
+  const maxChips = Math.max(1, Math.floor((cellH - 30) / 19));
 
-  const dayHeaders = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-  const startOffset = (firstDay + 6) % 7; // Monday as 0
+  const byDate = {};
+  items.forEach(i => { (byDate[i.date] = byDate[i.date] || []).push(i); });
 
-  let html = `
-    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-      ${dayHeaders.map(d => `<div class="py-1">${d}</div>`).join('')}
-    </div>
-    <div class="grid grid-cols-7 gap-1 sm:gap-2 auto-rows-fr">
-  `;
-
-  // Empty leading days
-  for (let i = 0; i < startOffset; i++) {
-    html += `<div class="min-h-[60px] sm:min-h-[90px] rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-transparent"></div>`;
-  }
-
-  // Days of month
-  for (let d = 1; d <= totalDays; d++) {
-    const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const dayEvents = events.filter(e => e.eventDate === dStr);
+  let cells = '';
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = new Date(year, month, 1 - startOffset + i);
+    const dStr = agendaYmd(d);
+    const inMonth = d.getMonth() === month;
     const isToday = dStr === todayStr;
-
-    html += `
-      <div class="min-h-[70px] sm:min-h-[100px] p-1.5 sm:p-2 rounded-xl border ${isToday ? 'border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20 font-bold' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-850'} flex flex-col justify-between hover:border-indigo-300 transition group cursor-pointer" onclick="selectAgendaDay('${dStr}')">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] sm:text-xs font-extrabold ${isToday ? 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${d}</span>
-          ${dayEvents.length > 0 ? `<span class="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">${dayEvents.length}</span>` : ''}
+    const list = byDate[dStr] || [];
+    const shown = list.slice(0, list.length > maxChips ? maxChips - 1 : maxChips);
+    const more = list.length - shown.length;
+    cells += `
+      <div onclick="selectAgendaDay('${dStr}')" class="min-h-0 overflow-hidden p-1 sm:p-1.5 rounded-xl border flex flex-col gap-0.5 cursor-pointer transition hover:border-indigo-300 ${isToday ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30' : inMonth ? 'border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60' : 'border-transparent bg-slate-50/60 dark:bg-slate-800/20 opacity-60'}">
+        <div class="flex items-center justify-between shrink-0">
+          <span class="text-[11px] font-extrabold ${isToday ? 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center' : inMonth ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}">${d.getDate()}</span>
+          ${list.length ? `<span class="text-[9px] font-black text-slate-400">${list.length}</span>` : ''}
         </div>
-        <div class="space-y-1 mt-1 overflow-y-auto max-h-16 sm:max-h-20 no-scrollbar">
-          ${dayEvents.map(ev => {
-            if (ev.isCabinQuote) {
-              return `
-                <div class="p-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[10px] leading-tight font-semibold shadow-2xs transition" onclick="event.stopPropagation(); openAgendaCabinQuoteDetails('${ev.id}')" title="${ev.eventTitle}">
-                  <div class="truncate font-extrabold">${ev.eventTitle}</div>
-                  <div class="text-[9px] text-amber-100 truncate">🏡 Solicitud Informativa · ${ev.guestsPax} Pax</div>
-                </div>
-              `;
-            }
-            const client = state.clients.find(c => c.id === ev.clientId);
-            return `
-              <div class="p-1 rounded-lg bg-indigo-600 text-white text-[10px] leading-tight font-semibold shadow-2xs hover:bg-indigo-700 transition" onclick="event.stopPropagation(); openAgendaEventDetails('${ev.id}')" title="${ev.eventTitle} (${client?.name || 'Cliente'}) - ${ev.guestsPax} Pax">
-                <div class="truncate font-extrabold">${ev.eventTitle}</div>
-                <div class="text-[9px] text-indigo-100 truncate">${ev.guestsPax} Pax · ${ev.eventType}</div>
-              </div>
-            `;
-          }).join('')}
+        <div class="flex flex-col gap-0.5 min-h-0">
+          ${shown.map(it => agendaChip(it, true)).join('')}
+          ${more > 0 ? `<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-1">+${more} más</span>` : ''}
         </div>
-      </div>
-    `;
-  }
-
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-function renderAgendaWeek(container, events) {
-  const startOfWeek = new Date(agendaCurrentDate);
-  startOfWeek.setDate(startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)); // Monday
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
-  let html = `<div class="grid grid-cols-1 md:grid-cols-7 gap-3">`;
-
-  for (let i = 0; i < 7; i++) {
-    const cur = new Date(startOfWeek);
-    cur.setDate(cur.getDate() + i);
-    const dStr = cur.toISOString().slice(0, 10);
-    const dayEvents = events.filter(e => e.eventDate === dStr);
-    const isToday = dStr === todayStr;
-
-    html += `
-      <div class="rounded-2xl border ${isToday ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/20' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'} p-3 space-y-2.5 min-h-[220px]">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">${dayNames[i]}</span>
-            <strong class="text-sm font-black ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-slate-200'}">${cur.getDate()}</strong>
-          </div>
-          <span class="text-xs font-bold text-slate-500 tabular-nums">${dayEvents.length} ev.</span>
-        </div>
-        <div class="space-y-2">
-          ${dayEvents.length === 0 ? '<div class="text-[11px] text-slate-400 py-6 text-center">Sin eventos</div>' : dayEvents.map(ev => {
-            const client = state.clients.find(c => c.id === ev.clientId);
-            return `
-              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1 cursor-pointer hover:border-indigo-400 transition" onclick="openAgendaEventDetails('${ev.id}')">
-                <div class="flex items-center justify-between">
-                  <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">${ev.eventType}</span>
-                  <strong class="text-indigo-600 text-[10px] font-bold tabular-nums">${ev.guestsPax} Pax</strong>
-                </div>
-                <div class="font-extrabold text-slate-900 dark:text-white text-xs truncate">${ev.eventTitle}</div>
-                <div class="text-[10px] text-slate-500 truncate">👤 ${client?.name || 'Cliente'}</div>
-                <div class="text-[10px] text-slate-500 truncate">📍 ${ev.eventVenue || 'Lugar por definir'}</div>
-                <div class="text-[10px] font-extrabold text-emerald-600 text-right tabular-nums pt-1 border-t border-slate-100 dark:border-slate-700">${formatCurrency(ev.total)}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-function renderAgendaDay(container, events) {
-  const dStr = agendaCurrentDate.toISOString().slice(0, 10);
-  const dayEvents = events.filter(e => e.eventDate === dStr);
-
-  if (dayEvents.length === 0) {
-    container.innerHTML = `
-      <div class="py-16 text-center space-y-2">
-        <span class="text-3xl block">🏖️</span>
-        <h4 class="font-bold text-slate-800 dark:text-white text-sm">No hay eventos programados para este día</h4>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">Selecciona otra fecha o crea una cotización para programar un evento.</p>
-      </div>
-    `;
-    return;
+      </div>`;
   }
 
   container.innerHTML = `
-    <div class="space-y-3">
-      ${dayEvents.map(ev => {
-        const client = state.clients.find(c => c.id === ev.clientId);
+    <div class="h-full flex flex-col gap-1.5">
+      <div class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0">
+        ${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(d => `<div>${d}</div>`).join('')}
+      </div>
+      <div class="grid grid-cols-7 gap-1 sm:gap-1.5 flex-1 min-h-0" style="grid-template-rows: repeat(${weeks}, ${desktop ? 'minmax(0, 1fr)' : 'minmax(96px, auto)'});">
+        ${cells}
+      </div>
+    </div>`;
+}
+
+function renderAgendaWeek(container, items) {
+  const s = new Date(agendaCurrentDate);
+  s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
+  const todayStr = agendaYmd(new Date());
+  const names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  let cols = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(s); d.setDate(d.getDate() + i);
+    const dStr = agendaYmd(d);
+    const list = items.filter(it => it.date === dStr);
+    const isToday = dStr === todayStr;
+    cols += `
+      <div class="min-h-0 flex flex-col rounded-2xl border ${isToday ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/20' : 'border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60'} overflow-hidden">
+        <button type="button" onclick="selectAgendaDay('${dStr}')" class="shrink-0 flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-800 text-left cursor-pointer">
+          <span><span class="block text-[10px] uppercase font-bold text-slate-400">${names[i]}</span><strong class="text-sm font-black ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-slate-200'}">${d.getDate()}</strong></span>
+          <span class="text-[10px] font-bold text-slate-400">${list.length || ''}</span>
+        </button>
+        <div class="flex-1 min-h-0 overflow-y-auto p-2 space-y-1.5">
+          ${list.length ? list.map(it => agendaChip(it, false)).join('') : '<div class="text-[11px] text-slate-400 py-6 text-center">Libre</div>'}
+        </div>
+      </div>`;
+  }
+  container.innerHTML = `<div class="h-full grid grid-cols-1 md:grid-cols-7 gap-2">${cols}</div>`;
+}
+
+function renderAgendaDay(container, items) {
+  const dStr = agendaYmd(agendaCurrentDate);
+  const list = items.filter(e => e.date === dStr);
+  if (!list.length) {
+    container.innerHTML = `
+      <div class="h-full flex flex-col items-center justify-center text-center gap-2 py-12">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <h4 class="font-bold text-slate-800 dark:text-white text-sm">No hay eventos ni hospedajes este día</h4>
+        <p class="text-xs text-slate-400 max-w-sm">Usa las flechas para cambiar de día o vuelve a la vista de mes.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="h-full overflow-y-auto space-y-2.5 pr-1">
+      ${list.map(it => {
+        const isCabin = it.kind === 'cabin';
+        const open = isCabin ? `openAgendaCabinQuoteDetails('${it.id}')` : `openAgendaEventDetails('${it.id}')`;
         return `
-          <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1.5 min-w-0 flex-1">
+          <div class="rounded-2xl border ${isCabin ? 'border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20' : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20'} p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="min-w-0 space-y-1">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">${ev.eventType}</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${ev.status === 'Aprobada' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${ev.status}</span>
-                <strong class="text-indigo-600 text-xs font-mono">${ev.number}</strong>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isCabin ? 'bg-teal-600 text-white' : 'bg-indigo-600 text-white'}">${isCabin ? (it.isCheckIn ? 'Entrada · Hospedaje' : 'Hospedaje') : it.type}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${it.status === 'Aprobada' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}">${AGENDA_STATUS_LABEL[it.status] || it.status || ''}</span>
+                ${it.number ? `<span class="text-[11px] font-mono font-bold text-slate-500">${it.number}</span>` : ''}
               </div>
-              <h3 class="text-base font-extrabold text-slate-900 dark:text-white truncate">${ev.eventTitle}</h3>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                <div>👥 <strong>Invitados:</strong> ${ev.guestsPax} Pax</div>
-                <div>👤 <strong>Cliente:</strong> ${client?.name || 'Cliente'}</div>
-                <div>📍 <strong>Lugar:</strong> ${ev.eventVenue || 'Por definir'}</div>
-              </div>
-            </div>
-            <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200">
-              <strong class="text-lg font-black text-slate-900 dark:text-white tabular-nums">${formatCurrency(ev.total)}</strong>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="openAgendaEventDetails('${ev.id}')" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition">
-                  Ver Detalles ➔
-                </button>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white truncate">${isCabin ? '🏡 ' : ''}${it.title}</h3>
+              <div class="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap gap-x-4 gap-y-0.5">
+                <span>👤 ${it.client}</span>
+                <span>👥 ${it.pax} ${isCabin ? 'huésped(es)' : 'Pax'}</span>
+                ${isCabin ? `<span>📅 ${it.checkIn} → ${it.checkOut} (${it.nights} noche(s))</span>` : (it.venue ? `<span>📍 ${it.venue}</span>` : '')}
               </div>
             </div>
-          </div>
-        `;
+            <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+              <strong class="text-base font-black text-slate-900 dark:text-white tabular-nums">${formatCurrency(it.total)}</strong>
+              <button type="button" onclick="${open}" class="min-h-[40px] px-3.5 rounded-xl ${isCabin ? 'bg-teal-600 hover:bg-teal-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white font-bold text-xs transition cursor-pointer">Ver detalles</button>
+            </div>
+          </div>`;
       }).join('')}
-    </div>
-  `;
+    </div>`;
 }
 
 function selectAgendaDay(dateStr) {

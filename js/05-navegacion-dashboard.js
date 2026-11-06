@@ -103,7 +103,7 @@
       simulador: { title: 'Simulador de Recetas', subtitle: 'Costeo unitario por Pax, margen comercial y explosi\u00F3n de insumos' },
       clientes: { title: 'Directorio de Clientes', subtitle: 'Base de datos de contactos, empresas y eventos' },
       finanzas: { title: 'Flujo de Caja & Finanzas', subtitle: 'Registro de anticipos, ingresos, compras y balance neto' },
-      agenda: { title: 'Agenda Operativa', subtitle: 'Calendario de eventos, banquetes y bodas por fecha, estado y cliente' },
+      agenda: { title: 'Agenda Operativa', subtitle: 'Eventos y hospedajes por fecha, estado y cliente' },
       rentabilidad: { title: 'Cierre de Eventos & Rentabilidad', subtitle: 'Auditor\u00EDa financiera real vs estimada, gastos extra y liquidaci\u00F3n' },
       empresa: { title: 'Mi Empresa & Respaldo', subtitle: 'Identidad corporativa, t\u00E9rminos comerciales y copias JSON' },
       cabanas: { title: 'Cabañas & Catálogos', subtitle: 'Hospedajes, capacidades, tarifas base, políticas de niños y tours' },

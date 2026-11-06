@@ -265,17 +265,88 @@ function deleteUser(userId) {
   renderCompanyUsersList();
 }
 
-// 4. POLÍTICAS DE NIÑOS
+// 4. POLÍTICAS DE NIÑOS (edades, nombres y tarifas configurables)
+// Se conservan los tres tramos con sus claves de siempre ('0-4', '5-10', '11+') para que
+// las cotizaciones guardadas sigan funcionando; lo que cambia es la parametrización.
+const CHILD_POLICY_DEFAULTS = {
+  infant: { minAge: 0, maxAge: 4, label: 'Bebés', rate: 0, countsTowardsMaxCapacity: false, note: 'Sin costo, en cama compartida o cuna portátil' },
+  child: { maxAge: 10, label: 'Niños', rate: 40000, countsTowardsMaxCapacity: true, note: 'Tarifa reducida por noche; ocupan cama individual' },
+  adult: { label: 'Adultos', note: 'Tarifa completa; si superan la capacidad base pagan persona adicional' }
+};
+
+function getChildPolicyTiers() {
+  const list = state.childPolicies || [];
+  const p0 = list.find(p => p.range === '0-4') || {};
+  const p5 = list.find(p => p.range === '5-10') || {};
+  const p11 = list.find(p => p.range === '11+') || {};
+  const cleanLabel = (v, def) => (typeof v === 'string' && v.trim() && !/\d+\s*(a|-)\s*\d+\s*años|años en adelante/i.test(v)) ? v.trim() : def;
+  const num = (v, def) => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? def : Number(v);
+  const infantMax = Math.max(0, Math.round(num(p0.maxAge, CHILD_POLICY_DEFAULTS.infant.maxAge)));
+  const childMax = Math.max(infantMax + 1, Math.round(num(p5.maxAge, CHILD_POLICY_DEFAULTS.child.maxAge)));
+  const infant = {
+    minAge: 0, maxAge: infantMax,
+    label: cleanLabel(p0.label, CHILD_POLICY_DEFAULTS.infant.label),
+    rate: Math.max(0, num(p0.rate, 0)),
+    countsTowardsMaxCapacity: p0.countsTowardsMaxCapacity !== undefined ? !!p0.countsTowardsMaxCapacity : false,
+    note: p0.note || CHILD_POLICY_DEFAULTS.infant.note
+  };
+  const child = {
+    minAge: infantMax + 1, maxAge: childMax,
+    label: cleanLabel(p5.label, CHILD_POLICY_DEFAULTS.child.label),
+    rate: Math.max(0, num(p5.rate, CHILD_POLICY_DEFAULTS.child.rate)),
+    countsTowardsMaxCapacity: p5.countsTowardsMaxCapacity !== undefined ? !!p5.countsTowardsMaxCapacity : true,
+    note: p5.note || CHILD_POLICY_DEFAULTS.child.note
+  };
+  const adult = {
+    minAge: childMax + 1,
+    label: cleanLabel(p11.label, CHILD_POLICY_DEFAULTS.adult.label),
+    note: p11.note || CHILD_POLICY_DEFAULTS.adult.note
+  };
+  infant.text = `${infant.label} (${infant.minAge}-${infant.maxAge} años)`;
+  child.text = `${child.label} (${child.minAge}-${child.maxAge} años)`;
+  adult.text = `${adult.label} (${adult.minAge}+ años)`;
+  infant.short = `${infant.label} (${infant.minAge}-${infant.maxAge} a.)`;
+  child.short = `${child.label} (${child.minAge}-${child.maxAge} a.)`;
+  adult.short = `${adult.label} (${adult.minAge}+ a.)`;
+  return { infant, child, adult };
+}
+
+// Etiquetas del formulario de cotización de cabañas según las políticas
+function applyChildPolicyLabels() {
+  const t = getChildPolicyTiers();
+  const setLabel = (forId, text) => { const el = document.querySelector(`label[for="${forId}"]`); if (el) el.textContent = text; };
+  setLabel('hos-adults-input', t.adult.short + ' *');
+  setLabel('hos-kids-5to10-input', t.child.short);
+  setLabel('hos-kids-0to4-input', t.infant.short);
+}
+
 function renderChildPoliciesInputs() {
-  const policies = state.childPolicies || [];
-  const p0 = policies.find(p => p.range === '0-4');
-  const p5 = policies.find(p => p.range === '5-10');
+  const t = getChildPolicyTiers();
+  const set = (id, v) => { const el = document.getElementById(id); if (!el) return; if (el.type === 'checkbox') el.checked = !!v; else el.value = v; };
+  set('pol-inf-label', t.infant.label); set('pol-inf-max', t.infant.maxAge); set('pol-inf-rate', t.infant.rate);
+  set('pol-inf-counts', t.infant.countsTowardsMaxCapacity); set('pol-inf-note', t.infant.note);
+  set('pol-chd-label', t.child.label); set('pol-chd-max', t.child.maxAge); set('pol-chd-rate', t.child.rate);
+  set('pol-chd-counts', t.child.countsTowardsMaxCapacity); set('pol-chd-note', t.child.note);
+  set('pol-adl-label', t.adult.label); set('pol-adl-note', t.adult.note);
+  updateChildPolicyPreview();
+}
 
-  const cap0Check = document.getElementById('policy-0-4-counts-cap');
-  const rate5In = document.getElementById('policy-5-10-rate');
-
-  if (cap0Check && p0) cap0Check.checked = !!p0.countsTowardsMaxCapacity;
-  if (rate5In && p5) rate5In.value = p5.rate ?? 40000;
+// Actualiza los rangos mostrados mientras se escriben las edades
+function updateChildPolicyPreview() {
+  const infMax = Math.max(0, parseInt(document.getElementById('pol-inf-max')?.value, 10) || 0);
+  const chdMax = parseInt(document.getElementById('pol-chd-max')?.value, 10) || 0;
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  const put = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  put('pol-inf-range', `0 a ${infMax} años`);
+  put('pol-chd-min', String(infMax + 1));
+  put('pol-chd-range', chdMax > infMax ? `${infMax + 1} a ${chdMax} años` : 'Revisa la edad máxima');
+  put('pol-adl-range', `${(chdMax > infMax ? chdMax : infMax + 1) + 1} años en adelante`);
+  put('pol-adl-min', String((chdMax > infMax ? chdMax : infMax + 1) + 1));
+  const infRate = Number(document.getElementById('pol-inf-rate')?.value) || 0;
+  put('pol-inf-price', infRate > 0 ? formatCurrency(infRate) + ' / noche' : 'GRATIS');
+  put('pol-inf-title', v('pol-inf-label') || 'Bebés');
+  put('pol-chd-title', v('pol-chd-label') || 'Niños');
+  put('pol-adl-title', v('pol-adl-label') || 'Adultos');
 }
 
 function saveChildPoliciesSettings() {
@@ -283,18 +354,28 @@ function saveChildPoliciesSettings() {
     showToast('No tienes permiso para modificar políticas');
     return;
   }
-  const cap0 = document.getElementById('policy-0-4-counts-cap')?.checked ?? false;
-  const rate5 = Number(document.getElementById('policy-5-10-rate')?.value) || 40000;
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  const infMax = parseInt(v('pol-inf-max'), 10);
+  const chdMax = parseInt(v('pol-chd-max'), 10);
+  if (isNaN(infMax) || infMax < 0 || infMax > 16) return showToast('❌ La edad máxima del primer grupo debe estar entre 0 y 16 años');
+  if (isNaN(chdMax) || chdMax <= infMax || chdMax > 17) return showToast(`❌ La edad máxima del segundo grupo debe ser mayor que ${infMax} y máximo 17 años`);
+  const infLabel = v('pol-inf-label') || CHILD_POLICY_DEFAULTS.infant.label;
+  const chdLabel = v('pol-chd-label') || CHILD_POLICY_DEFAULTS.child.label;
+  const adlLabel = v('pol-adl-label') || CHILD_POLICY_DEFAULTS.adult.label;
 
   state.childPolicies = [
-    { id: 'cp-1', range: '0-4', label: '0 a 4 años', rate: 0, countsTowardsMaxCapacity: cap0, note: 'Gratis en cama compartida' },
-    { id: 'cp-2', range: '5-10', label: '5 a 10 años', rate: rate5, countsTowardsMaxCapacity: true, note: 'Tarifa reducida por noche' },
-    { id: 'cp-3', range: '11+', label: '11 años en adelante', rate: null, isAdult: true, countsTowardsMaxCapacity: true, note: 'Tarifa completa adulto' }
+    { id: 'cp-1', range: '0-4', minAge: 0, maxAge: infMax, label: infLabel, rate: Math.max(0, Number(v('pol-inf-rate')) || 0),
+      countsTowardsMaxCapacity: !!document.getElementById('pol-inf-counts')?.checked, note: v('pol-inf-note') },
+    { id: 'cp-2', range: '5-10', minAge: infMax + 1, maxAge: chdMax, label: chdLabel, rate: Math.max(0, Number(v('pol-chd-rate')) || 0),
+      countsTowardsMaxCapacity: !!document.getElementById('pol-chd-counts')?.checked, note: v('pol-chd-note') },
+    { id: 'cp-3', range: '11+', minAge: chdMax + 1, label: adlLabel, rate: null, isAdult: true, countsTowardsMaxCapacity: true, note: v('pol-adl-note') }
   ];
 
   saveState();
-  showToast('Políticas de niños actualizadas correctamente');
-  if (state.activeCabinQuote) recalculateCabinQuoteLive();
+  applyChildPolicyLabels();
+  renderChildPoliciesInputs();
+  showToast('✅ Políticas de edades actualizadas');
+  if (state.activeCabinQuote && typeof recalculateCabinQuoteLive === 'function') recalculateCabinQuoteLive();
 }
 
 // 5. PESTAÑAS DENTRO DE view-cabanas

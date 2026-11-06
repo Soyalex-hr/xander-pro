@@ -639,12 +639,13 @@ function recalculateCabinQuoteLive() {
   const reason = document.getElementById('hos-rate-reason-input')?.value || '';
 
   // Child Policies lookup
-  const policies = state.childPolicies || [];
-  const p0 = policies.find(p => p.range === '0-4') || { countsTowardsMaxCapacity: false };
-  const p5 = policies.find(p => p.range === '5-10') || { rate: 40000 };
+  const tiers = getChildPolicyTiers();
+  const p0 = tiers.infant;
+  const p5 = tiers.child;
+  applyChildPolicyLabels();
 
   // Occupancy rules & Extra Person math
-  const totalOccupants = adults + kids5to10 + (p0.countsTowardsMaxCapacity ? kids0to4 : 0);
+  const totalOccupants = adults + (p5.countsTowardsMaxCapacity ? kids5to10 : 0) + (p0.countsTowardsMaxCapacity ? kids0to4 : 0);
   const extraPaxCount = Math.max(0, adults - cabin.baseCapacity);
 
   // Hard Max Capacity Alert
@@ -655,7 +656,7 @@ function recalculateCabinQuoteLive() {
   if (capBanner) {
     capBanner.classList.toggle('hidden', !isCapExceeded);
     if (capText) {
-      capText.textContent = `La cabaña ${cabin.name} permite máximo ${cabin.maxCapacity} huéspedes físicos. Tienes actualmente ${totalOccupants} ocupantes (${adults} adultos + ${kids5to10} niños).`;
+      capText.textContent = `La cabaña ${cabin.name} permite máximo ${cabin.maxCapacity} huéspedes físicos. Tienes actualmente ${totalOccupants} ocupantes (${adults} ${tiers.adult.label.toLowerCase()} + ${kids5to10} ${p5.label.toLowerCase()}${p0.countsTowardsMaxCapacity ? ' + ' + kids0to4 + ' ' + p0.label.toLowerCase() : ''}).`;
     }
   }
 
@@ -677,13 +678,14 @@ function recalculateCabinQuoteLive() {
   // Summary badge
   const occSummary = document.getElementById('hos-occupancy-summary-badge');
   if (occSummary) {
-    occSummary.textContent = `${adults} Adultos, ${kids5to10} Niños (5-10a), ${kids0to4} Niños (0-4a), ${pets} Mascotas`;
+    occSummary.textContent = `${adults} ${tiers.adult.label}, ${kids5to10} ${p5.label}, ${kids0to4} ${p0.label}, ${pets} Mascotas`;
   }
 
   // Calculations
   const subtotalBase = nights * nightlyRate;
   const subtotalExtraPax = extraPaxCount * (cabin.extraPersonRate || 0) * nights;
   const subtotalKids = kids5to10 * (p5.rate || 0) * nights;
+  const subtotalInfants = kids0to4 * (p0.rate || 0) * nights;
 
   let subtotalPets = 0;
   if (cabin.allowsPets && pets > 0) {
@@ -706,7 +708,7 @@ function recalculateCabinQuoteLive() {
   const discount = Number(document.getElementById('hos-discount-input')?.value) || 0;
 
   // General Total
-  const subtotalAll = subtotalBase + subtotalExtraPax + subtotalKids + subtotalPets + subtotalMeals + subtotalTours;
+  const subtotalAll = subtotalBase + subtotalExtraPax + subtotalKids + subtotalInfants + subtotalPets + subtotalMeals + subtotalTours;
   const total = Math.max(0, subtotalAll - discount);
 
   // Deposit & Balance
@@ -732,6 +734,11 @@ function recalculateCabinQuoteLive() {
     childRate5to10: p5.rate || 0,
     subtotalKids,
     kids0to4,
+    infantRate: p0.rate || 0,
+    subtotalInfants,
+    childLabel: p5.text,
+    infantLabel: p0.text,
+    adultLabel: tiers.adult.text,
     pets,
     petRate: cabin.petRate || 0,
     petChargeType: cabin.petChargeType,
@@ -843,10 +850,23 @@ function renderLiveFormulaBreakdown(cabin, calc) {
     itemsHtml += `
       <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-blue-700 dark:text-blue-300">
         <div>
-          <span class="font-bold">Niños (5 a 10 años)</span>
-          <div class="text-[11px] opacity-80 font-mono">${calc.kids5to10} niños × ${formatCurrency(calc.childRate5to10)} × ${calc.nights} noches</div>
+          <span class="font-bold">${calc.childLabel || 'Niños (5 a 10 años)'}</span>
+          <div class="text-[11px] opacity-80 font-mono">${calc.kids5to10} × ${formatCurrency(calc.childRate5to10)} × ${calc.nights} noches</div>
         </div>
         <strong class="font-black tabular-nums">${formatCurrency(calc.subtotalKids)}</strong>
+      </div>
+    `;
+  }
+
+  // Primer grupo de edad (si tiene tarifa)
+  if (calc.kids0to4 > 0 && calc.subtotalInfants > 0) {
+    itemsHtml += `
+      <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-pink-700 dark:text-pink-300">
+        <div>
+          <span class="font-bold">${calc.infantLabel || 'Bebés'}</span>
+          <div class="text-[11px] opacity-80 font-mono">${calc.kids0to4} × ${formatCurrency(calc.infantRate)} × ${calc.nights} noches</div>
+        </div>
+        <strong class="font-black tabular-nums">${formatCurrency(calc.subtotalInfants)}</strong>
       </div>
     `;
   }
@@ -1073,14 +1093,30 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
           ${calc.kids5to10 > 0 ? `
             <tr>
               <td class="py-2 px-2.5">
-                <strong class="text-slate-900 block">Niños (5 a 10 años)</strong>
+                <strong class="text-slate-900 block">${calc.childLabel || 'Niños (5 a 10 años)'}</strong>
                 <span class="text-[10px] text-slate-500">Tarifa reducida por menor de edad</span>
               </td>
               <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
-                ${calc.kids5to10} niños × ${formatCurrency(calc.childRate5to10)} × ${calc.nights} noches
+                ${calc.kids5to10} × ${formatCurrency(calc.childRate5to10)} × ${calc.nights} noches
               </td>
               <td class="py-2 px-2.5 text-right font-black text-slate-900 tabular-nums">
                 ${formatCurrency(calc.subtotalKids)}
+              </td>
+            </tr>
+          ` : ''}
+
+          <!-- Row 3b: primer grupo de edad con tarifa -->
+          ${calc.kids0to4 > 0 && calc.subtotalInfants > 0 ? `
+            <tr>
+              <td class="py-2 px-2.5">
+                <strong class="text-slate-900 block">${calc.infantLabel || 'Bebés'}</strong>
+                <span class="text-[10px] text-slate-500">Tarifa por menor de edad</span>
+              </td>
+              <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
+                ${calc.kids0to4} × ${formatCurrency(calc.infantRate)} × ${calc.nights} noches
+              </td>
+              <td class="py-2 px-2.5 text-right font-black text-slate-900 tabular-nums">
+                ${formatCurrency(calc.subtotalInfants)}
               </td>
             </tr>
           ` : ''}
