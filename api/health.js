@@ -3,7 +3,7 @@ import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  const vars = Object.keys(process.env).filter(k => /^(DATABASE|POSTGRES|PG|NEON|BLOB)/.test(k)).sort();
+  const vars = Object.keys(process.env).filter(k => /^(DATABASE|POSTGRES|PG|NEON|BLOB)/.test(k) || /BLOB/.test(k)).sort();
   res.setHeader('Cache-Control', 'no-store');
   if (!url) {
     return res.status(200).json({ ok: false, db: 'No hay DATABASE_URL configurada en Vercel', vars });
@@ -18,7 +18,8 @@ export default async function handler(req, res) {
       postgres: String(info.version).split(' ').slice(0, 2).join(' '),
       serverTime: info.now,
       initialized: !!tbl.companies,
-      blob: vars.some(v => v.startsWith('BLOB_'))
+      blob: vars.some(v => /BLOB_READ_WRITE_TOKEN$/.test(v)),
+      project: process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || ''
     });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message, vars });

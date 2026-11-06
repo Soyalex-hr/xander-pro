@@ -9,8 +9,15 @@ import { requireSession } from './_lib/auth.js';
 const TYPES = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png' };
 const MAX_BYTES = 3 * 1024 * 1024;
 
+// Token de Vercel Blob: normalmente BLOB_READ_WRITE_TOKEN; si el almacén se conectó
+// con otro prefijo (p. ej. FOTOS_BLOB_READ_WRITE_TOKEN) también se reconoce.
+export function blobToken() {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN;
+  const k = Object.keys(process.env).find(n => /BLOB_READ_WRITE_TOKEN$/.test(n) && process.env[n]);
+  return k ? process.env[k] : null;
+}
 export function blobConfigured() {
-  return Object.keys(process.env).some(k => k.startsWith('BLOB_') && process.env[k]);
+  return !!blobToken();
 }
 
 export default handler(async (req, res) => {
@@ -38,7 +45,8 @@ export default handler(async (req, res) => {
     access: 'public',
     contentType,
     addRandomSuffix: false,
-    cacheControlMaxAge: 60 * 60 * 24 * 365
+    cacheControlMaxAge: 60 * 60 * 24 * 365,
+    ...(globalThis.__XP_TEST_BLOB__ ? {} : { token: blobToken() })
   });
   send(res, 200, { ok: true, url: blob.url, pathname: blob.pathname || pathname, size: buffer.length });
 });
