@@ -37,7 +37,7 @@ function populateCabinQuotePickers() {
     const curCab = cabSel.value;
     const activeCabins = (state.cabins || []).filter(c => c.status === 'active');
     cabSel.innerHTML = activeCabins.map(c => `
-      <option value="${c.id}">${c.code} - ${c.name} (${formatCurrency(c.baseNightlyRate)}/noche · Base ${c.baseCapacity} pax)</option>
+      <option value="${c.id}">${c.code} - ${c.name} (${formatCurrency(c.baseNightlyRate)}/noche · ${c.pricingMode === 'fixed' ? 'Hasta ' + c.maxCapacity : 'Base ' + c.baseCapacity} pax)</option>
     `).join('');
     if (curCab && Array.from(cabSel.options).some(o => o.value === curCab)) {
       cabSel.value = curCab;
@@ -299,7 +299,7 @@ function handleCabinSelectionChange(triggerRecalc = true) {
 
   if (nameEl) nameEl.textContent = cabin.name;
   if (codeEl) codeEl.textContent = cabin.code;
-  if (capEl) capEl.textContent = `Base: ${cabin.baseCapacity} | Máx: ${cabin.maxCapacity} pax`;
+  if (capEl) capEl.textContent = cabin.pricingMode === 'fixed' ? `Tarifa fija · hasta ${cabin.maxCapacity} pax` : `Base: ${cabin.baseCapacity} | Máx: ${cabin.maxCapacity} pax`;
   if (rateEl) rateEl.textContent = `${formatCurrency(cabin.baseNightlyRate)} / noche`;
   if (origRateEl) origRateEl.textContent = `${formatCurrency(cabin.baseNightlyRate)} / noche`;
 
@@ -648,7 +648,8 @@ function recalculateCabinQuoteLive() {
 
   // Occupancy rules & Extra Person math
   const totalOccupants = adults + (p5.countsTowardsMaxCapacity ? kids5to10 : 0) + (p0.countsTowardsMaxCapacity ? kids0to4 : 0);
-  const extraPaxCount = Math.max(0, adults - cabin.baseCapacity);
+  const isFixedRate = cabin.pricingMode === 'fixed';
+  const extraPaxCount = (isFixedRate || !(Number(cabin.extraPersonRate) > 0)) ? 0 : Math.max(0, adults - cabin.baseCapacity);
 
   // Hard Max Capacity Alert
   const capBanner = document.getElementById('hos-capacity-banner');
@@ -731,6 +732,8 @@ function recalculateCabinQuoteLive() {
     subtotalBase,
     extraPaxCount,
     extraPersonRate: cabin.extraPersonRate || 0,
+    pricingMode: isFixedRate ? 'fixed' : 'base_plus_extra',
+    includedGuests: isFixedRate ? cabin.maxCapacity : cabin.baseCapacity,
     subtotalExtraPax,
     kids5to10,
     childRate5to10: p5.rate || 0,
@@ -1114,7 +1117,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
           <tr>
             <td class="py-2 px-2.5">
               <strong class="text-slate-900 block">Hospedaje Cabaña (${cabin.name})</strong>
-              <span class="text-[10px] text-slate-500">Incluye capacidad base de ${cabin.baseCapacity} personas</span>
+              <span class="text-[10px] text-slate-500">${(calc.pricingMode || cabin.pricingMode) === 'fixed' ? `Tarifa fija · incluye hasta ${cabin.maxCapacity} personas` : `Incluye capacidad base de ${cabin.baseCapacity} personas`}</span>
             </td>
             <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
               ${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches

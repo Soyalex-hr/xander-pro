@@ -477,8 +477,9 @@ function renderCabinsGrid() {
                 <strong class="text-lg font-black text-white tabular-nums">${formatCurrency(cab.baseNightlyRate)}</strong>
               </div>
               <div class="text-right">
-                <span class="text-[10px] text-teal-300 font-semibold block">+ Persona adic.</span>
-                <span class="text-xs font-bold text-white tabular-nums">${formatCurrency(cab.extraPersonRate)}</span>
+                ${cab.pricingMode === 'fixed' ? `<span class="text-[10px] text-teal-300 font-semibold block">Tarifa fija</span>
+                <span class="text-xs font-bold text-white tabular-nums">Hasta ${cab.maxCapacity} pax</span>` : `<span class="text-[10px] text-teal-300 font-semibold block">+ Persona adic.</span>
+                <span class="text-xs font-bold text-white tabular-nums">${formatCurrency(cab.extraPersonRate)}</span>`}
               </div>
             </div>
           </div>
@@ -595,11 +596,13 @@ function openCabinModal(cabinId = null) {
     baseCapIn.value = cab.baseCapacity || 4;
     maxCapIn.value = cab.maxCapacity || 8;
     rateIn.value = cab.baseNightlyRate || 480000;
-    extraIn.value = cab.extraPersonRate || 75000;
+    extraIn.value = cab.extraPersonRate ?? 75000;
+    const pmIn = document.getElementById('cabin-form-pricing-mode');
+    if (pmIn) pmIn.value = cab.pricingMode === 'fixed' ? 'fixed' : 'base_plus_extra';
     roomsIn.value = cab.rooms || 2;
     bathsIn.value = cab.bathrooms || 2;
     petsCheck.checked = !!cab.allowsPets;
-    petRateIn.value = cab.petRate || 35000;
+    petRateIn.value = cab.petRate ?? 35000;
     petTypeIn.value = cab.petChargeType || 'per_night';
     statusIn.value = cab.status || 'active';
     obsIn.value = cab.observations || '';
@@ -626,6 +629,8 @@ function openCabinModal(cabinId = null) {
     maxCapIn.value = 8;
     rateIn.value = 480000;
     extraIn.value = 75000;
+    const pmNew = document.getElementById('cabin-form-pricing-mode');
+    if (pmNew) pmNew.value = 'base_plus_extra';
     roomsIn.value = 2;
     bathsIn.value = 2;
     petsCheck.checked = true;
@@ -648,6 +653,7 @@ function openCabinModal(cabinId = null) {
   toggleCabinFormPetFields();
   renderCabinPhotosPreview();
   modal.classList.remove('hidden');
+  updateCabinPricingModeUI();
 }
 
 function toggleCabinFormPetFields() {
@@ -727,11 +733,12 @@ function saveCabinFromForm() {
   const baseCapacity = Number(document.getElementById('cabin-form-base-cap')?.value) || 4;
   const maxCapacity = Number(document.getElementById('cabin-form-max-cap')?.value) || 8;
   const baseNightlyRate = Number(document.getElementById('cabin-form-nightly-rate')?.value) || 480000;
-  const extraPersonRate = Number(document.getElementById('cabin-form-extra-rate')?.value) || 75000;
+  const pricingMode = document.getElementById('cabin-form-pricing-mode')?.value === 'fixed' ? 'fixed' : 'base_plus_extra';
+  const extraPersonRate = cabinNumOr('cabin-form-extra-rate', 75000);
   const rooms = Number(document.getElementById('cabin-form-rooms')?.value) || 2;
   const bathrooms = Number(document.getElementById('cabin-form-bathrooms')?.value) || 2;
   const allowsPets = document.getElementById('cabin-form-allows-pets')?.checked ?? true;
-  const petRate = Number(document.getElementById('cabin-form-pet-rate')?.value) || 35000;
+  const petRate = cabinNumOr('cabin-form-pet-rate', 35000);
   const petChargeType = document.getElementById('cabin-form-pet-charge-type')?.value || 'per_night';
   const status = document.getElementById('cabin-form-status')?.value || 'active';
   const observations = (document.getElementById('cabin-form-observations')?.value || '').trim();
@@ -774,6 +781,7 @@ function saveCabinFromForm() {
     maxCapacity,
     baseNightlyRate,
     extraPersonRate,
+    pricingMode,
     rooms,
     bathrooms,
     allowsPets,
@@ -1170,3 +1178,30 @@ function deleteTourService(tourId) {
   renderTourServicesGrid();
   populateCabinQuotePickers();
 }
+
+// Lee un número del formulario: solo usa el valor por defecto si el campo está vacío (permite 0)
+function cabinNumOr(id, def) {
+  const raw = String(document.getElementById(id)?.value ?? '').trim();
+  if (raw === '') return def;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : def;
+}
+
+// Modo de cobro de la cabaña: tarifa base + persona extra, o tarifa fija hasta la capacidad máxima
+function updateCabinPricingModeUI() {
+  const fixed = document.getElementById('cabin-form-pricing-mode')?.value === 'fixed';
+  const extra = document.getElementById('cabin-form-extra-rate');
+  if (extra) extra.disabled = fixed;
+  const max = document.getElementById('cabin-form-max-cap')?.value || '';
+  const base = document.getElementById('cabin-form-base-cap')?.value || '';
+  const hint = document.getElementById('cabin-form-pricing-mode-hint');
+  if (hint) hint.textContent = fixed
+    ? `La tarifa por noche cubre hasta ${max} personas. Nunca se cobran personas adicionales; la capacidad base solo es informativa.`
+    : `La tarifa por noche cubre ${base} personas; desde la persona ${Number(base) + 1} se cobra el valor de persona extra.`;
+  const nh = document.getElementById('cabin-form-nightly-hint');
+  if (nh) nh.textContent = fixed ? `Incluye hasta ${max} personas (capacidad máxima)` : 'Incluye la capacidad base';
+}
+window.updateCabinPricingModeUI = updateCabinPricingModeUI;
+document.addEventListener('input', e => {
+  if (e.target && (e.target.id === 'cabin-form-base-cap' || e.target.id === 'cabin-form-max-cap')) updateCabinPricingModeUI();
+});
