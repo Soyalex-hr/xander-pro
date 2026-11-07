@@ -1,13 +1,28 @@
 // Empresas (solo el administrador principal).
 // GET  /api/companies  -> lista con número de usuarios y registros
 // POST /api/companies  {name, nit, adminName, adminUsername, adminPassword}
+// PATCH /api/companies {name, nit} -> actualiza la empresa del usuario (Administrador)
 //   Crea una empresa nueva, vacía, con su propio administrador.
 import { db } from './_lib/db.js';
 import { send, fail, allow, body, text, handler } from './_lib/http.js';
 import { requireSession, hashPassword, passwordProblem, normalizeUsername, validUsername } from './_lib/auth.js';
 
 export default handler(async (req, res) => {
-  if (!allow(req, res, ['GET', 'POST'])) return;
+  if (!allow(req, res, ['GET', 'POST', 'PATCH'])) return;
+
+  // PATCH: el administrador de la empresa actualiza el nombre y el NIT de su propia empresa
+  // (se llama al guardar "Mi Empresa", para que coincida con lo que se ve en la nube).
+  if (req.method === 'PATCH') {
+    const a = await requireSession(req, res, { admin: true });
+    if (!a) return;
+    const b = body(req);
+    const name = text(b.name, 120);
+    const nit = text(b.nit, 40);
+    if (!name) return fail(res, 400, 'Escribe el nombre de la empresa');
+    const [c] = await db().q(`UPDATE companies SET name = $2, nit = $3 WHERE id = $1 RETURNING id, name, nit`, [a.company_id, name, nit || null]);
+    return send(res, 200, { ok: true, company: { id: c.id, name: c.name, nit: c.nit || '' } });
+  }
+
   const s = await requireSession(req, res, { superadmin: true });
   if (!s) return;
 

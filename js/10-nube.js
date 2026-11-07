@@ -694,6 +694,7 @@
     if (typeof updateOperatorNameDisplay === 'function') try { updateOperatorNameDisplay(); } catch {}
     toast(`Bienvenido, ${data.user.name} · ${data.company.name}`);
     renderCompaniesCard();
+    setTimeout(syncCompanyIdentity, 4000);
   }
 
   window.handleLoginSubmit = async function handleLoginSubmitCloud() {
@@ -745,6 +746,7 @@
             sync.start();
             restorePromise.then(() => sync.run());
             renderCompaniesCard();
+            setTimeout(syncCompanyIdentity, 4000);
           }
         } catch (e) {
           setStatus('offline', 'Sin conexión');
@@ -967,6 +969,31 @@
   // ---------------------------------------------------------------------------
   // Empresas (solo administrador principal) — tarjeta en Mi Empresa
   // ---------------------------------------------------------------------------
+  // Nombre y NIT de la empresa en la nube = los de "Mi Empresa"
+  let identityBusy = false;
+  async function syncCompanyIdentity() {
+    const c = cloud.get();
+    if (!c?.user || c.user.role !== 'Administrador' || identityBusy) return;
+    const name = String(state.company?.name || '').trim();
+    const nit = String(state.company?.nit || '').trim();
+    if (!name) return;
+    if (c.company?.name === name && String(c.company?.nit || '') === nit) return;
+    identityBusy = true;
+    try {
+      const r = await api('PATCH', '/api/companies', { name, nit });
+      if (r.status === 200 && r.data?.company) {
+        const cur = cloud.get();
+        cloud.set(cur.user, { ...cur.company, ...r.data.company }, cur.remember);
+        if (document.getElementById('xp-companies-card')) renderCompaniesCard();
+      }
+    } catch (e) { console.warn('[nube] nombre de empresa', e); }
+    finally { identityBusy = false; }
+  }
+  window.xpSyncCompanyIdentity = syncCompanyIdentity;
+  document.addEventListener('click', e => {
+    if (e.target?.closest?.('#btn-save-company')) setTimeout(syncCompanyIdentity, 300);
+  });
+
   async function renderCompaniesCard() {
     const c = cloud.get();
     let card = document.getElementById('xp-companies-card');
