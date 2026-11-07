@@ -29,16 +29,16 @@
     check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/>'
   };
   const KIND = {
-    evento: { label: 'Evento', icon: I.event, view: 'cotizador', name: 'Eventos y catering' },
-    cabana: { label: 'Cabaña', icon: I.cabin, view: 'cotizador-cabanas', name: 'Cabañas' },
-    diasol: { label: 'Día de sol', icon: I.sun, view: 'dia-sol', name: 'Día de sol' }
+    evento: { label: 'Evento', icon: I.event, view: 'cotizador', name: 'Eventos y catering', tone: 'coral' },
+    cabana: { label: 'Cabaña', icon: I.cabin, view: 'cotizador-cabanas', name: 'Cabañas', tone: 'turq' },
+    diasol: { label: 'Día de sol', icon: I.sun, view: 'dia-sol', name: 'Día de sol', tone: 'sun' }
   };
   const STATUS = {
-    Aprobada: 'color:#0E6B53;background:#E7F2EE',
-    Enviada: 'color:#92400E;background:#FEF3C7',
-    Borrador: 'color:#334155;background:#F1F5F9',
-    Rechazada: 'color:#9F1239;background:#FFE4E6',
-    Vencida: 'color:#475569;background:#E2E8F0'
+    Aprobada: 'color:#1E6B43;background:#E3F2EA',
+    Enviada: 'color:#8A5300;background:#FEF3DE',
+    Borrador: 'color:#08465F;background:#E3EFF5',
+    Rechazada: 'color:#A33A1E;background:#FDECE5',
+    Vencida: 'color:#475569;background:var(--xp-border)'
   };
   const badge = s => `<span class="xp-badge" style="${STATUS[s] || STATUS.Borrador}">${esc(s || 'Borrador')}</span>`;
 
@@ -117,7 +117,7 @@
     let trend = '';
     if (quotedPrev > 0) {
       const pct = Math.round((quoted - quotedPrev) * 100 / quotedPrev);
-      trend = `<span class="xp-kpi-foot" style="color:${pct >= 0 ? '#0E6B53' : '#B91C1C'};font-weight:600">${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)} % frente a ${prevLabel()}</span>`;
+      trend = `<span class="xp-kpi-foot" style="color:${pct >= 0 ? '#2E8B57' : '#B91C1C'};font-weight:600">${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)} % frente a ${prevLabel()}</span>`;
     } else trend = `<span class="xp-kpi-foot">${inCur.length} cotizacion(es) ${periodLabel()}</span>`;
 
     const hour = new Date().getHours();
@@ -132,11 +132,11 @@
       const a = n('Aprobada'), e = n('Enviada'), d = n('Borrador'), o = list.length - a - e - d;
       const extra = k === 'cabana' ? ` · ${list.filter(x => x.status === 'Aprobada').reduce((s, x) => s + (x.nights || 0), 0)} noches aprobadas` : k === 'diasol' ? ` · ${list.reduce((s, x) => s + x.people, 0)} personas` : '';
       return `
-        <button type="button" class="xp-card xp-biz" onclick="switchView('${KIND[k].view}')">
+        <button type="button" class="xp-card xp-biz" style="--c:var(--c-${KIND[k].tone});--t:var(--t-${KIND[k].tone})" onclick="switchView('${KIND[k].view}')">
           <span class="xp-biz-head"><span class="xp-tile">${ico(KIND[k].icon)}</span><strong>${KIND[k].name}</strong></span>
           <span class="xp-biz-row"><span class="xp-biz-total">${money(sum(list))}</span><span class="xp-muted">${list.length} cotizacion(es)${extra}</span></span>
-          <span class="xp-bar">${list.length ? `<i style="flex:${a};background:#0E6B53"></i><i style="flex:${e};background:#94A3B8"></i><i style="flex:${d + o};background:#E2E8F0"></i>` : '<i style="flex:1;background:#E2E8F0"></i>'}</span>
-          <span class="xp-legend"><span><i style="background:#0E6B53"></i>${a} aprobada(s)</span><span><i style="background:#94A3B8"></i>${e} enviada(s)</span><span><i style="background:#CBD5E1"></i>${d + o} otra(s)</span></span>
+          <span class="xp-bar">${list.length ? `<i style="flex:${a};background:#2E8B57"></i><i style="flex:${e};background:#94A3B8"></i><i style="flex:${d + o};background:var(--xp-border)"></i>` : '<i style="flex:1;background:var(--xp-border)"></i>'}</span>
+          <span class="xp-legend"><span><i style="background:#2E8B57"></i>${a} aprobada(s)</span><span><i style="background:#94A3B8"></i>${e} enviada(s)</span><span><i style="background:#CBD5E1"></i>${d + o} otra(s)</span></span>
         </button>`;
     }).join('');
 
@@ -175,7 +175,7 @@
       <tr onclick="xpOpenQuote('${x.kind}','${x.id}')" tabindex="0" onkeydown="if(event.key==='Enter')xpOpenQuote('${x.kind}','${x.id}')">
         <td class="xp-strong">${esc(x.number)}</td>
         <td>${esc(x.client)}</td>
-        <td class="xp-muted"><span class="xp-kind">${ico(KIND[x.kind].icon, 'w-3.5 h-3.5')}${KIND[x.kind].label}</span></td>
+        <td class="xp-muted"><span class="xp-kind" style="color:var(--c-${KIND[x.kind].tone})">${ico(KIND[x.kind].icon, 'w-3.5 h-3.5')}${KIND[x.kind].label}</span></td>
         <td class="xp-muted">${x.date ? shortDate(x.date) : '—'}</td>
         <td class="xp-num">${money(x.total)}</td>
         <td>${badge(x.status)}</td>
@@ -205,10 +205,10 @@
       </div>
 
       <section class="xp-grid-4" aria-label="Indicadores">
-        <div class="xp-card xp-kpi"><span class="xp-kpi-label">Cotizado ${periodLabel()}</span><strong class="xp-kpi-value">${money(quoted)}</strong>${trend}</div>
-        <div class="xp-card xp-kpi"><span class="xp-kpi-label">Aprobado</span><strong class="xp-kpi-value">${money(sum(approved))}</strong><span class="xp-kpi-foot">${approved.length} de ${inCur.length} cotizacion(es)</span></div>
-        <div class="xp-card xp-kpi"><span class="xp-kpi-label">Tasa de cierre</span><strong class="xp-kpi-value">${rate} %</strong><span class="xp-bar" style="height:6px"><i style="flex:${rate};background:#0E6B53"></i><i style="flex:${100 - rate};background:#E2E8F0"></i></span></div>
-        <div class="xp-card xp-kpi"><span class="xp-kpi-label">Vencen en 7 días</span><strong class="xp-kpi-value" style="color:${expiring.length ? '#B45309' : 'inherit'}">${expiring.length}</strong><span class="xp-kpi-foot">${money(sum(expiring))} por confirmar</span></div>
+        <div class="xp-card xp-kpi"><span class="xp-kpi-top"><span class="xp-kpi-label">Cotizado ${periodLabel()}</span><span class="xp-ktile" style="--c:var(--c-ocean);--t:var(--t-ocean)">${ico('<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>')}</span></span><strong class="xp-kpi-value">${money(quoted)}</strong>${trend}</div>
+        <div class="xp-card xp-kpi"><span class="xp-kpi-top"><span class="xp-kpi-label">Aprobado</span><span class="xp-ktile" style="--c:var(--c-palm);--t:var(--t-palm)">${ico(I.check)}</span></span><strong class="xp-kpi-value">${money(sum(approved))}</strong><span class="xp-kpi-foot">${approved.length} de ${inCur.length} cotizacion(es)</span></div>
+        <div class="xp-card xp-kpi"><span class="xp-kpi-top"><span class="xp-kpi-label">Tasa de cierre</span><span class="xp-ktile" style="--c:var(--c-turq);--t:var(--t-turq)">${ico('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>')}</span></span><strong class="xp-kpi-value">${rate} %</strong><span class="xp-bar" style="height:6px"><i style="flex:${rate};background:#0FA3A3"></i><i style="flex:${100 - rate};background:var(--xp-border)"></i></span></div>
+        <div class="xp-card xp-kpi"><span class="xp-kpi-top"><span class="xp-kpi-label">Vencen en 7 días</span><span class="xp-ktile" style="--c:var(--c-sun);--t:var(--t-sun)">${ico('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>')}</span></span><strong class="xp-kpi-value" style="color:${expiring.length ? '#B45309' : 'inherit'}">${expiring.length}</strong><span class="xp-kpi-foot">${money(sum(expiring))} por confirmar</span></div>
       </section>
 
       <section class="xp-section" aria-labelledby="xp-biz-t">

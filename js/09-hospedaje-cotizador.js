@@ -641,6 +641,14 @@ function recalculateCabinQuoteLive() {
   const nightlyRate = Number(document.getElementById('hos-nightly-rate-input')?.value) || cabin.baseNightlyRate;
   const reason = document.getElementById('hos-rate-reason-input')?.value || '';
 
+  // Modo de cobro de la cotización: cabaña completa (uso privado) o por persona (cabaña compartida)
+  const rateMode = q.rateMode === 'per_person' ? 'per_person' : 'full';
+  const suggestedPerPerson = Number(cabin.perPersonRate) || Math.max(1000, Math.round((nightlyRate / Math.max(1, Number(cabin.maxCapacity) || 1)) / 1000) * 1000);
+  // El valor por persona sigue la sugerencia de la cabaña hasta que se escriba a mano
+  if (q.cabinId && q.cabinId !== cabin.id) q.perPersonManual = false;
+  const perPersonRate = q.perPersonManual && Number(q.perPersonRate) >= 0 ? Number(q.perPersonRate) : suggestedPerPerson;
+  const minPaying = Math.max(1, Number(cabin.baseCapacity) || 1);
+
   // Child Policies lookup
   const tiers = getChildPolicyTiers();
   const p0 = tiers.infant;
@@ -654,7 +662,7 @@ function recalculateCabinQuoteLive() {
   // Las personas adicionales son las que superan la capacidad máxima (los niños ya pagan su propia tarifa,
   // por eso el excedente cobrado como persona adicional nunca es mayor que el número de adultos).
   const overMax = Math.max(0, totalOccupants - (Number(cabin.maxCapacity) || 0));
-  const extraPaxCount = (isFixedRate || !(Number(cabin.extraPersonRate) > 0)) ? 0 : Math.min(adults, overMax);
+  const extraPaxCount = (rateMode === 'per_person' || isFixedRate || !(Number(cabin.extraPersonRate) > 0)) ? 0 : Math.min(adults, overMax);
 
   // Hard Max Capacity Alert
   const capBanner = document.getElementById('hos-capacity-banner');
@@ -691,7 +699,10 @@ function recalculateCabinQuoteLive() {
   }
 
   // Calculations
-  const subtotalBase = nights * nightlyRate;
+  const fullCabinCost = nights * nightlyRate;
+  const payingAdults = Math.max(adults, minPaying);
+  const subtotalBase = rateMode === 'per_person' ? payingAdults * perPersonRate * nights : fullCabinCost;
+  syncCabinRateModeUI(q, { rateMode, perPersonRate, suggestedPerPerson, minPaying, payingAdults, adults, fullCabinCost, subtotalBase, nights });
   const subtotalExtraPax = extraPaxCount * (cabin.extraPersonRate || 0) * nights;
   const subtotalKids = kids5to10 * (p5.rate || 0) * nights;
   const subtotalInfants = kids0to4 * (p0.rate || 0) * nights;
@@ -753,6 +764,10 @@ function recalculateCabinQuoteLive() {
     nights,
     nightlyRate,
     subtotalBase,
+    rateMode,
+    perPersonRate,
+    payingAdults,
+    fullCabinCost,
     extraPaxCount,
     extraPersonRate: cabin.extraPersonRate || 0,
     pricingMode: isFixedRate ? 'fixed' : 'base_plus_extra',
@@ -787,6 +802,8 @@ function recalculateCabinQuoteLive() {
   };
 
   q.pricing = pricing;
+  q.rateMode = rateMode;
+  q.perPersonRate = perPersonRate;
   q.cabinId = cabin.id;
   q.checkInDate = inDate;
   q.checkOutDate = outDate;
@@ -853,8 +870,8 @@ function renderLiveFormulaBreakdown(cabin, calc) {
     <!-- Base accommodation -->
     <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800">
       <div>
-        <span class="font-bold text-slate-800 dark:text-slate-200">Hospedaje Cabaña Base</span>
-        <div class="text-[11px] text-slate-400 font-mono">${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches</div>
+        <span class="font-bold text-slate-800 dark:text-slate-200">${calc.rateMode === 'per_person' ? 'Hospedaje por persona' : 'Cabaña completa (privada)'}</span>
+        <div class="text-[11px] text-slate-400 font-mono">${calc.rateMode === 'per_person' ? `${calc.payingAdults} pers. × ${formatCurrency(calc.perPersonRate)} × ${calc.nights} noches` : `${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches`}</div>
       </div>
       <strong class="font-black text-slate-900 dark:text-white tabular-nums">${formatCurrency(calc.subtotalBase)}</strong>
     </div>
@@ -1140,10 +1157,10 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
           <tr>
             <td class="py-2 px-2.5">
               <strong class="text-slate-900 block">Hospedaje Cabaña (${cabin.name})</strong>
-              <span class="text-[10px] text-slate-500">${(() => { const a = Number(q.adults) || 0, k = Number(q.kids5to10) || 0, i = Number(q.kids0to4) || 0; const t = getChildPolicyTiers(); const parts = [`${a} ${t.adult.label.toLowerCase()}`]; if (k) parts.push(`${k} ${t.child.label.toLowerCase()}`); if (i) parts.push(`${i} ${t.infant.label.toLowerCase()}`); return `${a + k + i} huésped(es): ${parts.join(', ')}`; })()}</span>
+              <span class="text-[10px] text-slate-500">${calc.rateMode === 'per_person' ? 'Tarifa por persona · cabaña compartida · ' : 'Cabaña completa de uso privado · '}${(() => { const a = Number(q.adults) || 0, k = Number(q.kids5to10) || 0, i = Number(q.kids0to4) || 0; const t = getChildPolicyTiers(); const parts = [`${a} ${t.adult.label.toLowerCase()}`]; if (k) parts.push(`${k} ${t.child.label.toLowerCase()}`); if (i) parts.push(`${i} ${t.infant.label.toLowerCase()}`); return `${a + k + i} huésped(es): ${parts.join(', ')}`; })()}</span>
             </td>
             <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
-              ${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches
+              ${calc.rateMode === 'per_person' ? `${calc.payingAdults} pers. × ${formatCurrency(calc.perPersonRate)} × ${calc.nights} noches` : `${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches`}
             </td>
             <td class="py-2 px-2.5 text-right font-black text-slate-900 tabular-nums">
               ${formatCurrency(calc.subtotalBase)}
@@ -1805,6 +1822,7 @@ function shareCabinQuoteWhatsApp() {
     `📋 *Cotización:* ${q.number} (V${q.version || 1})\n` +
     `🏡 *Cabaña:* ${cabin.name}\n` +
     `📅 *Check-in:* ${q.checkInDate} | *Check-out:* ${q.checkOutDate} (${q.nights} noches)\n` +
+    `🔑 *Tarifa:* ${q.pricing?.rateMode === 'per_person' ? `por persona (${formatCurrency(q.pricing.perPersonRate)} por persona/noche)` : 'cabaña completa de uso privado'}\n` +
     `👥 *Huéspedes:* ${q.adults} adultos, ${q.kids5to10 || 0} niños, ${q.pets || 0} mascotas\n` +
     `💵 *Total General:* ${total}\n` +
     (q.pricing && q.pricing.requiresDeposit === false
@@ -2040,3 +2058,62 @@ function resetCabinMealPaxToGuests() {
 }
 window.markCabinMealPaxManual = markCabinMealPaxManual;
 window.resetCabinMealPaxToGuests = resetCabinMealPaxToGuests;
+
+
+// ---------------------------------------------------------------------------
+// Modo de cobro: cabaña completa (uso privado) o por persona (cabaña compartida)
+// ---------------------------------------------------------------------------
+function setCabinRateMode(mode) {
+  const q = state.activeCabinQuote;
+  if (!q) return;
+  q.rateMode = mode === 'per_person' ? 'per_person' : 'full';
+  recalculateCabinQuoteLive();
+}
+window.setCabinRateMode = setCabinRateMode;
+
+function syncCabinRateModeUI(q, r) {
+  const perPerson = r.rateMode === 'per_person';
+  const full = document.getElementById('hos-rate-mode-full');
+  const pp = document.getElementById('hos-rate-mode-pp');
+  if (full) { full.classList.toggle('xp-mode-on', !perPerson); full.setAttribute('aria-checked', String(!perPerson)); }
+  if (pp) { pp.classList.toggle('xp-mode-on', perPerson); pp.setAttribute('aria-checked', String(perPerson)); }
+  document.getElementById('hos-per-person-box')?.classList.toggle('hidden', !perPerson);
+  const input = document.getElementById('hos-per-person-rate-input');
+  if (input && document.activeElement !== input && String(input.value) !== String(r.perPersonRate)) input.value = r.perPersonRate;
+  const hint = document.getElementById('hos-per-person-hint');
+  const useSug = document.getElementById('hos-per-person-use-suggested');
+  if (useSug) useSug.classList.toggle('hidden', !q.perPersonManual || Number(q.perPersonRate) === r.suggestedPerPerson);
+  if (hint) {
+    hint.textContent = `Sugerido: ${formatCurrency(r.suggestedPerPerson)} (tarifa de la cabaña ÷ capacidad máxima). ` +
+      `Se cobran mínimo ${r.minPaying} persona(s), la capacidad mínima de la cabaña.` +
+      (r.adults < r.minPaying ? ` Hoy hay ${r.adults} adulto(s): se cobran ${r.minPaying}.` : '');
+  }
+  const warn = document.getElementById('hos-per-person-warning');
+  if (warn) {
+    const show = perPerson && r.subtotalBase >= r.fullCabinCost && r.fullCabinCost > 0;
+    warn.classList.toggle('hidden', !show);
+    const t = document.getElementById('hos-per-person-warning-text');
+    if (t && show) t.textContent = `Por persona sale ${formatCurrency(r.subtotalBase)} y la cabaña completa ${formatCurrency(r.fullCabinCost)} por ${r.nights} noche(s). Al cliente le conviene la cabaña completa: tiene privacidad por el mismo precio o menos.`;
+  }
+  const lbl = document.getElementById('hos-nightly-rate-label');
+  if (lbl) lbl.textContent = perPerson ? 'Valor cabaña completa por noche (referencia)' : 'Valor cabaña por noche ($) *';
+}
+
+function markCabinPerPersonManual(input) {
+  const q = state.activeCabinQuote;
+  if (!q) return;
+  const v = String(input.value).trim();
+  q.perPersonManual = v !== '';
+  q.perPersonRate = v === '' ? 0 : Math.max(0, Number(v) || 0);
+  recalculateCabinQuoteLive();
+}
+window.markCabinPerPersonManual = markCabinPerPersonManual;
+function useSuggestedPerPersonRate() {
+  const q = state.activeCabinQuote;
+  if (!q) return;
+  q.perPersonManual = false;
+  const input = document.getElementById('hos-per-person-rate-input');
+  if (input) input.value = '';
+  recalculateCabinQuoteLive();
+}
+window.useSuggestedPerPersonRate = useSuggestedPerPersonRate;

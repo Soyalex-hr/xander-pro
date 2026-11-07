@@ -352,3 +352,120 @@ html.dark .xp-btn-secondary:hover { background: #1A2436; }
   #btn-install-app, #btn-theme-toggle { display: none !important; }
   #header-active-view-title { font-size: 15px; }
 }
+
+/* =====================================================================
+   COSTA CARIBE — paleta de zona de mar (sobre la estructura del estilo A)
+   Océano: principal · Turquesa: cabañas · Coral: eventos · Sol: día de sol
+   Palmera: aprobado/finanzas · Cielo: agenda/clientes · Arena: fondo
+   ===================================================================== */
+:root {
+  --xp-brand: #0B5D7E;
+  --xp-brand-hover: #08465F;
+  --xp-brand-50: #F0F6F9;
+  --xp-brand-100: #E3EFF5;
+  --xp-brand-200: #C4DDEA;
+  --xp-bg: #F7F3EC;
+  --xp-border: #E6DED0;
+  --xp-border-strong: #D4CBBB;
+  --xp-text: #10283A;
+  --xp-muted: #5B6B77;
+  --ag-glass-border: #E6DED0;
+  /* Colores de módulo: [tono, fondo claro] */
+  --c-ocean: #0B5D7E;   --t-ocean: #E3EFF5;
+  --c-turq: #0A8585;    --t-turq: #DDF3F2;
+  --c-coral: #C85631;   --t-coral: #FDECE5;
+  --c-sun: #B87510;     --t-sun: #FEF3DE;
+  --c-palm: #237046;    --t-palm: #E3F2EA;
+  --c-sky: #2F74A8;     --t-sky: #E6F0F8;
+}
+html.dark {
+  --xp-brand: #2A8BB3;
+  --xp-brand-hover: #1E7399;
+  --xp-brand-50: rgba(42, 139, 179, 0.10);
+  --xp-brand-100: rgba(42, 139, 179, 0.18);
+  --xp-brand-200: rgba(42, 139, 179, 0.30);
+  --xp-bg: #0A1520;
+  --xp-surface: #102030;
+  --xp-border: #1C3142;
+  --xp-border-strong: #2C465A;
+  --xp-text: #EEF4F8;
+  --xp-muted: #93A7B6;
+  --ag-glass-bg: #102030;
+  --ag-glass-border: #1C3142;
+  --c-ocean: #5DB3D8;   --t-ocean: rgba(93, 179, 216, 0.16);
+  --c-turq: #3FCFCB;    --t-turq: rgba(63, 207, 203, 0.14);
+  --c-coral: #F29A78;   --t-coral: rgba(242, 154, 120, 0.15);
+  --c-sun: #F5C064;     --t-sun: rgba(245, 192, 100, 0.15);
+  --c-palm: #5CC48A;    --t-palm: rgba(92, 196, 138, 0.15);
+  --c-sky: #7DB4E0;     --t-sky: rgba(125, 180, 224, 0.15);
+}
+html.dark .ag-sidebar-btn.ag-active { color: #FFFFFF !important; }
+.ag-sidebar-btn:not(.ag-active):hover { background: #F4EFE6 !important; }
+html.dark .ag-sidebar-btn:not(.ag-active):hover { background: #16293A !important; }
+#sidebar-user-avatar, #user-avatar-initial { background: var(--xp-brand) !important; }
+.xp-table th { background: #FBF8F3; }
+.xp-table tbody tr:hover td, .xp-btn-secondary:hover { background: #FBF8F3; }
+.xp-tile, .xp-seg button.on { }
+.xp-seg button.on { background: var(--xp-brand); color: #fff; }
+
+/* ---------- Íconos del menú con color por módulo ---------- */
+#app-sidebar [data-nav] .nav-icon-box, #app-sidebar .sidebar-category-btn > div > div:first-child {
+  background: var(--t, var(--t-ocean)) !important;
+  color: var(--c, var(--c-ocean)) !important;
+  border-radius: 8px !important;
+}
+#app-sidebar .ag-sidebar-btn.ag-active .nav-icon-box { background: var(--c, var(--c-ocean)) !important; color: #FFFFFF !important; }
+[data-nav="dashboard"], [data-menu-group="gestion"] > .sidebar-category-btn, [data-nav="empresa"] { --c: var(--c-ocean); --t: var(--t-ocean); }
+[data-menu-group="hospedaje"] > .sidebar-category-btn, [data-nav="cabanas"], [data-nav="cotizador-cabanas"], #app-sidebar button[onclick*="openCabinQuotesHistoryModal"] { --c: var(--c-turq); --t: var(--t-turq); }
+[data-nav="servicios"], [data-nav="agenda"], [data-nav="clientes"], [data-nav="simulador"] { --c: var(--c-sky); --t: var(--t-sky); }
+[data-nav="dia-sol"] { --c: var(--c-sun); --t: var(--t-sun); }
+[data-menu-group="eventos"] > .sidebar-category-btn, [data-nav="cotizador"], [data-nav="historial"] { --c: var(--c-coral); --t: var(--t-coral); }
+[data-nav="productos"], [data-nav="finanzas"], [data-nav="rentabilidad"] { --c: var(--c-palm); --t: var(--t-palm); }
+#app-sidebar button[onclick*="openCabinQuotesHistoryModal"] .nav-icon-box { background: var(--t-turq) !important; color: var(--c-turq) !important; }
+.ag-sidebar-btn.ag-active { background: var(--t, var(--xp-brand-100)) !important; color: var(--xp-text) !important; }
+html.dark .ag-sidebar-btn.ag-active { background: var(--t, var(--xp-brand-100)) !important; }
+/* Barra inferior del celular */
+nav [data-nav] svg, .fixed.bottom-0 [data-nav] svg { color: var(--c, var(--c-ocean)); }
+
+/* ---------- Íconos de cada paso / tarjeta con color (mapeo a la paleta) ---------- */
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-indigo-100, .bg-blue-100, .bg-sky-100, .bg-cyan-100, .bg-indigo-50) { background: var(--t-sky) !important; color: var(--c-sky) !important; }
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-teal-100, .bg-teal-50) { background: var(--t-turq) !important; color: var(--c-turq) !important; }
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-emerald-100, .bg-green-100) { background: var(--t-palm) !important; color: var(--c-palm) !important; }
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-amber-100, .bg-amber-50, .bg-orange-100, .bg-yellow-100) { background: var(--t-sun) !important; color: var(--c-sun) !important; }
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-rose-100, .bg-pink-100, .bg-fuchsia-100, .bg-red-100) { background: var(--t-coral) !important; color: var(--c-coral) !important; }
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12):is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.bg-violet-100, .bg-purple-100) { background: var(--t-ocean) !important; color: var(--c-ocean) !important; }
+/* Encabezados de pantalla con degradado → color de marca */
+[id^="view-"] :is(span, div):is(.w-8, .w-9, .w-10, .w-11, .w-12, .w-14)[class*="bg-gradient-to"] { background-color: var(--xp-brand) !important; }
+
+/* ---------- Íconos que reemplazan emojis: color según su significado ---------- */
+.xp-ico.ic-ocean { color: var(--c-ocean); }
+.xp-ico.ic-turq { color: var(--c-turq); }
+.xp-ico.ic-coral { color: var(--c-coral); }
+.xp-ico.ic-sun { color: var(--c-sun); }
+.xp-ico.ic-palm { color: var(--c-palm); }
+.xp-ico.ic-sky { color: var(--c-sky); }
+.xp-ico.ic-red { color: #C2410C; }
+/* Dentro de botones de color sólido o texto blanco, el ícono toma el color del texto */
+:is(button, a, label, span, div)[class*="text-white"] .xp-ico,
+:is(button, a)[class*="bg-gradient"] .xp-ico,
+:is(button, a, label):is(.bg-indigo-600, .bg-teal-600, .bg-blue-600, .bg-emerald-600, .bg-rose-600, .bg-amber-500, .bg-violet-600, .bg-slate-900, .bg-orange-500, .bg-purple-600) .xp-ico,
+.xp-btn-primary .xp-ico, #toast-notification .xp-ico { color: inherit !important; }
+
+/* ---------- Íconos de los campos de formulario: tono océano suave ---------- */
+[id^="view-"] .relative > span.absolute.pointer-events-none { color: var(--c-ocean) !important; opacity: 0.85; }
+
+/* ---------- Modo de cobro (cabaña completa / por persona) ---------- */
+.xp-rate-mode { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.xp-mode { display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; min-height: 60px; border-radius: 12px; border: 1px solid var(--xp-border-strong); background: var(--xp-surface); color: var(--xp-text); cursor: pointer; font: inherit; }
+.xp-mode strong { display: block; font-size: 13px; font-weight: 700; }
+.xp-mode small { display: block; font-size: 11px; color: var(--xp-muted); }
+.xp-mode-ico { width: 34px; height: 34px; border-radius: 9px; background: var(--t-turq); color: var(--c-turq); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.xp-mode.xp-mode-on { border: 2px solid var(--xp-brand); background: var(--xp-brand-50); padding: 11px 13px; }
+.xp-mode.xp-mode-on .xp-mode-ico { background: var(--xp-brand); color: #fff; }
+
+/* ---------- Inicio: íconos de color en indicadores y negocios ---------- */
+.xp-kpi-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.xp-ktile { width: 32px; height: 32px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: var(--t); color: var(--c); flex-shrink: 0; }
+.xp-biz { border-top: 3px solid var(--c) !important; }
+.xp-biz .xp-tile { background: var(--t); color: var(--c); }
+#app-sidebar [data-nav] .nav-icon-box svg { color: inherit !important; }

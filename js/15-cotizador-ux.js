@@ -29,8 +29,8 @@
     const rest = document.getElementById('xp-hos-sum-occ-rest');
     if (fill && rest) {
       fill.style.flex = String(Math.min(occ, max || occ));
-      fill.style.background = over ? '#B45309' : '#0E6B53';
-      rest.style.flex = String(Math.max(0, (max || 0) - occ));
+      fill.style.background = over ? '#D97706' : '#0FA3A3';
+      rest.style.background = 'var(--xp-border)'; rest.style.flex = String(Math.max(0, (max || 0) - occ));
     }
 
     // Foto principal
@@ -47,7 +47,7 @@
 
     const lines = [];
     const add = (label, detail, value, cls) => { if (value) lines.push(`<div class="xp-sum-line ${cls || ''}"><span><span>${esc(label)}</span><small>${esc(detail)}</small></span><strong>${value < 0 ? '- ' + money(-value) : money(value)}</strong></div>`); };
-    add('Hospedaje', `${money(p.nightlyRate)} × ${p.nights || 0} noche(s)`, p.subtotalBase);
+    add(p.rateMode === 'per_person' ? 'Hospedaje por persona' : 'Cabaña completa (privada)', p.rateMode === 'per_person' ? `${p.payingAdults || 0} pers. × ${money(p.perPersonRate)} × ${p.nights || 0}` : `${money(p.nightlyRate)} × ${p.nights || 0} noche(s)`, p.subtotalBase);
     add('Personas adicionales', `${p.extraPaxCount || 0} × ${money(p.extraPersonRate)} × ${p.nights || 0}`, p.subtotalExtraPax);
     add(p.childLabel || 'Niños', `${p.kids5to10 || 0} × ${money(p.childRate5to10)} × ${p.nights || 0}`, p.subtotalKids);
     add(p.infantLabel || 'Bebés', `${p.kids0to4 || 0} × ${money(p.infantRate)} × ${p.nights || 0}`, p.subtotalInfants);

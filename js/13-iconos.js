@@ -147,6 +147,17 @@
   const RX = /(?:\p{Extended_Pictographic}|[✔✓☑☐➔▼▲])(?:️|‍(?:\p{Extended_Pictographic})️?)*/gu;
   const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'NOSCRIPT', 'TITLE', 'svg', 'SVG', 'CODE', 'PRE']);
 
+  // Tono de la paleta Costa Caribe según el significado del ícono
+  const TONE = {};
+  const tone = (t, names) => names.split(' ').forEach(n => { TONE[n] = t; });
+  tone('ocean', 'user users briefcase building bank lock key mail phone phoneDevice file clipboard folder pencil save globe sliders printer download link shield books laptop bot search crown eye');
+  tone('turq', 'home waves bath boat bed wifi snow tree leaf paw');
+  tone('coral', 'utensils glass cake candle party gift ring heart music camera fire basket');
+  tone('sun', 'sun star sparkles bulb clock zap');
+  tone('palm', 'money card chart cart calc box flask tag');
+  tone('sky', 'calendar car pin pushpin chat cap refresh');
+  tone('red', 'trash');
+
   function svgFor(name, color) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     s.setAttribute('viewBox', '0 0 24 24');
@@ -158,7 +169,7 @@
     s.setAttribute('stroke-linecap', 'round');
     s.setAttribute('stroke-linejoin', 'round');
     s.setAttribute('aria-hidden', 'true');
-    s.setAttribute('class', 'xp-ico' + (name === 'dot' ? ' xp-ico-dot' : ''));
+    s.setAttribute('class', 'xp-ico' + (name === 'dot' ? ' xp-ico-dot' : '') + (!color && TONE[name] ? ' ic-' + TONE[name] : ''));
     if (color) s.style.color = color;
     s.innerHTML = P[name] || P.sparkles;
     return s;
