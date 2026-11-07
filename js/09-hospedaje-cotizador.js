@@ -201,6 +201,7 @@ function startNewCabinQuote() {
     modifiedAt: '',
     mealPlanId: (state.mealPlans && state.mealPlans[1]) ? state.mealPlans[1].id : 'mp-1',
     mealPlanPax: firstCabin ? Math.min(4, firstCabin.baseCapacity) : 2,
+    mealPaxManual: false,
     selectedTourServices: [],
     discountAmount: 0,
     depositPercentage: 50,
@@ -704,8 +705,25 @@ function recalculateCabinQuoteLive() {
   const mpSel = document.getElementById('hos-meal-plan-select');
   const mealPlan = (state.mealPlans || []).find(m => m.id === (mpSel?.value || q.mealPlanId));
   const mealPaxInput = document.getElementById('hos-meal-pax-input');
-  const mealPax = mealPaxInput ? (Number(mealPaxInput.value) || 0) : (adults + kids5to10);
-  const mealRate = mealPlan ? mealPlan.costPerPaxPerNight : 0;
+  const mealRate = mealPlan ? (Number(mealPlan.costPerPaxPerNight) || 0) : 0;
+  // Las personas del plan siguen a los huéspedes (adultos + niños; los bebés no pagan alimentación)
+  // salvo que el usuario haya escrito otra cantidad a mano.
+  const autoMealPax = adults + kids5to10;
+  if (q.mealPaxManual === undefined) {
+    // Cotizaciones anteriores: se respeta un número distinto solo si el plan tiene costo
+    q.mealPaxManual = mealRate > 0 && q.mealPlanPax !== undefined && Number(q.mealPlanPax) !== autoMealPax;
+  }
+  if (mealRate <= 0) q.mealPaxManual = false;
+  let mealPax = q.mealPaxManual && mealPaxInput ? (Number(mealPaxInput.value) || 0) : autoMealPax;
+  if (mealPaxInput) {
+    if (!q.mealPaxManual) mealPaxInput.value = autoMealPax;
+    mealPaxInput.disabled = mealRate <= 0;
+    mealPaxInput.title = mealRate <= 0 ? 'Este plan no tiene costo por persona' : '';
+  }
+  const mealPaxReset = document.getElementById('hos-meal-pax-reset');
+  if (mealPaxReset) mealPaxReset.classList.toggle('hidden', !q.mealPaxManual);
+  const mealPaxHint = document.getElementById('hos-meal-pax-hint');
+  if (mealPaxHint) mealPaxHint.textContent = mealRate <= 0 ? 'Sin costo de alimentación' : (q.mealPaxManual ? 'Cantidad escrita a mano' : 'Igual a los huéspedes');
   const subtotalMeals = mealPax * mealRate * nights;
 
   // Additional Tour Services
@@ -2006,3 +2024,19 @@ function updateCabinDashboardAndBadges() {
   window.openAgendaCabinQuoteDetails = openAgendaCabinQuoteDetails;
   window.updateCabinDashboardAndBadges = updateCabinDashboardAndBadges;
   
+
+
+// "Personas en Plan": al escribir a mano deja de seguir a los huéspedes; el botón la vuelve a sincronizar
+function markCabinMealPaxManual() {
+  const q = state.activeCabinQuote;
+  if (!q) return;
+  q.mealPaxManual = true;
+}
+function resetCabinMealPaxToGuests() {
+  const q = state.activeCabinQuote;
+  if (!q) return;
+  q.mealPaxManual = false;
+  recalculateCabinQuoteLive();
+}
+window.markCabinMealPaxManual = markCabinMealPaxManual;
+window.resetCabinMealPaxToGuests = resetCabinMealPaxToGuests;
