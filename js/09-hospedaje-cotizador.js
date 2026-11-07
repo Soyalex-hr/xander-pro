@@ -1365,12 +1365,8 @@ function saveCurrentCabinQuote() {
   }
 
   // Mandatory Reason if Rate Modified
-  if (q.rateModified && (!q.modificationReason || q.modificationReason.trim().length < 3)) {
-    showToast('Debes ingresar un motivo obligatorio para el ajuste de tarifa');
-    const reasonInput = document.getElementById('hos-rate-reason-input');
-    if (reasonInput) reasonInput.focus();
-    return;
-  }
+  // El motivo del ajuste de tarifa es opcional: queda registrado si se escribe, pero no impide guardar
+  if (q.rateModified && !String(q.modificationReason || '').trim()) q.modificationReason = '';
 
   state.cabinQuotes = state.cabinQuotes || [];
   const idx = state.cabinQuotes.findIndex(x => x.id === q.id);
