@@ -97,7 +97,7 @@
     };
 
     const viewTitles = {
-      dashboard: { title: 'Dashboard Operativo', subtitle: 'Panel de control ejecutivo, KPIs en vivo y acciones pendientes' },
+      dashboard: { title: 'Inicio', subtitle: 'Resumen de cotizaciones, pendientes y próximos eventos' },
       cotizador: { title: 'Cotizador y PDF', subtitle: 'Presupuesto din\u00E1mico por Pax, montaje y exportaci\u00F3n PDF' },
       historial: { title: 'Cotizaciones Guardadas', subtitle: 'Historial comercial, seguimiento y estados de eventos' },
       productos: { title: 'Productos e Insumos', subtitle: 'Cat\u00E1logo de recetas compuestas y control de inventario' },

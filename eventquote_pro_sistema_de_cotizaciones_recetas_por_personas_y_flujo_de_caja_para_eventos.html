@@ -27,6 +27,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/theme-a.css">
 <style id="xp-fixes"></style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden is-unauthenticated">
@@ -160,8 +161,8 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2v-8zM10 14a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
         </div>
         <div class="sidebar-text flex-1 min-w-0">
-          <div class="text-xs font-bold truncate">Dashboard</div>
-          <div class="text-[10px] text-slate-400 truncate">Panel general &amp; KPIs</div>
+          <div class="text-xs font-bold truncate">Inicio</div>
+          <div class="text-[10px] text-slate-400 truncate">Resumen y pendientes</div>
         </div>
       </button>
 
@@ -447,6 +448,7 @@
          VIEW 0: DASHBOARD OPERATIVO EJECUTIVO (INICIO)
          ========================================== -->
     <section id="view-dashboard" class="space-y-6">
+      <div id="xp-home" class="xp-home"></div>
       <!-- 1. Executive Greeting & Quick Action Banner -->
       <div class="ag-tilt-card ag-specular-glow bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-indigo-500/20 relative overflow-hidden">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
@@ -2897,7 +2899,9 @@
 
       <!-- STEP 1: FULL-SCREEN QUOTE BUILDER (Balanced 2-Column Responsive Layout) -->
       <div id="hos-builder-fullscreen" class="no-print w-full space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+       <div class="xp-hos-layout">
+        <div class="xp-hos-form space-y-5">
+        <div class="grid grid-cols-1 gap-5 items-start xp-hos-steps">
           
           <!-- LEFT COLUMN: Hospedaje, Fechas y Huéspedes -->
           <div class="space-y-5">
@@ -3136,8 +3140,33 @@
               </div>
             </div>
 
+        </div>
+        <!-- Resumen lateral (estilo A) -->
+        <aside class="xp-hos-aside" aria-label="Resumen de la cotización">
+          <div class="xp-card xp-sum">
+            <div class="xp-sum-photo" id="xp-hos-sum-photo"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg></div>
+            <div class="xp-sum-head">
+              <strong id="xp-hos-sum-cabin">Cabaña</strong>
+              <span id="xp-hos-sum-stay">—</span>
+              <div class="xp-sum-occ"><span id="xp-hos-sum-occ-text">Ocupación</span><span class="xp-bar" style="height:6px"><i id="xp-hos-sum-occ-fill" style="flex:0;background:#0E6B53"></i><i id="xp-hos-sum-occ-rest" style="flex:1;background:#E2E8F0"></i></span></div>
+            </div>
+            <div class="xp-sum-lines" id="xp-hos-sum-lines"></div>
+            <div class="xp-sum-total">
+              <div class="xp-sum-total-row"><span>Total</span><strong id="xp-hos-sum-total">$ 0</strong></div>
+              <div class="xp-sum-sub"><span id="xp-hos-sum-dep-label">Anticipo</span><span id="xp-hos-sum-dep" style="color:var(--xp-brand);font-weight:600">$ 0</span></div>
+              <div class="xp-sum-sub"><span>Saldo al llegar</span><span id="xp-hos-sum-bal" style="font-weight:600">$ 0</span></div>
+            </div>
+          </div>
+          <button type="button" class="xp-btn-primary xp-btn-block" onclick="setCabinQuoteStep('preview')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Vista previa y PDF</button>
+          <div class="xp-sum-actions">
+            <button type="button" class="xp-btn-secondary" onclick="saveCurrentCabinQuote()"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg>Guardar</button>
+            <button type="button" class="xp-btn-secondary" onclick="shareCabinQuoteWhatsApp()"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z"/></svg>WhatsApp</button>
+          </div>
+        </aside>
+       </div>
+
         <!-- BOTTOM STICKY LIVE SUMMARY BAR -->
-        <div id="hos-editor-bottom-bar" class="sticky bottom-20 md:bottom-4 z-30 ag-glass-panel rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3 mt-6">
+        <div id="hos-editor-bottom-bar" class="xp-hos-mobile-bar sticky bottom-20 md:bottom-4 z-30 ag-glass-panel rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3 mt-6">
           <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs">
             <div class="flex items-center gap-2">
               <span class="text-slate-400">Estadía:</span>
@@ -5289,5 +5318,8 @@
   <script src="js/10-nube.js"></script>
   <script src="js/11-dia-de-sol.js"></script>
   <script src="js/12-borradores.js"></script>
+  <script src="js/13-iconos.js"></script>
+  <script src="js/14-inicio.js"></script>
+  <script src="js/15-cotizador-ux.js"></script>
 </body>
 </html>
