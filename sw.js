@@ -1,5 +1,5 @@
 // Service Worker for Xander Pro PWA (Network-First para código de la app, Cache-First para imágenes)
-const CACHE_NAME = 'xander-pro-v37';
+const CACHE_NAME = 'xander-pro-v38';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

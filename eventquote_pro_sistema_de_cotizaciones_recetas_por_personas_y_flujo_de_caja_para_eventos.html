@@ -2470,7 +2470,7 @@
                 <div><span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Hasta</span><div class="w-full min-h-[44px] sm:min-h-0 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none bg-slate-100 dark:bg-slate-900 text-slate-500 flex items-center">En adelante</div></div>
               </div>
               <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900 text-[11px] text-purple-700 dark:text-purple-300">
-                Pagan la tarifa de la cabaña. Si superan la capacidad base, se cobra la <strong>persona adicional</strong> configurada en cada cabaña.
+                Pagan la tarifa de la cabaña. Si superan la capacidad máxima, se cobra la <strong>persona adicional</strong> configurada en cada cabaña.
               </div>
               <div>
                 <label for="pol-adl-note" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Descripción</label>
@@ -2885,7 +2885,7 @@
       <div id="hos-capacity-banner" class="hidden p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 text-xs flex items-start gap-3 shadow-sm">
         <span class="text-xl shrink-0">🚫</span>
         <div class="flex-1">
-          <strong class="font-extrabold text-rose-950 dark:text-rose-100 block mb-0.5">Capacidad Máxima Excedida:</strong>
+          <strong class="font-extrabold text-rose-950 dark:text-rose-100 block mb-0.5">Capacidad máxima superada:</strong>
           <span id="hos-capacity-text">La cantidad total de huéspedes supera la capacidad máxima física permitida para esta cabaña.</span>
         </div>
       </div>
@@ -3005,8 +3005,7 @@
               <div id="hos-extra-pax-alert" class="hidden p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
                 <div>
                   <strong class="font-bold">⚠️ Personas adicionales detectadas:</strong>
-                  <span id="hos-extra-pax-text">Esta cotización incluye 1 persona adicional sobre la capacidad base.</span>
-                  <button type="button" onclick="openCabinFixedRateFromQuote()" class="mt-2 min-h-[44px] sm:min-h-[32px] px-3 rounded-lg bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition cursor-pointer flex items-center gap-1.5">¿Esta cabaña no cobra personas extra? Cambiar a tarifa fija →</button>
+                  <span id="hos-extra-pax-text">Esta cotización supera la capacidad máxima.</span>
                 </div>
                 <span id="hos-extra-pax-rate-badge" class="px-2 py-0.5 rounded bg-indigo-200 dark:bg-indigo-900 font-extrabold text-[10px] shrink-0">$ 75.000 / noche</span>
               </div>
@@ -3376,7 +3375,7 @@
               </div>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label for="cabin-form-base-cap" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Cap. Base <span class="text-rose-500">*</span></label>
+                  <label for="cabin-form-base-cap" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Cap. Mínima <span class="text-rose-500">*</span></label>
                   <input type="number" id="cabin-form-base-cap" min="1" value="4" title="Personas incluidas en la tarifa base" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold tabular-nums text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none" />
                 </div>
                 <div>
@@ -3396,8 +3395,8 @@
               <div class="border-t border-slate-200 dark:border-slate-700/60 pt-3">
                 <label for="cabin-form-pricing-mode" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Modo de cobro <span class="text-rose-500">*</span></label>
                 <select id="cabin-form-pricing-mode" onchange="updateCabinPricingModeUI()" class="w-full min-h-[44px] sm:min-h-0 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 cursor-pointer focus:outline-none">
-                  <option value="base_plus_extra">Tarifa base + cobro por persona extra</option>
-                  <option value="fixed">Tarifa fija: incluye hasta la capacidad máxima</option>
+                  <option value="base_plus_extra">Tarifa de cabaña + persona adicional solo sobre el máximo</option>
+                  <option value="fixed">Tarifa fija: nunca cobra personas adicionales</option>
                 </select>
                 <p id="cabin-form-pricing-mode-hint" class="text-[10px] text-slate-400 mt-1"></p>
               </div>
@@ -3408,7 +3407,7 @@
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold pointer-events-none z-10">$</span>
                     <input type="number" id="cabin-form-nightly-rate" step="5000" value="480000" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 pl-7 pr-3 py-2 text-xs font-extrabold tabular-nums text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none" />
                   </div>
-                  <p id="cabin-form-nightly-hint" class="text-[10px] text-slate-400 mt-1">Incluye la capacidad base</p>
+                  <p id="cabin-form-nightly-hint" class="text-[10px] text-slate-400 mt-1">Incluye desde la capacidad base hasta la máxima</p>
                 </div>
                 <div>
                   <label for="cabin-form-extra-rate" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Persona Extra por Noche <span class="text-rose-500">*</span></label>
@@ -3416,7 +3415,7 @@
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold pointer-events-none z-10">$</span>
                     <input type="number" id="cabin-form-extra-rate" min="0" step="5000" value="75000" class="disabled:opacity-50 w-full rounded-xl border border-slate-300 dark:border-slate-700 pl-7 pr-3 py-2 text-xs font-extrabold tabular-nums text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none" />
                   </div>
-                  <p class="text-[10px] text-slate-400 mt-1">Por cada persona sobre la capacidad base</p>
+                  <p class="text-[10px] text-slate-400 mt-1">Solo por cada persona que supere la capacidad máxima</p>
                 </div>
               </div>
             </section>

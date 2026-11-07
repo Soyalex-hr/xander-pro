@@ -271,7 +271,7 @@ function deleteUser(userId) {
 const CHILD_POLICY_DEFAULTS = {
   infant: { minAge: 0, maxAge: 4, label: 'Bebés', rate: 0, countsTowardsMaxCapacity: false, note: 'Sin costo, en cama compartida o cuna portátil' },
   child: { maxAge: 10, label: 'Niños', rate: 40000, countsTowardsMaxCapacity: true, note: 'Tarifa reducida por noche; ocupan cama individual' },
-  adult: { label: 'Adultos', note: 'Tarifa completa; si superan la capacidad base pagan persona adicional' }
+  adult: { label: 'Adultos', note: 'Tarifa completa; si superan la capacidad máxima pagan persona adicional' }
 };
 
 function getChildPolicyTiers() {
@@ -1196,10 +1196,10 @@ function updateCabinPricingModeUI() {
   const base = document.getElementById('cabin-form-base-cap')?.value || '';
   const hint = document.getElementById('cabin-form-pricing-mode-hint');
   if (hint) hint.textContent = fixed
-    ? `La tarifa por noche cubre hasta ${max} personas. Nunca se cobran personas adicionales; la capacidad base solo es informativa.`
-    : `La tarifa por noche cubre ${base} personas; desde la persona ${Number(base) + 1} se cobra el valor de persona extra.`;
+    ? `La tarifa por noche es la misma para cualquier número de personas. Nunca se cobran personas adicionales.`
+    : `De ${base} a ${max} personas solo se cobra la tarifa de la cabaña. Desde la persona ${Number(max) + 1} se cobra el valor de persona adicional.`;
   const nh = document.getElementById('cabin-form-nightly-hint');
-  if (nh) nh.textContent = fixed ? `Incluye hasta ${max} personas (capacidad máxima)` : 'Incluye la capacidad base';
+  if (nh) nh.textContent = fixed ? 'Igual para cualquier número de personas' : `Incluye de ${base} a ${max} personas`;
 }
 window.updateCabinPricingModeUI = updateCabinPricingModeUI;
 document.addEventListener('input', e => {

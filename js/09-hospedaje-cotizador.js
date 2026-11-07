@@ -37,7 +37,7 @@ function populateCabinQuotePickers() {
     const curCab = cabSel.value;
     const activeCabins = (state.cabins || []).filter(c => c.status === 'active');
     cabSel.innerHTML = activeCabins.map(c => `
-      <option value="${c.id}">${c.code} - ${c.name} (${formatCurrency(c.baseNightlyRate)}/noche · ${c.pricingMode === 'fixed' ? 'Hasta ' + c.maxCapacity : 'Base ' + c.baseCapacity} pax)</option>
+      <option value="${c.id}">${c.code} - ${c.name} (${formatCurrency(c.baseNightlyRate)}/noche · ${c.baseCapacity} a ${c.maxCapacity} pax)</option>
     `).join('');
     if (curCab && Array.from(cabSel.options).some(o => o.value === curCab)) {
       cabSel.value = curCab;
@@ -299,7 +299,7 @@ function handleCabinSelectionChange(triggerRecalc = true) {
 
   if (nameEl) nameEl.textContent = cabin.name;
   if (codeEl) codeEl.textContent = cabin.code;
-  if (capEl) capEl.textContent = cabin.pricingMode === 'fixed' ? `Tarifa fija · hasta ${cabin.maxCapacity} pax` : `Base: ${cabin.baseCapacity} | Máx: ${cabin.maxCapacity} pax`;
+  if (capEl) capEl.textContent = cabin.pricingMode === 'fixed' ? `Tarifa fija · hasta ${cabin.maxCapacity} pax` : `De ${cabin.baseCapacity} a ${cabin.maxCapacity} pax · extra sobre ${cabin.maxCapacity}`;
   if (rateEl) rateEl.textContent = `${formatCurrency(cabin.baseNightlyRate)} / noche`;
   if (origRateEl) origRateEl.textContent = `${formatCurrency(cabin.baseNightlyRate)} / noche`;
 
@@ -649,7 +649,11 @@ function recalculateCabinQuoteLive() {
   // Occupancy rules & Extra Person math
   const totalOccupants = adults + (p5.countsTowardsMaxCapacity ? kids5to10 : 0) + (p0.countsTowardsMaxCapacity ? kids0to4 : 0);
   const isFixedRate = cabin.pricingMode === 'fixed';
-  const extraPaxCount = (isFixedRate || !(Number(cabin.extraPersonRate) > 0)) ? 0 : Math.max(0, adults - cabin.baseCapacity);
+  // Entre la capacidad mínima (base) y la máxima solo se cobra la cabaña.
+  // Las personas adicionales son las que superan la capacidad máxima (los niños ya pagan su propia tarifa,
+  // por eso el excedente cobrado como persona adicional nunca es mayor que el número de adultos).
+  const overMax = Math.max(0, totalOccupants - (Number(cabin.maxCapacity) || 0));
+  const extraPaxCount = (isFixedRate || !(Number(cabin.extraPersonRate) > 0)) ? 0 : Math.min(adults, overMax);
 
   // Hard Max Capacity Alert
   const capBanner = document.getElementById('hos-capacity-banner');
@@ -659,7 +663,8 @@ function recalculateCabinQuoteLive() {
   if (capBanner) {
     capBanner.classList.toggle('hidden', !isCapExceeded);
     if (capText) {
-      capText.textContent = `La cabaña ${cabin.name} permite máximo ${cabin.maxCapacity} huéspedes físicos. Tienes actualmente ${totalOccupants} ocupantes (${adults} ${tiers.adult.label.toLowerCase()} + ${kids5to10} ${p5.label.toLowerCase()}${p0.countsTowardsMaxCapacity ? ' + ' + kids0to4 + ' ' + p0.label.toLowerCase() : ''}).`;
+      capText.textContent = `La cabaña ${cabin.name} tiene capacidad máxima de ${cabin.maxCapacity} huéspedes. Tienes ${totalOccupants} ocupantes (${adults} ${tiers.adult.label.toLowerCase()} + ${kids5to10} ${p5.label.toLowerCase()}${p0.countsTowardsMaxCapacity ? ' + ' + kids0to4 + ' ' + p0.label.toLowerCase() : ''}).` +
+        (extraPaxCount > 0 ? ` Se cobran ${extraPaxCount} persona(s) adicional(es).` : (isFixedRate ? ' Esta cabaña tiene tarifa fija: no se cobran personas adicionales.' : ''));
     }
   }
 
@@ -671,7 +676,7 @@ function recalculateCabinQuoteLive() {
   if (extraPaxAlert) {
     extraPaxAlert.classList.toggle('hidden', extraPaxCount <= 0);
     if (extraPaxText) {
-      extraPaxText.textContent = `Esta cotización incluye ${extraPaxCount} persona(s) adicional(es) sobre la capacidad base (${cabin.baseCapacity} pax).`;
+      extraPaxText.textContent = `Esta cotización supera la capacidad máxima (${cabin.maxCapacity} pax): se cobran ${extraPaxCount} persona(s) adicional(es).`;
     }
     if (extraPaxBadge) {
       extraPaxBadge.textContent = `${formatCurrency(cabin.extraPersonRate)} / noche c/u`;
@@ -733,7 +738,7 @@ function recalculateCabinQuoteLive() {
     extraPaxCount,
     extraPersonRate: cabin.extraPersonRate || 0,
     pricingMode: isFixedRate ? 'fixed' : 'base_plus_extra',
-    includedGuests: isFixedRate ? cabin.maxCapacity : cabin.baseCapacity,
+    includedGuests: cabin.maxCapacity,
     subtotalExtraPax,
     kids5to10,
     childRate5to10: p5.rate || 0,
@@ -1117,7 +1122,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
           <tr>
             <td class="py-2 px-2.5">
               <strong class="text-slate-900 block">Hospedaje Cabaña (${cabin.name})</strong>
-              <span class="text-[10px] text-slate-500">${(calc.pricingMode || cabin.pricingMode) === 'fixed' ? `Tarifa fija · incluye hasta ${cabin.maxCapacity} personas` : `Incluye capacidad base de ${cabin.baseCapacity} personas`}</span>
+              <span class="text-[10px] text-slate-500">${(calc.pricingMode || cabin.pricingMode) === 'fixed' ? `Tarifa fija · incluye hasta ${cabin.maxCapacity} personas` : `Incluye de ${cabin.baseCapacity} a ${cabin.maxCapacity} personas`}</span>
             </td>
             <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
               ${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches
@@ -1132,7 +1137,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
             <tr>
               <td class="py-2 px-2.5">
                 <strong class="text-slate-900 block">Persona(s) Adicional(es)</strong>
-                <span class="text-[10px] text-slate-500">Excedente sobre capacidad base</span>
+                <span class="text-[10px] text-slate-500">Excedente sobre la capacidad máxima (${cabin.maxCapacity} pax)</span>
               </td>
               <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
                 ${calc.extraPaxCount} pax × ${formatCurrency(calc.extraPersonRate)} × ${calc.nights} noches
