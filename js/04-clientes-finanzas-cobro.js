@@ -676,6 +676,8 @@
       const c = state.company;
       document.getElementById('comp-name').value = c.name;
       document.getElementById('comp-nit').value = c.nit;
+      const rntIn = document.getElementById('comp-rnt');
+      if (rntIn) rntIn.value = c.rnt || '';
       document.getElementById('comp-slogan').value = c.slogan;
       document.getElementById('comp-phone').value = c.phone;
       document.getElementById('comp-email').value = c.email;

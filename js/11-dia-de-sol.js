@@ -366,7 +366,7 @@ function renderDayPassPdf() {
         ${comp.logoDataUrl ? `<img src="${comp.logoDataUrl}" alt="Logo" class="w-14 h-14 object-contain rounded-xl" />` : `<div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl">XP</div>`}
         <div class="min-w-0">
           <h2 class="text-base font-black text-slate-900 uppercase tracking-tight">${dsEsc(comp.name || '')}</h2>
-          <p class="text-[10px] text-slate-500 font-medium">NIT / RUT: ${dsEsc(comp.nit || '-')} · Tel: ${dsEsc(comp.phone || '-')}</p>
+          <p class="text-[10px] text-slate-500 font-medium">NIT / RUT: ${dsEsc(comp.nit || '-')}${comp.rnt ? ` · RNT: ${dsEsc(comp.rnt)}` : ''} · Tel: ${dsEsc(comp.phone || '-')}</p>
           <p class="text-[10px] text-slate-500 font-medium">${dsEsc(comp.email || '')} ${comp.address ? '· ' + dsEsc(comp.address) : ''}</p>
         </div>
       </div>

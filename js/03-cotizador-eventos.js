@@ -374,7 +374,7 @@
       if (headerComp) headerComp.textContent = comp.name;
       document.getElementById('pdf-company-name').textContent = comp.name;
       document.getElementById('pdf-company-slogan').textContent = comp.slogan;
-      document.getElementById('pdf-company-nit').textContent = `NIT / ID: ${comp.nit}`;
+      document.getElementById('pdf-company-nit').textContent = `NIT / ID: ${comp.nit}${comp.rnt ? ` · RNT: ${comp.rnt}` : ''}`;
       document.getElementById('pdf-company-contact').textContent = `📞 ${comp.phone} · ✉️ ${comp.email}`;
       document.getElementById('pdf-company-address').textContent = comp.address;
       document.getElementById('pdf-bank-details').textContent = comp.bankDetails;

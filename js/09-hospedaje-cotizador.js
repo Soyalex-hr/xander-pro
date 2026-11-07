@@ -1022,7 +1022,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
         `}
         <div>
           <h2 class="text-base font-black text-slate-900 uppercase tracking-tight">${comp.name}</h2>
-          <p class="text-[10px] text-slate-500 font-medium">NIT / RUT: ${comp.nit} · Tel: ${comp.phone}</p>
+          <p class="text-[10px] text-slate-500 font-medium">NIT / RUT: ${comp.nit}${comp.rnt ? ` · RNT: ${comp.rnt}` : ''} · Tel: ${comp.phone}</p>
           <p class="text-[10px] text-slate-500 font-medium">${comp.email} · ${comp.address || ''}</p>
         </div>
       </div>
@@ -1122,7 +1122,7 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
           <tr>
             <td class="py-2 px-2.5">
               <strong class="text-slate-900 block">Hospedaje Cabaña (${cabin.name})</strong>
-              <span class="text-[10px] text-slate-500">${(calc.pricingMode || cabin.pricingMode) === 'fixed' ? `Tarifa fija · incluye hasta ${cabin.maxCapacity} personas` : `Incluye de ${cabin.baseCapacity} a ${cabin.maxCapacity} personas`}</span>
+              <span class="text-[10px] text-slate-500">${(() => { const a = Number(q.adults) || 0, k = Number(q.kids5to10) || 0, i = Number(q.kids0to4) || 0; const t = getChildPolicyTiers(); const parts = [`${a} ${t.adult.label.toLowerCase()}`]; if (k) parts.push(`${k} ${t.child.label.toLowerCase()}`); if (i) parts.push(`${i} ${t.infant.label.toLowerCase()}`); return `${a + k + i} huésped(es): ${parts.join(', ')}`; })()}</span>
             </td>
             <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">
               ${formatCurrency(calc.nightlyRate)} × ${calc.nights} noches
@@ -1282,13 +1282,6 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
       </table>
     </div>
 
-    <!-- Rate Audit Stamp if Modified -->
-    ${q.rateModified ? `
-      <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-[10px] text-purple-900 space-y-0.5">
-        <strong class="font-extrabold block">🛡️ Tarifa Especial Negociada:</strong>
-        <div>Tarifa base ajustada de ${formatCurrency(q.originalRate)} a ${formatCurrency(q.baseNightlyRate)} por ${q.modifiedBy || 'Alexander'}. Motivo: "${q.modificationReason || 'Acuerdo comercial autorizado'}".</div>
-      </div>
-    ` : ''}
 
     <!-- Observations and Bank Details -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-200">

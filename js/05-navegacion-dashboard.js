@@ -2094,6 +2094,7 @@ ${state.company.phone}`;
       document.getElementById('btn-save-company')?.addEventListener('click', () => {
         state.company.name = document.getElementById('comp-name').value.trim() || 'Mi Empresa de Eventos';
         state.company.nit = document.getElementById('comp-nit').value.trim();
+        state.company.rnt = (document.getElementById('comp-rnt')?.value || '').trim();
         state.company.slogan = document.getElementById('comp-slogan').value.trim();
         state.company.phone = document.getElementById('comp-phone').value.trim();
         state.company.email = document.getElementById('comp-email').value.trim();
