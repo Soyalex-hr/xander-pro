@@ -86,3 +86,12 @@ CREATE TABLE IF NOT EXISTS record_history (
   changed_by  uuid
 );
 CREATE INDEX IF NOT EXISTS record_history_lookup_idx ON record_history (company_id, collection, id, changed_at DESC);
+
+-- Correo de la empresa para enviar cotizaciones (SMTP). La contraseña va cifrada.
+CREATE TABLE IF NOT EXISTS company_mail (
+  company_id uuid PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+  settings   jsonb NOT NULL DEFAULT '{}'::jsonb,
+  secret     text,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid
+);
