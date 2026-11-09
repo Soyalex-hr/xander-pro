@@ -95,11 +95,12 @@ async function session(device) {
     const n = document.querySelectorAll('#xp-combo-quotes input').length;
     document.getElementById('xp-combo-create').click();
     const c = state.comboQuotes[0];
-    const total = document.getElementById('pdf-combo-sheet')?.innerText.includes('TOTAL DEL PAQUETE');
+    const total = document.getElementById('pdf-combo-sheet')?.innerText.includes('TOTAL GENERAL');
     xpCloseCombo();
     return n >= 2 && c && c.parts.length >= 2 && total;
   });
-  ok(combo, 'paquete combinado: se crea con 2 o más cotizaciones y muestra el total');
+  ok(await page.evaluate(() => ['evento', 'cabana', 'diasol'].every(k => document.querySelector(`[data-xp-combo-btn="${k}"]`))), 'el botón Cotización completa está en eventos, cabañas y día de sol');
+  ok(combo, 'cotización completa: se crea con 2 o más cotizaciones y muestra el total');
 
   ok(errors.length === 0, 'sin errores de JavaScript (computador)' + (errors.length ? ': ' + errors.join(' | ') : ''));
   await browser.close();

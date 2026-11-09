@@ -116,7 +116,7 @@
             ${comp.address ? `<div style="font-size:11px;color:#475569">${esc(comp.address)}</div>` : ''}</div>
           </div>
           <div style="text-align:right">
-            <div style="display:inline-block;background:#0B3B4F;color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;padding:5px 10px;border-radius:999px">PAQUETE ${esc(c.number)}</div>
+            <div style="display:inline-block;background:#0B3B4F;color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;padding:5px 10px;border-radius:999px">COTIZACIÓN COMPLETA ${esc(c.number)}</div>
             <div style="font-size:11px;color:#475569;margin-top:6px">Emitida: ${esc(nice(c.createdAt))}</div>
             ${d.valid ? `<div style="display:inline-block;margin-top:6px;font-size:11px;font-weight:800;color:#8A5300;background:#FFF5E1;border:1px solid #F2C46D;border-radius:8px;padding:4px 8px">Válida hasta: ${esc(nice(d.valid))}</div>` : ''}
           </div>
@@ -125,7 +125,7 @@
           <div style="flex:1;min-width:220px"><div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#64748B;text-transform:uppercase">Cotizado para</div>
             <div style="font-size:15px;font-weight:800;margin-top:2px">${esc(cl.name || 'Cliente')}</div>
             <div style="font-size:12px;color:#475569">${[cl.doc ? 'Doc. ' + cl.doc : '', cl.phone, cl.email].filter(Boolean).map(esc).join(' · ')}</div></div>
-          <div style="flex:1;min-width:220px"><div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#64748B;text-transform:uppercase">Paquete</div>
+          <div style="flex:1;min-width:220px"><div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#64748B;text-transform:uppercase">Plan</div>
             <div style="font-size:15px;font-weight:800;margin-top:2px">${esc(c.title || 'Plan combinado')}</div>
             <div style="font-size:12px;color:#475569">${d.parts.map(p => KIND_LABEL[p.kind]).join(' + ')}</div></div>
         </div>
@@ -137,7 +137,7 @@
           </div>
           <div style="flex:1;min-width:240px">
             ${d.parts.map(p => `<div style="display:flex;justify-content:space-between;font-size:12px;color:#475569;padding:3px 0"><span>${KIND_LABEL[p.kind]} · ${esc(p.number)}</span><strong style="color:#0F172A">${money(p.total)}</strong></div>`).join('')}
-            <div style="display:flex;justify-content:space-between;align-items:center;background:#0B3B4F;color:#fff;border-radius:10px;padding:10px 12px;margin-top:8px"><strong style="font-size:13px">TOTAL DEL PAQUETE</strong><strong style="font-size:17px">${money(d.total)}</strong></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#0B3B4F;color:#fff;border-radius:10px;padding:10px 12px;margin-top:8px"><strong style="font-size:13px">TOTAL GENERAL</strong><strong style="font-size:17px">${money(d.total)}</strong></div>
             ${d.deposit > 0 ? `<div style="display:flex;justify-content:space-between;background:#E8F4F8;color:#0B5D7E;border-radius:10px;padding:8px 12px;margin-top:6px;font-size:12.5px;font-weight:800"><span>Anticipo para reservar</span><span>${money(d.deposit)}</span></div>
             <div style="display:flex;justify-content:space-between;border:1px solid #E2E8F0;border-radius:10px;padding:8px 12px;margin-top:6px;font-size:12px;font-weight:700;color:#334155"><span>Saldo</span><span>${money(d.balance)}</span></div>` : '<div style="font-size:12px;color:#475569;margin-top:6px">Pago total según las condiciones de cada servicio.</div>'}
           </div>
@@ -157,7 +157,7 @@
     m.id = 'modal-xp-combo';
     m.className = 'hidden fixed inset-0 z-[65] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4';
     m.innerHTML = `<div class="xp-combo-card" role="dialog" aria-modal="true" aria-labelledby="xp-combo-t">
-      <div class="xp-pm-head"><div class="min-w-0"><h3 id="xp-combo-t" class="text-base font-bold">Cotización combinada</h3><p class="text-[11px] xp-pm-muted">Une cabaña, evento y día de sol del mismo cliente en un solo documento.</p></div>
+      <div class="xp-pm-head"><div class="min-w-0"><h3 id="xp-combo-t" class="text-base font-bold">Cotización completa</h3><p class="text-[11px] xp-pm-muted">Une cabaña, evento y día de sol del mismo cliente en un solo documento con un solo total.</p></div>
       <button type="button" class="xp-pm-x" aria-label="Cerrar" onclick="xpCloseCombo()">✕</button></div>
       <div class="xp-combo-body" id="xp-combo-body"></div>
       <div class="xp-pm-foot" id="xp-combo-foot"></div>
@@ -167,16 +167,23 @@
   }
   window.xpCloseCombo = () => { document.getElementById('modal-xp-combo')?.classList.add('hidden'); document.body.classList.remove('xp-print-combo'); };
 
-  window.xpOpenCombo = function (comboId) {
+  // opts.from = 'evento' | 'cabana' | 'diasol': se elige el cliente de la cotización abierta
+  window.xpOpenCombo = function (comboId, opts) {
     ensure();
     const m = modal();
     m.classList.remove('hidden');
     if (comboId) { const c = state.comboQuotes.find(x => x.id === comboId); if (c) { current = JSON.parse(JSON.stringify(c)); return renderDoc(); } }
     current = null;
-    renderList();
+    let cid = '';
+    if (opts && opts.from) {
+      const a = opts.from === 'evento' ? state.activeQuote : opts.from === 'cabana' ? state.activeCabinQuote : state.activeDayPass;
+      cid = (a && a.clientId) || '';
+      if (opts.from === 'evento') { const s = document.getElementById('q-client-select'); if (s && s.value) cid = s.value; }
+    }
+    renderList(cid);
   };
 
-  function renderList() {
+  function renderList(preClient) {
     const body = document.getElementById('xp-combo-body');
     const foot = document.getElementById('xp-combo-foot');
     const list = (state.comboQuotes || []).slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -184,19 +191,19 @@
     body.innerHTML = `
       <div class="xp-combo-grid">
         <section class="xp-pm-col">
-          <div class="xp-pm-sec">Nuevo paquete</div>
+          <div class="xp-pm-sec">Nueva cotización completa</div>
           <div class="xp-pm-f"><label for="xp-combo-client">Cliente</label>
             <select id="xp-combo-client"><option value="">Elige el cliente…</option>${clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div>
-          <div class="xp-pm-f"><label for="xp-combo-title">Nombre del paquete</label><input id="xp-combo-title" placeholder="Ej. Cumpleaños de Sofía: cabaña + fiesta + día de sol" /></div>
+          <div class="xp-pm-f"><label for="xp-combo-title">Nombre de la cotización</label><input id="xp-combo-title" placeholder="Ej. Cumpleaños de Sofía: cabaña + fiesta + día de sol" /></div>
           <div id="xp-combo-quotes" class="xp-combo-quotes"><p class="xp-pm-muted text-xs">Elige un cliente para ver sus cotizaciones guardadas.</p></div>
           <div class="xp-pm-f"><label for="xp-combo-notes">Observaciones para el cliente (opcional)</label><textarea id="xp-combo-notes" rows="2" placeholder="Ej. El día de sol es para los invitados que no se hospedan."></textarea></div>
         </section>
         <section class="xp-pm-col">
-          <div class="xp-pm-sec">Paquetes guardados</div>
-          <div class="xp-combo-saved">${list.length ? list.map(c => { const d = comboData(c); const cl = clientOf(c.clientId) || {}; return `<button type="button" class="xp-combo-item" onclick="xpOpenCombo('${esc(c.id)}')"><span><strong>${esc(c.number)} · ${esc(c.title || 'Paquete')}</strong><small>${esc(cl.name || 'Cliente')} · ${d.parts.map(p => KIND_LABEL[p.kind]).join(' + ') || 'sin cotizaciones'}</small></span><span class="xp-combo-item-r"><strong>${money(d.total)}</strong><small>${esc(c.status || 'Borrador')}</small></span></button>`; }).join('') : '<p class="xp-pm-muted text-xs">Aún no hay paquetes.</p>'}</div>
+          <div class="xp-pm-sec">Cotizaciones completas guardadas</div>
+          <div class="xp-combo-saved">${list.length ? list.map(c => { const d = comboData(c); const cl = clientOf(c.clientId) || {}; return `<button type="button" class="xp-combo-item" onclick="xpOpenCombo('${esc(c.id)}')"><span><strong>${esc(c.number)} · ${esc(c.title || 'Paquete')}</strong><small>${esc(cl.name || 'Cliente')} · ${d.parts.map(p => KIND_LABEL[p.kind]).join(' + ') || 'sin cotizaciones'}</small></span><span class="xp-combo-item-r"><strong>${money(d.total)}</strong><small>${esc(c.status || 'Borrador')}</small></span></button>`; }).join('') : '<p class="xp-pm-muted text-xs">Aún no hay cotizaciones completas.</p>'}</div>
         </section>
       </div>`;
-    foot.innerHTML = `<span class="xp-pm-muted text-xs" id="xp-combo-sum"></span><div class="flex gap-2"><button type="button" class="xp-pm-btn" onclick="xpCloseCombo()">Cancelar</button><button type="button" class="xp-pm-btn xp-pm-primary" id="xp-combo-create">Crear paquete</button></div>`;
+    foot.innerHTML = `<span class="xp-pm-muted text-xs" id="xp-combo-sum"></span><div class="flex gap-2"><button type="button" class="xp-pm-btn" onclick="xpCloseCombo()">Cancelar</button><button type="button" class="xp-pm-btn xp-pm-primary" id="xp-combo-create">Crear cotización</button></div>`;
     const sel = body.querySelector('#xp-combo-client');
     const refresh = () => {
       const qs = sel.value ? quotesOfClient(sel.value) : [];
@@ -213,6 +220,7 @@
       upd();
     };
     sel.addEventListener('change', refresh);
+    if (preClient && (state.clients || []).some(c => c.id === preClient)) { sel.value = preClient; refresh(); }
     foot.querySelector('#xp-combo-create').onclick = () => {
       const chosen = Array.from(body.querySelectorAll('#xp-combo-quotes input:checked')).map(i => { const [kind, id] = i.value.split('|'); return { kind, id }; });
       if (!sel.value) return toast('Elige el cliente');
@@ -234,7 +242,7 @@
     const d = comboData(c);
     body.innerHTML = `
       <div class="xp-combo-docbar">
-        <button type="button" class="xp-pm-btn" onclick="xpOpenCombo()">← Paquetes</button>
+        <button type="button" class="xp-pm-btn" onclick="xpOpenCombo()">← Volver</button>
         <div class="xp-pm-f"><label for="xp-combo-status" class="sr-only">Estado</label><select id="xp-combo-status">${['Borrador', 'Enviada', 'Aprobada', 'Rechazada', 'Vencida'].map(s => `<option ${s === (c.status || 'Borrador') ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
         <span class="xp-pm-muted text-xs">${d.parts.length} cotización(es) · los cambios en cada cotización se ven aquí automáticamente</span>
       </div>
@@ -291,7 +299,7 @@
       '',
       ...d.parts.map(p => `- ${KIND_LABEL[p.kind]} (${p.number}): ${p.title}, ${p.dateLabel} = ${money(p.total)}`),
       '',
-      `TOTAL DEL PAQUETE: ${money(d.total)}`,
+      `TOTAL GENERAL: ${money(d.total)}`,
       d.deposit > 0 ? `Anticipo para reservar: ${money(d.deposit)}` : '',
       d.valid ? `Válida hasta: ${nice(d.valid)}` : '',
       sh && sh.url ? `\nPuedes verla y aceptarla aquí: ${sh.url}` : '',
@@ -327,7 +335,7 @@
     if (menu && !menu.querySelector('[data-xp-combo]')) {
       const b = document.createElement('button');
       b.type = 'button'; b.setAttribute('role', 'menuitem'); b.dataset.xpCombo = '1';
-      b.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg><span><strong>Paquete combinado</strong><small>Cabaña + evento + día de sol</small></span>`;
+      b.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg><span><strong>Cotización completa</strong><small>Cabaña + evento + día de sol</small></span>`;
       b.addEventListener('click', () => { if (typeof xpToggleNewMenu === 'function') xpToggleNewMenu(false); window.xpOpenCombo(); });
       menu.appendChild(b);
     }
@@ -337,7 +345,7 @@
       if (head) {
         const b = document.createElement('button');
         b.type = 'button'; b.dataset.xpComboBtn = '1'; b.className = 'xp-pm-btn';
-        b.textContent = 'Paquetes combinados';
+        b.textContent = 'Cotizaciones completas';
         b.addEventListener('click', () => window.xpOpenCombo());
         head.appendChild(b);
       }
@@ -362,7 +370,7 @@
     ['evento', '📋', 'Evento', 'Bodas, corporativos, catering'],
     ['cabana', '🏡', 'Cabaña', 'Hospedaje por noches'],
     ['diasol', '☀️', 'Día de sol', 'Entrada por persona y adicionales'],
-    ['paquete', '🧩', 'Paquete combinado', 'Cabaña + evento + día de sol']
+    ['paquete', '🧩', 'Cotización completa', 'Cabaña + evento + día de sol']
   ];
   function sheet() {
     let m = document.getElementById('xp-quick-quote');

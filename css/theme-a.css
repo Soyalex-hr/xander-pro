@@ -1140,3 +1140,8 @@ html.dark .xp-emp-savebar.is-dirty { background: rgba(242,169,59,.12); }
 .xp-emp-pv-pay { border: 1px solid #E2E8F0; border-radius: .6rem; padding: .5rem .6rem; font-size: .64rem; color: #334155; white-space: pre-line; }
 .xp-emp-pv-pay b { display: block; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; color: #64748B; margin-bottom: .15rem; }
 @media (max-width: 767.98px) { .xp-emp-savebar:not(.is-dirty) .xp-emp-hint { display: none; } .xp-emp-savebar:not(.is-dirty) { justify-content: flex-end; } .xp-emp-name { font-size: 1rem; } }
+
+/* Botón "Cotización completa" en los cotizadores */
+.xp-combo-entry { display: inline-flex; align-items: center; gap: .4rem; min-height: 40px; padding: 0 .85rem; border-radius: .75rem; border: 1px solid var(--xp-brand-200); background: var(--xp-brand-50); color: var(--xp-brand); font-size: .75rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.xp-combo-entry:hover { background: var(--xp-brand-100); }
+@media (max-width: 640px) { .xp-combo-entry { min-height: 44px; } }
