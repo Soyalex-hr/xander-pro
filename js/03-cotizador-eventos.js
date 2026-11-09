@@ -124,7 +124,7 @@
       const sel = document.getElementById('picker-product-select');
       if (!sel) return;
 
-      const filtered = state.products.filter(p => {
+      const filtered = state.products.filter(p => p.active !== false).filter(p => {
         if (filterVal === 'compuesto') return p.type === 'compuesto';
         if (filterVal === 'simple') return p.type === 'simple';
         if (filterVal === 'sin_inventario') return !p.trackStock || Number(p.stock) <= 0;
@@ -557,149 +557,195 @@
     // =====================================================
     // 6. PRODUCTS & RECIPES CATALOG RENDERING + SIMULATOR
     // =====================================================
+    // ===== Catálogo: ayudas compartidas =====
+    const XP_MIN_MARGIN = 30; // % mínimo antes de marcar "margen bajo"
+    function xpIsService(p) { return p && p.type !== 'compuesto' && (p.unit === 'srv' || p.unit === 'hr'); }
+    function xpCatOf(p) {
+      if (p && String(p.category || '').trim()) return String(p.category).trim();
+      if (xpIsService(p)) return 'Servicios';
+      return 'Sin categoría';
+    }
+    function xpIsActive(p) { return !p || p.active !== false; }
+    function xpProductCost(p) { return calculateRecipeUnitCost(p); }
+    function xpProductMargin(p) {
+      const price = Number(p && p.price) || 0;
+      if (price <= 0) return null;
+      return ((price - xpProductCost(p)) / price) * 100;
+    }
+    // 'na' (receta), 'none' (sin inventario), 'out' (agotado), 'low' (bajo el mínimo), 'ok'
+    function xpStockStatus(p) {
+      if (!p || p.type === 'compuesto') return 'na';
+      if (!p.trackStock) return 'none';
+      const stock = Number(p.stock) || 0;
+      if (stock <= 0) return 'out';
+      const min = Number(p.minStock);
+      if (p.minStock !== undefined && p.minStock !== '' && !isNaN(min) && stock <= min) return 'low';
+      return 'ok';
+    }
+    // Insumos usados en recetas: { productId: [receta, ...] }
+    function xpRecipesUsing(productId) {
+      return (state.products || []).filter(r => r.type === 'compuesto' && Array.isArray(r.ingredients) && r.ingredients.some(i => i.productId === productId));
+    }
+    Object.assign(window, { XP_MIN_MARGIN, xpIsService, xpCatOf, xpIsActive, xpProductCost, xpProductMargin, xpStockStatus, xpRecipesUsing });
+
+    let xpCatFilter = 'all';
+    let xpCatSort = (() => { try { return localStorage.getItem('xp_cat_sort') || 'name:asc'; } catch (e) { return 'name:asc'; } })();
+    window.xpSetCatFilter = f => { xpCatFilter = f || 'all'; renderProductsCatalog(); };
+    window.xpSetCatSort = s => { xpCatSort = s || 'name:asc'; try { localStorage.setItem('xp_cat_sort', xpCatSort); } catch (e) { /* */ } renderProductsCatalog(); };
+
     function renderProductsCatalog() {
-      const filterButtons = document.querySelectorAll('.prod-filter-btn');
-      let activeFilter = 'all';
-      filterButtons.forEach(btn => {
-        if (btn.classList.contains('bg-indigo-600')) {
-          activeFilter = btn.getAttribute('data-prod-filter');
-        }
+      const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const num = v => (Number(v) || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 });
+      const pctTxt = v => v === null ? '—' : (v.toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' %');
+      const products = (state.products || []).filter(p => p && typeof p === 'object');
+
+      document.querySelectorAll('.prod-filter-btn').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-prod-filter') === xpCatFilter)));
+      const sortSel = document.getElementById('prod-sort-select');
+      if (sortSel && sortSel.value !== xpCatSort) sortSel.value = xpCatSort;
+      const [sortKey, sortDir] = xpCatSort.split(':');
+      document.querySelectorAll('.xp-cat-sort').forEach(b => {
+        const on = b.dataset.sort === sortKey;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-sort', on ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none');
       });
 
-      const searchVal = (document.getElementById('prod-search-input')?.value || '').toLowerCase();
-      const tbody = document.getElementById('products-catalog-tbody');
-      const cardsContainer = document.getElementById('products-catalog-cards');
+      // Categorías (filtro + sugerencias de los formularios)
+      const cats = [...new Set(products.map(xpCatOf))].sort((a, b) => a.localeCompare(b, 'es'));
+      const catSel = document.getElementById('prod-category-filter');
+      if (catSel) {
+        const prev = catSel.value;
+        catSel.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+        if (cats.includes(prev)) catSel.value = prev;
+      }
+      const dl = document.getElementById('xp-cat-categories');
+      if (dl) {
+        const sugg = [...new Set(['Bebidas', 'Alimentos', 'Servicios', 'Decoración', 'Personal', 'Mobiliario', ...cats.filter(c => c !== 'Sin categoría')])];
+        dl.innerHTML = sugg.map(c => `<option value="${esc(c)}"></option>`).join('');
+      }
+      const catFilter = catSel ? catSel.value : '';
+      const searchVal = (document.getElementById('prod-search-input')?.value || '').toLowerCase().trim();
 
-      const list = state.products.filter(p => {
-        if (activeFilter === 'compuesto' && p.type !== 'compuesto') return false;
-        if (activeFilter === 'simple' && p.type !== 'simple') return false;
-        if (activeFilter === 'no_stock' && p.trackStock && Number(p.stock) > 0) return false;
-        if (searchVal && !p.name.toLowerCase().includes(searchVal) && !(p.desc || '').toLowerCase().includes(searchVal)) return false;
+      // Resumen
+      const active = products.filter(xpIsActive);
+      const lowStock = active.filter(p => ['out', 'low'].includes(xpStockStatus(p)));
+      const lowMargin = active.filter(p => { const m = xpProductMargin(p); return m !== null && m < XP_MIN_MARGIN; });
+      const summary = document.getElementById('cat-summary');
+      if (summary) {
+        const tile = (label, value, sub, tone, filter) => `
+          <button type="button" class="xp-cat-tile ${tone}" ${filter ? `onclick="xpSetCatFilter('${filter}')"` : ''}>
+            <span class="xp-cat-tile-label">${label}</span>
+            <span class="xp-cat-tile-value">${value}</span>
+            <span class="xp-cat-tile-sub">${sub}</span>
+          </button>`;
+        summary.innerHTML =
+          tile('Activos', active.length, `${active.filter(p => p.type === 'compuesto').length} recetas · ${active.filter(p => p.type !== 'compuesto').length} insumos y servicios`, 'tone-ocean', 'all') +
+          tile('Stock bajo o agotado', lowStock.length, lowStock.length ? lowStock.slice(0, 2).map(p => p.name).join(', ') + (lowStock.length > 2 ? '…' : '') : 'Todo en orden', lowStock.length ? 'tone-coral' : 'tone-palm', 'low_stock') +
+          tile(`Margen bajo (< ${XP_MIN_MARGIN} %)`, lowMargin.length, lowMargin.length ? 'Revisa el precio de venta' : 'Todos por encima del mínimo', lowMargin.length ? 'tone-sun' : 'tone-palm', 'low_margin') +
+          tile('Inactivos', products.length - active.length, 'No aparecen al cotizar', 'tone-sky', 'inactive');
+      }
+
+      const list = products.filter(p => {
+        const isActive = xpIsActive(p);
+        if (xpCatFilter === 'inactive') { if (isActive) return false; }
+        else if (!isActive && xpCatFilter !== 'all') return false;
+        if (xpCatFilter === 'compuesto' && p.type !== 'compuesto') return false;
+        if (xpCatFilter === 'simple' && (p.type === 'compuesto' || xpIsService(p))) return false;
+        if (xpCatFilter === 'servicio' && !xpIsService(p)) return false;
+        if (xpCatFilter === 'no_stock' && !(p.type !== 'compuesto' && !p.trackStock)) return false;
+        if (xpCatFilter === 'low_stock' && !['out', 'low'].includes(xpStockStatus(p))) return false;
+        if (xpCatFilter === 'low_margin') { const m = xpProductMargin(p); if (m === null || m >= XP_MIN_MARGIN) return false; }
+        if (catFilter && xpCatOf(p) !== catFilter) return false;
+        if (searchVal && !String(p.name || '').toLowerCase().includes(searchVal) && !String(p.desc || '').toLowerCase().includes(searchVal)) return false;
         return true;
       });
 
-      // 1. Render Desktop Table
+      const keyOf = p => {
+        if (sortKey === 'price') return Number(p.price) || 0;
+        if (sortKey === 'cost') return xpProductCost(p);
+        if (sortKey === 'margin') { const m = xpProductMargin(p); return m === null ? -1e9 : m; }
+        if (sortKey === 'stock') return p.type === 'compuesto' || !p.trackStock ? 1e12 : (Number(p.stock) || 0);
+        if (sortKey === 'category') return xpCatOf(p).toLowerCase() + '|' + String(p.name || '').toLowerCase();
+        return String(p.name || '').toLowerCase();
+      };
+      list.sort((a, b) => {
+        const ka = keyOf(a), kb = keyOf(b);
+        const r = typeof ka === 'number' ? ka - kb : String(ka).localeCompare(String(kb), 'es');
+        return sortDir === 'desc' ? -r : r;
+      });
+
+      const typeBadge = p => p.type === 'compuesto'
+        ? `<span class="xp-cat-badge t-recipe">🍹 Receta · ${p.basePax || 1} pax</span>`
+        : xpIsService(p) ? `<span class="xp-cat-badge t-service">🎧 Servicio</span>` : `<span class="xp-cat-badge t-item">📦 Insumo</span>`;
+      const stockHtml = p => {
+        const st = xpStockStatus(p);
+        if (st === 'na') return `<span class="text-slate-500">Según insumos</span>`;
+        if (st === 'none') return `<span class="xp-cat-badge">⚡ Bajo pedido</span>`;
+        const qty = `${num(p.stock)} ${esc(p.unit)}`;
+        const packs = p.pack && Number(p.pack.size) > 0 ? ` <span class="block text-[10px] text-slate-400 font-normal">≈ ${num((Number(p.stock) || 0) / Number(p.pack.size))} ${esc(p.pack.name || 'presentaciones')}</span>` : '';
+        if (st === 'out') return `<span class="xp-cat-badge s-out">Agotado</span>`;
+        if (st === 'low') return `<span class="xp-cat-badge s-low">⚠️ ${qty}</span><span class="block text-[10px] text-slate-400 mt-0.5">mínimo ${num(p.minStock)}</span>`;
+        return `<span class="font-bold text-slate-800 dark:text-slate-100 tabular-nums">${qty}</span>${packs}`;
+      };
+      const marginHtml = p => {
+        const m = xpProductMargin(p);
+        if (m === null) return `<span class="text-slate-400">Sin precio</span>`;
+        const cls = m < 0 ? 'm-neg' : m < XP_MIN_MARGIN ? 'm-low' : 'm-ok';
+        return `<span class="xp-cat-margin ${cls}">${pctTxt(m)}</span>`;
+      };
+      const costSub = p => {
+        if (p.type === 'compuesto') return '<span class="block text-[10px] text-slate-400">por persona</span>';
+        if (p.pack && Number(p.pack.size) > 0 && Number(p.pack.price) > 0) return `<span class="block text-[10px] text-slate-400">${esc(p.pack.name || 'Presentación')} ${num(p.pack.size)} ${esc(p.unit)}: ${formatCurrency(p.pack.price)}</span>`;
+        return `<span class="block text-[10px] text-slate-400">por ${esc(p.unit)}</span>`;
+      };
+      const actions = (p, mobile) => {
+        const on = xpIsActive(p);
+        const b = mobile ? 'xp-cat-act xp-cat-act-m' : 'xp-cat-act';
+        return `
+          <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn ${b}" title="Modificar">✏️<span>Modificar</span></button>
+          ${on ? `<button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn ${b} is-primary" title="Llevar a la cotización">➕<span>Cotizar</span></button>` : ''}
+          <button type="button" data-dup-prod="${p.id}" class="xp-dup-prod-btn ${b}" title="Duplicar">📋<span>Duplicar</span></button>
+          <button type="button" data-toggle-prod="${p.id}" class="xp-toggle-prod-btn ${b}" title="${on ? 'Desactivar: deja de aparecer al cotizar' : 'Activar'}">${on ? '⏸️<span>Desactivar</span>' : '▶️<span>Activar</span>'}</button>
+          <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn ${b} is-danger" title="Eliminar">🗑️<span>Eliminar</span></button>`;
+      };
+
+      const empty = xpCatFilter === 'all' && !catFilter && !searchVal
+        ? 'Aún no hay productos. Crea tu primer insumo, servicio o receta.'
+        : 'No hay productos con este filtro.';
+      const tbody = document.getElementById('products-catalog-tbody');
       if (tbody) {
-        if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No se encontraron productos con el filtro seleccionado.</td></tr>`;
-        } else {
-          tbody.innerHTML = list.map(p => {
-            const unitCost = calculateRecipeUnitCost(p);
-            const typeHtml = p.type === 'compuesto'
-              ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">🍹 Receta (Base ${p.basePax || 1} Pax)</span>`
-              : `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700">📦 Simple / Insumo</span>`;
-
-            let stockHtml = '';
-            if (p.type === 'compuesto') {
-              stockHtml = `<span class="text-indigo-700 font-medium">Según insumos</span>`;
-            } else if (!p.trackStock) {
-              stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">⚡ Bajo pedido</span>`;
-            } else if (Number(p.stock) <= 0) {
-              stockHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">0 ${p.unit}</span>`;
-            } else {
-              stockHtml = `<span class="font-bold text-slate-800 tabular-nums">${p.stock} ${p.unit}</span>`;
-            }
-
-            return `
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4">
-                  <div class="font-bold text-slate-900">${p.name}</div>
-                  ${p.desc ? `<div class="text-[11px] text-slate-500 line-clamp-1">${p.desc}</div>` : ''}
-                </td>
-                <td class="py-3 px-4">${typeHtml}</td>
-                <td class="py-3 px-4 font-semibold text-slate-700">${p.unit}</td>
-                <td class="py-3 px-4">${stockHtml}</td>
-                <td class="py-3 px-4 text-right font-medium text-slate-600 tabular-nums">${formatCurrency(unitCost)}</td>
-                <td class="py-3 px-4 text-right font-extrabold text-emerald-700 tabular-nums">${formatCurrency(p.price)}</td>
-                <td class="py-3 px-4 text-right">
-                  <div class="flex items-center justify-end gap-1.5">
-                    <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold transition text-xs border border-amber-200" title="Modificar Producto">
-                      ✏️ Modificar
-                    </button>
-                    <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition text-xs border border-rose-200" title="Eliminar Producto">
-                      🗑️
-                    </button>
-                    <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold transition text-xs border border-indigo-200" title="Llevar a Cotización">
-                      ➕ Cotizar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            `;
-          }).join('');
-        }
+        tbody.innerHTML = list.length ? list.map(p => `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${xpIsActive(p) ? '' : 'xp-cat-inactive'}">
+            <td class="py-3 px-4 max-w-[340px]">
+              <div class="font-bold text-slate-900 dark:text-white">${esc(p.name)}${xpIsActive(p) ? '' : ' <span class="xp-cat-badge">Inactivo</span>'}</div>
+              <div class="mt-1 flex flex-wrap items-center gap-1">${typeBadge(p)}</div>
+              ${p.desc ? `<div class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">${esc(p.desc)}</div>` : ''}
+            </td>
+            <td class="py-3 px-3 text-slate-600 dark:text-slate-300 font-semibold">${esc(xpCatOf(p))}</td>
+            <td class="py-3 px-3">${stockHtml(p)}</td>
+            <td class="py-3 px-3 text-right tabular-nums text-slate-600 dark:text-slate-300">${formatCurrency(xpProductCost(p))}${costSub(p)}</td>
+            <td class="py-3 px-3 text-right tabular-nums font-extrabold text-slate-900 dark:text-white">${formatCurrency(p.price)}</td>
+            <td class="py-3 px-3 text-right">${marginHtml(p)}</td>
+            <td class="py-3 px-4 text-right"><div class="inline-flex flex-nowrap justify-end gap-1">${actions(p, false)}</div></td>
+          </tr>`).join('') : `<tr><td colspan="7" class="p-6 text-center text-slate-400">${empty}</td></tr>`;
       }
 
-      // 2. Render Mobile Responsive Cards (Zero Horizontal Scroll!)
-      if (cardsContainer) {
-        if (list.length === 0) {
-          cardsContainer.innerHTML = `
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center text-slate-500 text-xs">
-              No se encontraron productos con el filtro seleccionado.
+      const cards = document.getElementById('products-catalog-cards');
+      if (cards) {
+        cards.innerHTML = list.length ? list.map(p => `
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-xs space-y-3 ${xpIsActive(p) ? '' : 'xp-cat-inactive'}">
+            <div class="min-w-0">
+              <div class="font-extrabold text-slate-900 dark:text-white text-sm leading-tight">${esc(p.name)}</div>
+              <div class="mt-1 flex flex-wrap items-center gap-1">${typeBadge(p)}<span class="xp-cat-badge">${esc(xpCatOf(p))}</span>${xpIsActive(p) ? '' : '<span class="xp-cat-badge">Inactivo</span>'}</div>
+              ${p.desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2">${esc(p.desc)}</p>` : ''}
             </div>
-          `;
-        } else {
-          cardsContainer.innerHTML = list.map(p => {
-            const unitCost = calculateRecipeUnitCost(p);
-            const typeBadge = p.type === 'compuesto'
-              ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">🍹 Receta (${p.basePax || 1} Pax)</span>`
-              : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">📦 Insumo</span>`;
-
-            let stockText = '';
-            if (p.type === 'compuesto') {
-              stockText = 'Según insumos';
-            } else if (!p.trackStock) {
-              stockText = '⚡ Bajo pedido';
-            } else if (Number(p.stock) <= 0) {
-              stockText = `0 ${p.unit}`;
-            } else {
-              stockText = `${p.stock} ${p.unit}`;
-            }
-
-            return `
-              <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-                <div class="flex items-start justify-between gap-2">
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="font-extrabold text-slate-900 text-sm leading-tight">${p.name}</span>
-                      ${typeBadge}
-                    </div>
-                    ${p.desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.desc}</p>` : ''}
-                  </div>
-                </div>
-
-                <!-- 3 Stats Pills -->
-                <div class="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-center text-xs border border-slate-100">
-                  <div>
-                    <span class="text-[10px] text-slate-400 block font-semibold uppercase">Stock / Und</span>
-                    <strong class="text-slate-800 text-[11px] block mt-0.5 truncate">${stockText}</strong>
-                  </div>
-                  <div>
-                    <span class="text-[10px] text-slate-400 block font-semibold uppercase">Costo Unit</span>
-                    <strong class="text-slate-600 text-[11px] block mt-0.5 tabular-nums">${formatCurrency(unitCost)}</strong>
-                  </div>
-                  <div>
-                    <span class="text-[10px] text-emerald-600 block font-bold uppercase">Precio Venta</span>
-                    <strong class="text-emerald-700 text-xs block mt-0.5 font-extrabold tabular-nums">${formatCurrency(p.price)}</strong>
-                  </div>
-                </div>
-
-                <!-- Touch Action Buttons -->
-                <div class="flex items-center gap-1.5 pt-1">
-                  <button type="button" data-edit-prod="${p.id}" class="edit-prod-btn flex-1 py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs border border-amber-200 flex items-center justify-center gap-1 transition">
-                    <span>✏️</span> Modificar
-                  </button>
-                  <button type="button" data-quote-prod="${p.id}" class="send-prod-to-quote-btn flex-1 py-2 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1 transition">
-                    <span>➕</span> Cotizar
-                  </button>
-                  <button type="button" data-delete-prod="${p.id}" class="delete-prod-btn p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition" title="Eliminar">
-                    <span>🗑️</span>
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
+            <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl p-2.5 text-xs border border-slate-100 dark:border-slate-700">
+              <div><span class="text-[10px] text-slate-400 block font-semibold uppercase">Inventario</span><div class="mt-0.5 text-[11px]">${stockHtml(p)}</div></div>
+              <div class="text-right"><span class="text-[10px] text-slate-400 block font-semibold uppercase">Margen</span><div class="mt-0.5">${marginHtml(p)}</div></div>
+              <div><span class="text-[10px] text-slate-400 block font-semibold uppercase">Costo</span><strong class="text-slate-700 dark:text-slate-200 text-[12px] tabular-nums">${formatCurrency(xpProductCost(p))}</strong>${costSub(p)}</div>
+              <div class="text-right"><span class="text-[10px] text-slate-400 block font-semibold uppercase">Precio venta</span><strong class="text-slate-900 dark:text-white text-sm tabular-nums">${formatCurrency(p.price)}</strong></div>
+            </div>
+            <div class="grid grid-cols-5 gap-1.5">${actions(p, true)}</div>
+          </div>`).join('') : `<div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 text-center text-slate-500 text-xs">${empty}</div>`;
       }
 
       populateRecipeSimulator();
@@ -724,9 +770,14 @@
         document.getElementById('rec-base-pax').value = prod.basePax || 1;
         document.getElementById('rec-price').value = prod.price || 0;
         document.getElementById('rec-desc').value = prod.desc || '';
+        const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+        setV('rec-glassware', prod.glassware || '');
+        setV('rec-waste', prod.waste || '');
+        setV('rec-category', prod.category || '');
+        const recActive = document.getElementById('rec-active'); if (recActive) recActive.checked = prod.active !== false;
 
         const ingSel = document.getElementById('rec-ing-select');
-        const simples = state.products.filter(p => p.type === 'simple');
+        const simples = state.products.filter(p => p.type === 'simple' && p.active !== false);
         if (ingSel) {
           ingSel.innerHTML = simples.map(s => `<option value="${s.id}">${s.name} (Base: ${formatCurrency(s.cost)} / ${s.unit})</option>`).join('');
         }
@@ -750,6 +801,14 @@
         document.getElementById('sp-cost').value = prod.cost !== undefined ? prod.cost : 0;
         document.getElementById('sp-price').value = prod.price !== undefined ? prod.price : 0;
         document.getElementById('sp-desc').value = prod.desc || '';
+        const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+        setV('sp-category', prod.category || '');
+        setV('sp-min-stock', prod.minStock !== undefined && prod.minStock !== null ? prod.minStock : '');
+        setV('sp-pack-name', prod.pack?.name || '');
+        setV('sp-pack-size', prod.pack?.size || '');
+        setV('sp-pack-price', prod.pack?.price || '');
+        const spActive = document.getElementById('sp-active'); if (spActive) spActive.checked = prod.active !== false;
+        if (typeof window.xpRefreshSimpleForm === 'function') window.xpRefreshSimpleForm();
 
         document.getElementById('modal-simple-product')?.classList.remove('hidden');
         document.getElementById('sp-name')?.focus();
@@ -760,7 +819,7 @@
     function populateRecipeSimulator() {
       const sel = document.getElementById('sim-recipe-select');
       if (!sel) return;
-      const recipes = state.products.filter(p => p.type === 'compuesto');
+      const recipes = state.products.filter(p => p.type === 'compuesto' && p.active !== false);
       if (recipes.length === 0) {
         sel.innerHTML = `<option value="">No hay recetas compuestas creadas</option>`;
       } else {
@@ -783,7 +842,7 @@
     // Cálculo único del simulador (lo usan la pantalla y "Llevar a la cotización")
     function getRecipeSimulation() {
       const sel = document.getElementById('sim-recipe-select');
-      const rec = state.products.find(p => p.id === sel?.value) || state.products.find(p => p.type === 'compuesto');
+      const rec = state.products.find(p => p.id === sel?.value) || state.products.find(p => p.type === 'compuesto' && p.active !== false);
       const pax = Math.max(1, Math.round(Number(document.getElementById('sim-pax-input')?.value) || 1));
       const marginPct = Math.min(95, Math.max(0, Number(document.getElementById('sim-margin-slider')?.value) || 50));
       const wasteInput = document.getElementById('sim-waste-input');
@@ -830,7 +889,7 @@
 
       // Al cambiar de receta, la merma vuelve a la definida en la receta
       const wasteInput = document.getElementById('sim-waste-input');
-      const recNow = state.products.find(p => p.id === sel.value) || state.products.find(p => p.type === 'compuesto');
+      const recNow = state.products.find(p => p.id === sel.value) || state.products.find(p => p.type === 'compuesto' && p.active !== false);
       if (wasteInput && recNow && wasteInput.dataset.recipe !== recNow.id) {
         wasteInput.dataset.recipe = recNow.id;
         wasteInput.value = String(parseRecipeWastePct(recNow));
@@ -904,7 +963,8 @@
       const status = l => {
         if (!l.tracked) return `<span class="xp-sim-badge">Sin control de inventario</span>`;
         if (l.toBuy <= 0) return `<span class="xp-sim-badge ok">✅ Alcanza</span>`;
-        return `<span class="xp-sim-badge warn">⚠️ Comprar ${num(l.toBuy)} ${esc(l.insumo.unit)}</span>`;
+        const pk = l.insumo.pack && Number(l.insumo.pack.size) > 0 ? ` ≈ ${Math.ceil(l.toBuy / Number(l.insumo.pack.size) - 1e-9)} ${esc((l.insumo.pack.name || 'und').toLowerCase())}` : '';
+        return `<span class="xp-sim-badge warn">⚠️ Comprar ${num(l.toBuy)} ${esc(l.insumo.unit)}${pk}</span>`;
       };
       const need = l => `${num(l.needRecUnit, 1)} ${esc(l.ing.unit)}${l.ing.unit !== l.insumo.unit ? ` <span class="block text-[10px] text-slate-400 font-normal">(${num(l.needBaseUnit)} ${esc(l.insumo.unit)})</span>` : ''}`;
 

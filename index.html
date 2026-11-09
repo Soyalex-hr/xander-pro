@@ -1394,70 +1394,89 @@
     <!-- ==========================================
          VIEW 3: MÓDULO DE PRODUCTOS, INVENTARIO Y RECETAS COMPUESTAS
          ========================================== -->
-    <section id="view-productos" class="hidden space-y-5">
-      <!-- Header Banner -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-slate-900">Catálogo de Productos, Insumos y Recetas</h2>
-          <p class="text-xs text-slate-500 mt-0.5">
-            Crea insumos (Litros, Onzas, Kilos, Unidades), productos simples y recetas compuestas por persona (Pax).
-          </p>
+    <section id="view-productos" class="hidden space-y-4 xp-cat">
+      <!-- Encabezado -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Productos, insumos y recetas</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Insumos con costo e inventario, servicios y recetas por persona. El margen se calcula con el costo actual de cada insumo.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" id="btn-open-simple-product-modal" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition flex items-center justify-center gap-1.5">
-            <span>+</span> Nuevo Insumo
+        <div class="flex flex-wrap lg:flex-nowrap lg:shrink-0 items-center gap-2">
+          <button type="button" id="btn-open-simple-product-modal" class="xp-cat-btn">
+            <span>+</span> Nuevo insumo o servicio
           </button>
-          <button type="button" id="btn-open-recipe-modal" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
-            <span>🍹</span> + Nueva Receta
+          <button type="button" id="btn-open-recipe-modal" class="xp-cat-btn xp-cat-btn-primary">
+            <span>🍹</span> Nueva receta
           </button>
-        </div>
-      </div>
-
-      <!-- Filter Tabs and Search Bar -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 overflow-x-auto no-scrollbar max-w-full">
-          <button type="button" data-prod-filter="all" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white whitespace-nowrap">
-            Todos
+          <button type="button" id="btn-cat-export" class="xp-cat-btn" title="Descargar el catálogo para abrirlo en Excel">
+            <span>📥</span> Exportar
           </button>
-          <button type="button" data-prod-filter="compuesto" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-            🍹 Recetas Compuestas
+          <button type="button" id="btn-cat-import" class="xp-cat-btn" title="Cargar precios, costos y productos desde Excel (CSV)">
+            <span>📤</span> Importar
           </button>
-          <button type="button" data-prod-filter="simple" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-            📦 Insumos / Simples
-          </button>
-          <button type="button" data-prod-filter="no_stock" class="prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-            ⚡ Bajo Pedido
-          </button>
-        </div>
-
-        <div class="relative w-full sm:w-72">
-          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
-          <input id="prod-search-input" type="text" placeholder="Buscar por nombre, insumo o receta..." class="w-full rounded-xl border border-slate-300 bg-white pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input type="file" id="cat-import-file" accept=".csv,text/csv" class="hidden" />
         </div>
       </div>
 
-      <!-- Desktop Products Table (visible on md+) -->
-      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-              <th class="py-3 px-4">Producto / Receta</th>
-              <th class="py-3 px-4">Tipo</th>
-              <th class="py-3 px-4">Unidad</th>
-              <th class="py-3 px-4">Stock / Estado</th>
-              <th class="py-3 px-4 text-right">Costo Unit/Pax</th>
-              <th class="py-3 px-4 text-right">Precio Venta</th>
-              <th class="py-3 px-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="products-catalog-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
-        </table>
+      <!-- Resumen -->
+      <div id="cat-summary" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+      <!-- Filtros -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-3 space-y-2.5">
+        <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filtrar productos">
+          <button type="button" data-prod-filter="all" class="prod-filter-btn" aria-pressed="true">Todos</button>
+          <button type="button" data-prod-filter="compuesto" class="prod-filter-btn" aria-pressed="false">🍹 Recetas</button>
+          <button type="button" data-prod-filter="simple" class="prod-filter-btn" aria-pressed="false">📦 Insumos</button>
+          <button type="button" data-prod-filter="servicio" class="prod-filter-btn" aria-pressed="false">🎧 Servicios</button>
+          <button type="button" data-prod-filter="low_stock" class="prod-filter-btn" aria-pressed="false">⚠️ Stock bajo</button>
+          <button type="button" data-prod-filter="low_margin" class="prod-filter-btn" aria-pressed="false">📉 Margen bajo</button>
+          <button type="button" data-prod-filter="no_stock" class="prod-filter-btn" aria-pressed="false">⚡ Bajo pedido</button>
+          <button type="button" data-prod-filter="inactive" class="prod-filter-btn" aria-pressed="false">⏸️ Inactivos</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-[1fr_200px_200px] gap-2">
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+            <input id="prod-search-input" type="search" autocomplete="off" placeholder="Buscar por nombre o descripción…" class="w-full rounded-xl border border-slate-300 bg-white pl-8 pr-3 py-2 text-xs min-h-[44px]" />
+          </div>
+          <select id="prod-category-filter" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold min-h-[44px]" aria-label="Filtrar por categoría">
+            <option value="">Todas las categorías</option>
+          </select>
+          <select id="prod-sort-select" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold min-h-[44px]" aria-label="Ordenar productos">
+            <option value="name:asc">Ordenar: nombre A-Z</option>
+            <option value="name:desc">Ordenar: nombre Z-A</option>
+            <option value="category:asc">Ordenar: categoría</option>
+            <option value="margin:asc">Ordenar: menor margen</option>
+            <option value="margin:desc">Ordenar: mayor margen</option>
+            <option value="price:desc">Ordenar: precio mayor</option>
+            <option value="price:asc">Ordenar: precio menor</option>
+            <option value="cost:desc">Ordenar: costo mayor</option>
+            <option value="stock:asc">Ordenar: menos stock</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Mobile Products Responsive Cards (visible on mobile < md, NO horizontal scroll!) -->
-      <div id="products-catalog-cards" class="md:hidden space-y-3">
-        <!-- Rendered dynamically without horizontal scroll -->
+      <!-- Tabla (computador) -->
+      <div class="hidden md:block bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300">
+                <th class="py-3 px-4"><button type="button" class="xp-cat-sort" data-sort="name">Producto</button></th>
+                <th class="py-3 px-3"><button type="button" class="xp-cat-sort" data-sort="category">Categoría</button></th>
+                <th class="py-3 px-3"><button type="button" class="xp-cat-sort" data-sort="stock">Inventario</button></th>
+                <th class="py-3 px-3 text-right"><button type="button" class="xp-cat-sort" data-sort="cost">Costo</button></th>
+                <th class="py-3 px-3 text-right"><button type="button" class="xp-cat-sort" data-sort="price">Precio venta</button></th>
+                <th class="py-3 px-3 text-right"><button type="button" class="xp-cat-sort" data-sort="margin">Margen</button></th>
+                <th class="py-3 px-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="products-catalog-tbody" class="divide-y divide-slate-200 dark:divide-slate-700 text-xs"></tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- Tarjetas (celular) -->
+      <div id="products-catalog-cards" class="md:hidden space-y-3"></div>
     </section>
 
     <!-- ==========================================
@@ -3868,8 +3887,9 @@
   <!-- ==========================================
        MODAL 1: CREAR / EDITAR PRODUCTO SIMPLE O INSUMO
        ========================================== -->
-  <div id="modal-simple-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+  <datalist id="xp-cat-categories"></datalist>
+  <div id="modal-simple-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4 my-8">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 id="modal-sp-title" class="text-base font-bold text-slate-900">📦 Crear / Editar Producto Simple o Insumo</h3>
         <button type="button" data-close-modal="modal-simple-product" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
@@ -3879,6 +3899,10 @@
         <div class="sm:col-span-2">
           <label for="sp-name" class="block font-semibold text-slate-700 mb-1">Nombre del Producto / Servicio / Insumo</label>
           <input id="sp-name" type="text" placeholder="Ej. Ron Blanco Añejo / Servicio de DJ / Botella Whisky" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="sp-category" class="block font-semibold text-slate-700 mb-1">Categoría</label>
+          <input id="sp-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas, Alimentos, Servicios, Decoración, Personal" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
         </div>
         <div>
           <label for="sp-unit" class="block font-semibold text-slate-700 mb-1">Unidad de Medida Base</label>
@@ -3908,9 +3932,37 @@
           <label for="sp-cost" class="block font-semibold text-slate-700 mb-1">Costo por Unidad Base ($)</label>
           <input id="sp-cost" type="number" step="100" value="25000" class="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums" />
         </div>
+        <div id="sp-min-stock-box">
+          <label for="sp-min-stock" class="block font-semibold text-slate-700 mb-1">Stock mínimo (alerta)</label>
+          <input id="sp-min-stock" type="number" step="any" min="0" placeholder="Ej. 2" class="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums" />
+          <p class="text-[10px] text-slate-500 mt-1">Avisa en Inicio cuando quede en esta cantidad o menos.</p>
+        </div>
+        <div class="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2" id="sp-pack-box">
+          <div class="font-semibold text-slate-700">Presentación de compra <span class="font-normal text-slate-500">(opcional)</span></div>
+          <p class="text-[10px] text-slate-500 -mt-1">Si compras en botellas, cajas o bultos, escribe cuánto trae y cuánto cuesta: el costo por unidad base se calcula solo.</p>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label for="sp-pack-name" class="block text-[11px] text-slate-600 mb-1">Se compra por</label>
+              <input id="sp-pack-name" type="text" placeholder="Botella" class="w-full rounded-lg border border-slate-300 px-2.5 py-2" />
+            </div>
+            <div>
+              <label for="sp-pack-size" class="block text-[11px] text-slate-600 mb-1">Trae <span id="sp-pack-unit-label">und</span></label>
+              <input id="sp-pack-size" type="number" step="any" min="0" placeholder="0,75" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 tabular-nums" />
+            </div>
+            <div>
+              <label for="sp-pack-price" class="block text-[11px] text-slate-600 mb-1">Precio de compra</label>
+              <input id="sp-pack-price" type="number" step="100" min="0" placeholder="51000" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 tabular-nums" />
+            </div>
+          </div>
+          <p id="sp-pack-hint" class="text-[11px] font-semibold text-slate-600"></p>
+        </div>
         <div class="sm:col-span-2">
-          <label for="sp-price" class="block font-bold text-emerald-800 mb-1">Precio de Venta Sugerido ($)</label>
+          <label for="sp-price" class="block font-bold text-emerald-800 mb-1">Precio de venta ($)</label>
           <input id="sp-price" type="number" step="100" value="45000" class="w-full rounded-lg border-2 border-emerald-400 px-3 py-2 font-bold tabular-nums" />
+        </div>
+        <div class="sm:col-span-2 flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2">
+          <span id="sp-margin-hint" class="text-[11px] font-bold text-slate-600">Margen: —</span>
+          <label class="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-700 cursor-pointer min-h-[36px]"><input id="sp-active" type="checkbox" checked class="w-4 h-4" /> Activo (aparece al cotizar)</label>
         </div>
         <div class="sm:col-span-2">
           <label for="sp-desc" class="block font-semibold text-slate-700 mb-1">Descripción Comercial (Para el PDF)</label>
@@ -3954,6 +4006,13 @@
         <div class="sm:col-span-12">
           <label for="rec-desc" class="block font-semibold text-slate-700 mb-1">Descripción Comercial para el PDF</label>
           <input id="rec-desc" type="text" placeholder="Ej. Incluye 3 cócteles de autor por persona, cristalería, hielo y fruta deshidratada." class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+        </div>
+        <div class="sm:col-span-6">
+          <label for="rec-category" class="block font-semibold text-slate-700 mb-1">Categoría</label>
+          <input id="rec-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas, Alimentos" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+        </div>
+        <div class="sm:col-span-6 flex items-end">
+          <label class="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-700 cursor-pointer min-h-[40px]"><input id="rec-active" type="checkbox" checked class="w-4 h-4" /> Activa (aparece al cotizar y en el simulador)</label>
         </div>
         <div class="sm:col-span-7">
           <label for="rec-glassware" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Cristalería / Montaje Recomendado</label>
@@ -4001,6 +4060,7 @@
           <span>Costo calculado por 1 Persona (Pax):</span>
           <span id="rec-calculated-cost-per-pax" class="text-sm text-indigo-700 tabular-nums">$0</span>
         </div>
+        <div id="rec-margin-hint" class="text-right text-[11px] font-bold text-slate-600"></div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
@@ -4169,7 +4229,7 @@
        MODAL 5: ENVIAR COTIZACIÓN POR CORREO ELECTRÓNICO
        ========================================== -->
   <div id="modal-email" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4 my-8">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="text-base font-bold text-slate-900">✉️ Enviar Cotización y PDF por Correo</h3>
         <button type="button" data-close-modal="modal-email" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
@@ -5383,5 +5443,6 @@
   <script src="js/14-inicio.js"></script>
   <script src="js/15-cotizador-ux.js"></script>
   <script src="js/16-correo.js"></script>
+  <script src="js/17-catalogo.js"></script>
 </body>
 </html>

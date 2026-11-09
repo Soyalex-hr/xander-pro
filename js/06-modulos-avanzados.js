@@ -164,6 +164,18 @@ function generateSystemNotifications() {
 
   // 5. Inventario Insuficiente (Stock agotado)
   (state.products || []).forEach(p => {
+    if (p.active === false) return;
+    if (p.trackStock && Number(p.stock) > 0 && typeof xpStockStatus === 'function' && xpStockStatus(p) === 'low') {
+      notifs.push({
+        id: `notif-lowstock-${p.id}`,
+        type: 'low_stock',
+        severity: 'warning',
+        badge: '🟠 Stock bajo',
+        title: `Stock bajo: ${p.name}`,
+        message: `Quedan ${Number(p.stock).toLocaleString('es-CO', { maximumFractionDigits: 2 })} ${p.unit} (mínimo ${p.minStock}). Conviene reabastecer.`,
+        productId: p.id
+      });
+    }
     if (p.trackStock && Number(p.stock) <= 0) {
       notifs.push({
         id: `notif-stock-${p.id}`,

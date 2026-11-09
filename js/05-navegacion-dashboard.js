@@ -462,7 +462,7 @@
       // 5. Inventario insuficiente
       let lowStockCount = 0;
       (state.products || []).forEach(p => {
-        if (p.trackStock && Number(p.stock) <= 0) lowStockCount++;
+        if (p.active !== false && (typeof xpStockStatus === 'function' ? ['out', 'low'].includes(xpStockStatus(p)) : (p.trackStock && Number(p.stock) <= 0))) lowStockCount++;
       });
 
       // 6. Pagos pendientes (Aprobadas con saldo por cobrar)
@@ -533,13 +533,13 @@
           }
         },
         {
-          title: 'Inventario Insuficiente (Agotado)',
-          badge: lowStockCount > 0 ? `${lowStockCount} en cero` : 'Stock OK',
+          title: 'Inventario bajo o agotado',
+          badge: lowStockCount > 0 ? `${lowStockCount} por reabastecer` : 'Stock OK',
           badgeClass: lowStockCount > 0 ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
           icon: '📦',
-          desc: lowStockCount > 0 ? `${lowStockCount} insumos en bodega tienen existencia en cero.` : 'Existencias de insumos en bodega con stock disponible.',
+          desc: lowStockCount > 0 ? `${lowStockCount} insumo(s) agotados o por debajo del stock mínimo.` : 'Existencias de insumos en bodega con stock disponible.',
           actionText: 'Ir a Almacén ➔',
-          action: () => switchView('productos')
+          action: () => { switchView('productos'); if (window.xpSetCatFilter) window.xpSetCatFilter('low_stock'); }
         },
         {
           title: 'Pagos y Saldos Pendientes',
@@ -1667,14 +1667,10 @@ ${state.company.phone}`;
 
       // Products View Filters & Simulator
       document.querySelectorAll('.prod-filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.prod-filter-btn').forEach(b => {
-            b.className = 'prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100';
-          });
-          btn.className = 'prod-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white';
-          renderProductsCatalog();
-        });
+        btn.addEventListener('click', () => window.xpSetCatFilter(btn.getAttribute('data-prod-filter')));
       });
+      document.getElementById('prod-category-filter')?.addEventListener('change', renderProductsCatalog);
+      document.getElementById('prod-sort-select')?.addEventListener('change', e => window.xpSetCatSort(e.target.value));
 
       document.getElementById('prod-search-input')?.addEventListener('input', renderProductsCatalog);
       document.getElementById('btn-goto-simulador-screen')?.addEventListener('click', () => switchView('simulador'));
@@ -1773,19 +1769,17 @@ ${state.company.phone}`;
           }
           const delBtn = e.target.closest('.delete-prod-btn');
           if (delBtn) {
-            const prodId = delBtn.getAttribute('data-delete-prod');
-            const prod = state.products.find(p => p.id === prodId);
-            const prodName = prod ? prod.name : 'este producto';
-            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente "${prodName}" del catálogo?\n\nEsta acción no se puede deshacer.`)) {
-              return;
-            }
-            state.products = state.products.filter(p => p.id !== prodId);
-            saveState();
-            renderProductsCatalog();
-            populatePickerProducts();
-            populateRecipeSimulator();
-            renderQuoteEditorAndPdf();
-            showToast(`🗑️ "${prodName}" eliminado del catálogo`);
+            window.xpRequestDeleteProduct(delBtn.getAttribute('data-delete-prod'));
+            return;
+          }
+          const dupBtn = e.target.closest('.xp-dup-prod-btn');
+          if (dupBtn) {
+            window.xpDuplicateProduct(dupBtn.getAttribute('data-dup-prod'));
+            return;
+          }
+          const togBtn = e.target.closest('.xp-toggle-prod-btn');
+          if (togBtn) {
+            window.xpToggleProductActive(togBtn.getAttribute('data-toggle-prod'));
             return;
           }
         });
@@ -1826,6 +1820,9 @@ ${state.company.phone}`;
         document.getElementById('sp-cost').value = 20000;
         document.getElementById('sp-price').value = 45000;
         document.getElementById('sp-desc').value = '';
+        ['sp-category', 'sp-min-stock', 'sp-pack-name', 'sp-pack-size', 'sp-pack-price'].forEach(fid => { const el = document.getElementById(fid); if (el) el.value = ''; });
+        const spActive = document.getElementById('sp-active'); if (spActive) spActive.checked = true;
+        if (typeof window.xpRefreshSimpleForm === 'function') window.xpRefreshSimpleForm();
         document.getElementById('modal-simple-product')?.classList.remove('hidden');
         document.getElementById('sp-name')?.focus();
       });
@@ -1843,6 +1840,7 @@ ${state.company.phone}`;
         const cost = Number(document.getElementById('sp-cost').value) || 0;
         const price = Number(document.getElementById('sp-price').value) || 0;
         const desc = document.getElementById('sp-desc').value.trim();
+        const extra = typeof window.xpReadSimpleExtras === 'function' ? window.xpReadSimpleExtras() : {};
 
         if (id) {
           // Modificar existente
@@ -1855,6 +1853,9 @@ ${state.company.phone}`;
             prod.cost = cost;
             prod.price = price;
             prod.desc = desc;
+            Object.assign(prod, extra);
+            if (!extra.pack) delete prod.pack;
+            if (extra.minStock === undefined) delete prod.minStock;
           }
           showToast(`✅ Producto "${name}" modificado exitosamente`);
         } else {
@@ -1868,7 +1869,8 @@ ${state.company.phone}`;
             stock,
             cost,
             price,
-            desc
+            desc,
+            ...extra
           });
           showToast(`✅ Producto "${name}" creado exitosamente`);
         }
@@ -1893,9 +1895,11 @@ ${state.company.phone}`;
         document.getElementById('rec-base-pax').value = 1;
         document.getElementById('rec-price').value = 40000;
         document.getElementById('rec-desc').value = '';
+        ['rec-glassware', 'rec-waste', 'rec-category'].forEach(fid => { const el = document.getElementById(fid); if (el) el.value = ''; });
+        const recActive = document.getElementById('rec-active'); if (recActive) recActive.checked = true;
 
         const ingSel = document.getElementById('rec-ing-select');
-        const simples = state.products.filter(p => p.type === 'simple');
+        const simples = state.products.filter(p => p.type === 'simple' && p.active !== false);
         if (ingSel) {
           ingSel.innerHTML = simples.map(s => `<option value="${s.id}">${s.name} (Base: ${formatCurrency(s.cost)} / ${s.unit})</option>`).join('');
         }
@@ -1934,6 +1938,12 @@ ${state.company.phone}`;
         const basePax = Math.max(1, Number(document.getElementById('rec-base-pax').value) || 1);
         const price = Number(document.getElementById('rec-price').value) || 0;
         const desc = document.getElementById('rec-desc').value.trim();
+        const recExtra = {
+          glassware: (document.getElementById('rec-glassware')?.value || '').trim(),
+          waste: (document.getElementById('rec-waste')?.value || '').trim(),
+          category: (document.getElementById('rec-category')?.value || '').trim(),
+          active: document.getElementById('rec-active') ? document.getElementById('rec-active').checked : true
+        };
 
         if (id) {
           // Modificar receta existente
@@ -1944,6 +1954,7 @@ ${state.company.phone}`;
             rec.price = price;
             rec.desc = desc;
             rec.ingredients = [...tempRecipeIngredients];
+            Object.assign(rec, recExtra);
             rec.cost = Math.round(calculateRecipeUnitCost(rec));
           }
           showToast(`✅ Receta "${name}" modificada exitosamente`);
@@ -1960,7 +1971,8 @@ ${state.company.phone}`;
             cost: 0,
             price,
             desc,
-            ingredients: [...tempRecipeIngredients]
+            ingredients: [...tempRecipeIngredients],
+            ...recExtra
           };
           newRec.cost = Math.round(calculateRecipeUnitCost(newRec));
           state.products.unshift(newRec);
