@@ -765,7 +765,7 @@
         sel.innerHTML = `<option value="">No hay recetas compuestas creadas</option>`;
       } else {
         const prevVal = sel.value;
-        sel.innerHTML = recipes.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        sel.innerHTML = recipes.map(r => `<option value="${r.id}">${String(r.name || '').replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]))}</option>`).join('');
         if (prevVal && recipes.some(r => r.id === prevVal)) {
           sel.value = prevVal;
         }
@@ -773,134 +773,177 @@
       renderRecipeSimulatorResults();
     }
 
+    // Merma: toma el valor más alto escrito en la receta ("3% - 5%" → 5)
+    function parseRecipeWastePct(rec) {
+      const nums = String(rec?.waste ?? '').replace(',', '.').match(/\d+(\.\d+)?/g);
+      if (!nums) return 0;
+      return Math.min(50, Math.max(...nums.map(Number)));
+    }
+
+    // Cálculo único del simulador (lo usan la pantalla y "Llevar a la cotización")
+    function getRecipeSimulation() {
+      const sel = document.getElementById('sim-recipe-select');
+      const rec = state.products.find(p => p.id === sel?.value) || state.products.find(p => p.type === 'compuesto');
+      const pax = Math.max(1, Math.round(Number(document.getElementById('sim-pax-input')?.value) || 1));
+      const marginPct = Math.min(95, Math.max(0, Number(document.getElementById('sim-margin-slider')?.value) || 50));
+      const wasteInput = document.getElementById('sim-waste-input');
+      const wastePct = Math.min(50, Math.max(0, Number(String(wasteInput?.value ?? '0').replace(',', '.')) || 0));
+      const priceMode = window.xpSimPriceMode === 'catalog' ? 'catalog' : 'margin';
+      if (!rec) return { rec: null, pax, marginPct, wastePct, priceMode, lines: [] };
+
+      const basePax = Math.max(1, Number(rec.basePax) || 1);
+      const factor = pax / basePax;
+      const wasteFactor = 1 + wastePct / 100;
+      const lines = (rec.ingredients || []).map(ing => {
+        const insumo = state.products.find(p => p.id === ing.productId);
+        if (!insumo) return null;
+        const dosePerPax = (Number(ing.qty) || 0) / basePax;
+        const needRecUnit = (Number(ing.qty) || 0) * factor * wasteFactor;
+        const needBaseUnit = convertUnits(needRecUnit, ing.unit, insumo.unit);
+        const cost = needBaseUnit * (Number(insumo.cost) || 0);
+        const stock = Number(insumo.stock) || 0;
+        const toBuy = insumo.trackStock ? Math.max(0, needBaseUnit - stock) : needBaseUnit;
+        return { ing, insumo, dosePerPax, needRecUnit, needBaseUnit, cost, stock, toBuy, tracked: !!insumo.trackStock };
+      }).filter(Boolean);
+
+      const totalCost = lines.reduce((s, l) => s + l.cost, 0);
+      const unitCost = totalCost / pax;
+      const markupFactor = marginPct >= 95 ? 20 : 1 / (1 - marginPct / 100);
+      const marginPrice = Math.ceil((unitCost * markupFactor) / 100) * 100;
+      const catalogPrice = Number(rec.price) || 0;
+      const price = priceMode === 'catalog' && catalogPrice > 0 ? catalogPrice : marginPrice;
+      const totalSale = price * pax;
+      const grossProfit = totalSale - totalCost;
+      const realMargin = totalSale > 0 ? (grossProfit / totalSale) * 100 : 0;
+      const catalogMargin = catalogPrice > 0 ? ((catalogPrice - unitCost) / catalogPrice) * 100 : null;
+      return { rec, pax, marginPct, wastePct, priceMode, lines, totalCost, unitCost, marginPrice, catalogPrice, catalogMargin, price, totalSale, grossProfit, realMargin };
+    }
+    window.getRecipeSimulation = getRecipeSimulation;
+
     function renderRecipeSimulatorResults() {
       const sel = document.getElementById('sim-recipe-select');
-      const paxInput = document.getElementById('sim-pax-input');
-      const marginSlider = document.getElementById('sim-margin-slider');
       if (!sel) return;
+      const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const num = (v, d = 2) => (Number(v) || 0).toLocaleString('es-CO', { maximumFractionDigits: d });
+      const pct = v => (Number(v) || 0).toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' %';
+      const setText = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
 
-      const pax = Math.max(1, Number(paxInput?.value) || 1);
-      const marginPct = Number(marginSlider?.value) || 50;
+      // Al cambiar de receta, la merma vuelve a la definida en la receta
+      const wasteInput = document.getElementById('sim-waste-input');
+      const recNow = state.products.find(p => p.id === sel.value) || state.products.find(p => p.type === 'compuesto');
+      if (wasteInput && recNow && wasteInput.dataset.recipe !== recNow.id) {
+        wasteInput.dataset.recipe = recNow.id;
+        wasteInput.value = String(parseRecipeWastePct(recNow));
+      }
 
-      // Update Pax and Margin labels
-      const paxDisplay = document.getElementById('sim-pax-display');
-      if (paxDisplay) paxDisplay.textContent = `${pax} Pax`;
+      const sim = getRecipeSimulation();
+      const { rec, pax, marginPct, wastePct } = sim;
 
-      const quickPaxLabel = document.getElementById('sim-quick-add-pax-label');
-      if (quickPaxLabel) quickPaxLabel.textContent = `${pax} Pax`;
+      setText('sim-pax-display', `${pax} Pax`);
+      setText('sim-quick-add-pax-label', `${pax} Pax`);
+      setText('sim-margin-label', `${marginPct} %`);
+      setText('sim-waste-chip', `${num(wastePct, 1)} %`);
+      document.querySelectorAll('.sim-quick-pax-btn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.pax) === pax));
+      document.querySelectorAll('[data-sim-price-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.simPriceMode === sim.priceMode)));
 
-      const marginLabel = document.getElementById('sim-margin-label');
-      if (marginLabel) marginLabel.textContent = `${marginPct}% Margen`;
-
-      const rec = state.products.find(p => p.id === sel.value) || state.products.find(p => p.type === 'compuesto');
       const tbody = document.getElementById('sim-ingredients-tbody');
+      const tfoot = document.getElementById('sim-ingredients-tfoot');
+      const cards = document.getElementById('sim-ingredients-cards');
       const countEl = document.getElementById('sim-ingredients-count');
-      const descEl = document.getElementById('sim-recipe-desc');
-      const specUnit = document.getElementById('sim-spec-unit');
+      const emptyRow = msg => {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">${msg}</td></tr>`;
+        if (tfoot) tfoot.innerHTML = '';
+        if (cards) cards.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">${msg}</div>`;
+      };
 
       if (!rec) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No hay ninguna receta seleccionada.</td></tr>`;
+        emptyRow('No hay recetas creadas. Crea una receta (producto compuesto) en Productos & Insumos.');
         if (countEl) countEl.textContent = '0 insumos';
+        ['sim-kpi-unit-cost', 'sim-kpi-total-cost', 'sim-kpi-suggested-price', 'sim-kpi-gross-profit', 'sim-quick-add-price-label'].forEach(id => setText(id, formatCurrency(0)));
+        setText('sim-catalog-note', '');
         return;
       }
 
-      if (descEl) descEl.textContent = rec.desc || 'Receta gastronómica / coctelería para eventos.';
-      if (specUnit) specUnit.textContent = `${rec.unit || 'Por Persona'} (Base ${rec.basePax || 1} Pax)`;
-      const specGlass = document.getElementById('sim-spec-glassware');
-      if (specGlass) specGlass.textContent = rec.glassware || 'Copa Balón / Vaso Largo';
-      const specWaste = document.getElementById('sim-spec-waste');
-      if (specWaste) specWaste.textContent = rec.waste ? (rec.waste + (rec.waste.includes('%') ? '' : '%')) : '3% - 5%';
+      setText('sim-recipe-desc', rec.desc || 'Esta receta no tiene descripción.');
+      setText('sim-spec-unit', `${rec.unit || 'Por persona'} · base ${rec.basePax || 1} pax`);
+      setText('sim-spec-glassware', rec.glassware || 'No definida');
+      setText('sim-spec-waste', rec.waste ? (String(rec.waste) + (String(rec.waste).includes('%') ? '' : ' %')) : 'No definida');
+      setText('sim-waste-hint', rec.waste ? `La receta indica ${rec.waste}${String(rec.waste).includes('%') ? '' : ' %'}. Se suma a las cantidades y al costo.` : 'Se suma a las cantidades a comprar y al costo.');
 
-      const unitCost = calculateRecipeUnitCost(rec);
-      const totalCost = unitCost * pax;
+      // Indicadores
+      setText('sim-kpi-unit-cost', formatCurrency(sim.unitCost));
+      setText('sim-kpi-unit-cost-sub', wastePct > 0 ? `Incluye ${num(wastePct, 1)} % de merma` : 'Sin merma');
+      setText('sim-kpi-total-cost', formatCurrency(sim.totalCost));
+      setText('sim-kpi-total-cost-sub', `Para ${pax} persona${pax === 1 ? '' : 's'}`);
+      setText('sim-kpi-suggested-price', formatCurrency(sim.price));
+      setText('sim-kpi-suggested-total', `Venta total: ${formatCurrency(sim.totalSale)}`);
+      setText('sim-kpi-gross-profit', formatCurrency(sim.grossProfit));
+      setText('sim-kpi-profit-pct', `Margen real: ${pct(sim.realMargin)}`);
+      setText('sim-quick-add-price-label', formatCurrency(sim.price));
+      const profitEl = document.getElementById('sim-kpi-gross-profit');
+      if (profitEl) profitEl.classList.toggle('is-neg', sim.grossProfit < 0);
 
-      // Calculate suggested price according to margin
-      const markupFactor = marginPct >= 95 ? 10 : (1 / (1 - (marginPct / 100)));
-      const calculatedSuggestedPrice = Math.round(unitCost * markupFactor);
-      const suggestedPrice = Math.max(calculatedSuggestedPrice, Number(rec.price) || 0);
-      const totalSale = suggestedPrice * pax;
-      const grossProfit = totalSale - totalCost;
+      const note = sim.catalogPrice > 0
+        ? (sim.priceMode === 'catalog'
+          ? `Por margen de ${marginPct} % sería ${formatCurrency(sim.marginPrice)}`
+          : `Catálogo: ${formatCurrency(sim.catalogPrice)} (margen ${pct(sim.catalogMargin)})`)
+        : 'Esta receta no tiene precio de catálogo';
+      setText('sim-catalog-note', note);
+      const catBtn = document.getElementById('sim-price-mode-catalog');
+      if (catBtn) catBtn.disabled = !(sim.catalogPrice > 0);
 
-      // Update KPI Cards
-      const kpiUnit = document.getElementById('sim-kpi-unit-cost');
-      if (kpiUnit) kpiUnit.textContent = formatCurrency(unitCost);
+      // Insumos
+      const all = rec.ingredients || [];
+      const missing = all.length - sim.lines.length;
+      if (countEl) countEl.textContent = `${sim.lines.length} insumo${sim.lines.length === 1 ? '' : 's'}${missing ? ` · ${missing} sin encontrar en el catálogo` : ''}`;
+      if (!sim.lines.length) {
+        emptyRow(all.length ? 'Los insumos de esta receta ya no existen en el catálogo. Edita la receta.' : 'Esta receta no tiene insumos. Usa "Modificar receta" para agregarlos.');
+        return;
+      }
 
-      const kpiTotal = document.getElementById('sim-kpi-total-cost');
-      if (kpiTotal) kpiTotal.textContent = formatCurrency(totalCost);
-
-      const kpiTotalSub = document.getElementById('sim-kpi-total-cost-sub');
-      if (kpiTotalSub) kpiTotalSub.textContent = `Para ${pax} personas`;
-
-      const kpiSugg = document.getElementById('sim-kpi-suggested-price');
-      if (kpiSugg) kpiSugg.textContent = formatCurrency(suggestedPrice);
-
-      const kpiSuggTotal = document.getElementById('sim-kpi-suggested-total');
-      if (kpiSuggTotal) kpiSuggTotal.textContent = `Venta total: ${formatCurrency(totalSale)}`;
-
-      const kpiProfit = document.getElementById('sim-kpi-gross-profit');
-      if (kpiProfit) kpiProfit.textContent = formatCurrency(grossProfit);
-
-      const kpiProfitPct = document.getElementById('sim-kpi-profit-pct');
-      if (kpiProfitPct) kpiProfitPct.textContent = `${marginPct}% margen comercial`;
-
-      // Render Ingredients Explosion Table
-      const factor = pax / Math.max(1, Number(rec.basePax) || 1);
-      const ingredients = rec.ingredients || [];
-
-      if (countEl) countEl.textContent = `${ingredients.length} insumos requeridos`;
+      const status = l => {
+        if (!l.tracked) return `<span class="xp-sim-badge">Sin control de inventario</span>`;
+        if (l.toBuy <= 0) return `<span class="xp-sim-badge ok">✅ Alcanza</span>`;
+        return `<span class="xp-sim-badge warn">⚠️ Comprar ${num(l.toBuy)} ${esc(l.insumo.unit)}</span>`;
+      };
+      const need = l => `${num(l.needRecUnit, 1)} ${esc(l.ing.unit)}${l.ing.unit !== l.insumo.unit ? ` <span class="block text-[10px] text-slate-400 font-normal">(${num(l.needBaseUnit)} ${esc(l.insumo.unit)})</span>` : ''}`;
 
       if (tbody) {
-        if (ingredients.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Esta receta no tiene ingredientes registrados. Edítala en la pestaña Productos.</td></tr>`;
-        } else {
-          tbody.innerHTML = ingredients.map(ing => {
-            const insumo = state.products.find(p => p.id === ing.productId);
-            if (!insumo) return '';
-
-            const dosePerPax = Number(ing.qty) / Math.max(1, Number(rec.basePax) || 1);
-            const totalQtyRecUnit = (Number(ing.qty) || 0) * factor;
-            const totalQtyBaseUnit = convertUnits(totalQtyRecUnit, ing.unit, insumo.unit);
-            const lineCost = totalQtyBaseUnit * (Number(insumo.cost) || 0);
-
-            // Stock check
-            let stockStatusHtml = '';
-            if (insumo.trackStock) {
-              const currentStock = Number(insumo.stock) || 0;
-              if (currentStock >= totalQtyBaseUnit) {
-                stockStatusHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✅ Suficiente</span>`;
-              } else {
-                const missing = (totalQtyBaseUnit - currentStock).toFixed(2);
-                stockStatusHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800" title="Faltan ${missing} ${insumo.unit} para el evento">⚠️ Faltan ${missing} ${insumo.unit}</span>`;
-              }
-            } else {
-              stockStatusHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Sin límite</span>`;
-            }
-
-            return `
-              <tr class="hover:bg-slate-50 transition">
-                <td class="py-3 px-4">
-                  <div class="font-bold text-slate-900">${insumo.name}</div>
-                  <div class="text-[11px] text-slate-400">Unidad de compra: ${insumo.unit} · Costo base: ${formatCurrency(insumo.cost)}/${insumo.unit}</div>
-                </td>
-                <td class="py-3 px-3 text-center tabular-nums font-medium text-slate-600">
-                  ${dosePerPax.toFixed(2)} ${ing.unit}
-                </td>
-                <td class="py-3 px-3 text-center tabular-nums font-extrabold text-indigo-700">
-                  ${totalQtyRecUnit.toFixed(1)} ${ing.unit}
-                  ${ing.unit !== insumo.unit ? `<span class="block text-[10px] text-slate-400 font-normal">(${totalQtyBaseUnit.toFixed(2)} ${insumo.unit})</span>` : ''}
-                </td>
-                <td class="py-3 px-3 text-center tabular-nums text-slate-600">
-                  ${insumo.trackStock ? `${insumo.stock} ${insumo.unit}` : 'Ilimitado'}
-                </td>
-                <td class="py-3 px-3 text-center">
-                  ${stockStatusHtml}
-                </td>
-                <td class="py-3 px-4 text-right tabular-nums font-bold text-slate-900">
-                  ${formatCurrency(lineCost)}
-                </td>
-              </tr>
-            `;
-          }).join('');
-        }
+        tbody.innerHTML = sim.lines.map(l => `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+            <td class="py-3 px-4">
+              <div class="font-bold text-slate-900 dark:text-white">${esc(l.insumo.name)}</div>
+              <div class="text-[11px] text-slate-400">${formatCurrency(l.insumo.cost)} / ${esc(l.insumo.unit)}</div>
+            </td>
+            <td class="py-3 px-3 text-center tabular-nums text-slate-600 dark:text-slate-300 whitespace-nowrap">${num(l.dosePerPax)} ${esc(l.ing.unit)}</td>
+            <td class="py-3 px-3 text-center tabular-nums font-extrabold xp-sim-need whitespace-nowrap">${need(l)}</td>
+            <td class="py-3 px-3 text-center tabular-nums text-slate-600 dark:text-slate-300 whitespace-nowrap">${l.tracked ? `${num(l.stock)} ${esc(l.insumo.unit)}` : '—'}</td>
+            <td class="py-3 px-3 text-center">${status(l)}</td>
+            <td class="py-3 px-4 text-right tabular-nums font-bold text-slate-900 dark:text-white whitespace-nowrap">${formatCurrency(l.cost)}</td>
+          </tr>`).join('');
+      }
+      if (tfoot) {
+        tfoot.innerHTML = `<tr class="border-t-2 border-slate-200 dark:border-slate-600 font-bold text-slate-900 dark:text-white">
+          <td class="py-3 px-4" colspan="5">Total insumos para ${pax} persona${pax === 1 ? '' : 's'}${wastePct > 0 ? ` (con ${num(wastePct, 1)} % de merma)` : ''}</td>
+          <td class="py-3 px-4 text-right tabular-nums">${formatCurrency(sim.totalCost)}</td></tr>`;
+      }
+      if (cards) {
+        cards.innerHTML = sim.lines.map(l => `
+          <div class="p-4 space-y-2">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-bold text-sm text-slate-900 dark:text-white">${esc(l.insumo.name)}</div>
+                <div class="text-[11px] text-slate-400">${formatCurrency(l.insumo.cost)} / ${esc(l.insumo.unit)} · ${num(l.dosePerPax)} ${esc(l.ing.unit)} por persona</div>
+              </div>
+              <div class="text-sm font-bold tabular-nums text-slate-900 dark:text-white whitespace-nowrap">${formatCurrency(l.cost)}</div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span class="tabular-nums">Necesitas <strong class="xp-sim-need">${num(l.needRecUnit, 1)} ${esc(l.ing.unit)}</strong>${l.ing.unit !== l.insumo.unit ? ` <span class="text-slate-400">(${num(l.needBaseUnit)} ${esc(l.insumo.unit)})</span>` : ''}</span>
+              ${status(l)}
+            </div>
+          </div>`).join('') + `
+          <div class="p-4 flex items-center justify-between text-sm font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900/40">
+            <span>Total insumos</span><span class="tabular-nums">${formatCurrency(sim.totalCost)}</span>
+          </div>`;
       }
     }

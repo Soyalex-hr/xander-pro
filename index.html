@@ -1463,171 +1463,167 @@
     <!-- ==========================================
          VIEW DEDICADA: MÓDULO DE SIMULADOR DE RECETAS EN PANTALLA COMPLETA
          ========================================== -->
-    <section id="view-simulador" class="hidden space-y-6">
-      <!-- Header Banner -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
-              🧪 Laboratorio Gastronómico & Logístico
-            </span>
-            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Escalamiento en Vivo</span>
-          </div>
-          <h2 class="text-lg font-bold text-slate-900 dark:text-white mt-1">Simulador de Recetas, Escalamiento de Pax y Costos</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Calcula la explosión exacta de insumos, costo unitario por persona, margen comercial y precio de venta recomendado para cualquier volumen de asistentes.</p>
+    <section id="view-simulador" class="hidden space-y-5 xp-sim">
+      <!-- Encabezado -->
+      <div class="xp-sim-head bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Simulador de recetas</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Escala una receta a la cantidad de personas del evento: insumos a comprar, costo por persona, merma y precio de venta según tu margen.</p>
         </div>
-        <div class="flex items-center gap-2">
-          <button type="button" id="btn-sim-edit-recipe" class="px-3.5 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Modificar insumos o precio de esta receta">
-            <span>✏️</span> Modificar Receta
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <button type="button" id="btn-sim-edit-recipe" class="xp-sim-btn" title="Modificar insumos o precio de esta receta">
+            <span>✏️</span> Modificar receta
           </button>
-          <button type="button" id="btn-sim-print-sheet" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
-            <span>🖨️</span> Imprimir Ficha de Insumos
+          <button type="button" id="btn-sim-print-sheet" class="xp-sim-btn">
+            <span>🖨️</span> Imprimir lista de compras
           </button>
-          <button type="button" id="btn-sim-add-to-quote-main" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition">
-            <span>➕</span> Llevar a Cotización Activa
+          <button type="button" id="btn-sim-add-to-quote-main" class="xp-sim-btn xp-sim-btn-primary">
+            <span>➕</span> Llevar a la cotización
           </button>
         </div>
       </div>
 
-      <!-- Simulator Control Panel -->
-      <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white rounded-2xl p-6 shadow-md space-y-5 border border-indigo-900/50">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Select Recipe -->
+      <!-- Panel de control -->
+      <div class="xp-sim-panel rounded-2xl p-5 md:p-6 space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <div>
-            <label for="sim-recipe-select" class="block text-xs font-bold uppercase tracking-wider text-indigo-300 mb-1.5">
-              1. Selecciona la Receta Compuesta
-            </label>
-            <select id="sim-recipe-select" class="w-full rounded-xl bg-slate-800 border border-indigo-400/60 px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </select>
+            <label for="sim-recipe-select" class="xp-sim-label">1. Receta</label>
+            <select id="sim-recipe-select" class="xp-sim-field"></select>
           </div>
 
-          <!-- Number of Guests (Pax) -->
           <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label for="sim-pax-input" class="block text-xs font-bold uppercase tracking-wider text-indigo-300">
-                2. Cantidad de Personas (Pax)
-              </label>
-              <span id="sim-pax-display" class="text-xs font-extrabold text-amber-300 tabular-nums">150 Pax</span>
+            <div class="flex items-center justify-between">
+              <label for="sim-pax-input" class="xp-sim-label">2. Personas</label>
+              <span id="sim-pax-display" class="xp-sim-chip tabular-nums">150 Pax</span>
             </div>
-            <input id="sim-pax-input" type="number" min="1" max="10000" value="150" class="w-full rounded-xl bg-white text-slate-900 px-3.5 py-2 text-sm font-extrabold tabular-nums focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-            <!-- Quick Pax Preset Buttons -->
-            <div class="flex flex-wrap gap-1 mt-2">
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="30">30</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="50">50</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="80">80</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="100">100</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white font-extrabold" data-pax="150">150</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="200">200</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="300">300</button>
-              <button type="button" class="sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200" data-pax="500">500</button>
+            <input id="sim-pax-input" type="number" inputmode="numeric" min="1" max="10000" value="150" class="xp-sim-field tabular-nums" />
+            <div class="flex flex-wrap gap-1 mt-2 no-print">
+              <button type="button" class="sim-quick-pax-btn" data-pax="30">30</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="50">50</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="80">80</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="100">100</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="150">150</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="200">200</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="300">300</button>
+              <button type="button" class="sim-quick-pax-btn" data-pax="500">500</button>
             </div>
           </div>
 
-          <!-- Desired Margin Slider -->
           <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label for="sim-margin-slider" class="block text-xs font-bold uppercase tracking-wider text-indigo-300">
-                3. Margen Comercial Deseado
-              </label>
-              <span id="sim-margin-label" class="text-xs font-extrabold text-emerald-400 tabular-nums">50% Margen</span>
+            <div class="flex items-center justify-between">
+              <label for="sim-margin-slider" class="xp-sim-label">3. Margen deseado</label>
+              <span id="sim-margin-label" class="xp-sim-chip tabular-nums">50 %</span>
             </div>
-            <input id="sim-margin-slider" type="range" min="20" max="85" step="5" value="50" class="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-700 rounded-lg" />
-            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-              <span>20% (Ajustado)</span>
-              <span>50% (Estándar Eventos)</span>
-              <span>85% (Alta Rentabilidad)</span>
+            <input id="sim-margin-slider" type="range" min="20" max="85" step="5" value="50" class="w-full cursor-pointer xp-sim-range" />
+            <div class="flex justify-between text-[10px] xp-sim-hint mt-1">
+              <span>20 % ajustado</span><span>50 % eventos</span><span>85 % alto</span>
             </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between">
+              <label for="sim-waste-input" class="xp-sim-label">4. Merma</label>
+              <span id="sim-waste-chip" class="xp-sim-chip tabular-nums">0 %</span>
+            </div>
+            <input id="sim-waste-input" type="number" inputmode="decimal" min="0" max="50" step="0.5" value="0" class="xp-sim-field tabular-nums" />
+            <p id="sim-waste-hint" class="text-[10px] xp-sim-hint mt-1.5">Se suma a las cantidades a comprar y al costo.</p>
           </div>
         </div>
 
-        <!-- 4 KPI Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
-          <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
-            <div class="text-[10px] uppercase font-bold text-indigo-300">Costo Base / Pax</div>
-            <div id="sim-kpi-unit-cost" class="text-lg font-black text-white tabular-nums mt-0.5">$0</div>
-            <div class="text-[10px] text-slate-400">Por persona atendida</div>
+        <!-- Precio a usar -->
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <span class="xp-sim-label" style="margin:0">Precio de venta</span>
+          <div class="xp-sim-seg" role="group" aria-label="Precio de venta a usar">
+            <button type="button" id="sim-price-mode-margin" data-sim-price-mode="margin" aria-pressed="true">Según margen</button>
+            <button type="button" id="sim-price-mode-catalog" data-sim-price-mode="catalog" aria-pressed="false">Precio de catálogo</button>
           </div>
-          <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
-            <div class="text-[10px] uppercase font-bold text-amber-300">Costo Total Insumos</div>
-            <div id="sim-kpi-total-cost" class="text-lg font-black text-amber-200 tabular-nums mt-0.5">$0</div>
-            <div id="sim-kpi-total-cost-sub" class="text-[10px] text-slate-400">Para 150 invitados</div>
+          <span id="sim-catalog-note" class="text-[11px] xp-sim-hint"></span>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="xp-sim-kpi">
+            <div class="xp-sim-kpi-label">Costo por persona</div>
+            <div id="sim-kpi-unit-cost" class="xp-sim-kpi-value">$ 0</div>
+            <div id="sim-kpi-unit-cost-sub" class="xp-sim-kpi-sub">Incluye merma</div>
           </div>
-          <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
-            <div class="text-[10px] uppercase font-bold text-emerald-300">Precio Sugerido / Pax</div>
-            <div id="sim-kpi-suggested-price" class="text-lg font-black text-emerald-300 tabular-nums mt-0.5">$0</div>
-            <div id="sim-kpi-suggested-total" class="text-[10px] text-emerald-200 font-semibold tabular-nums">Total venta: $0</div>
+          <div class="xp-sim-kpi">
+            <div class="xp-sim-kpi-label">Costo total insumos</div>
+            <div id="sim-kpi-total-cost" class="xp-sim-kpi-value">$ 0</div>
+            <div id="sim-kpi-total-cost-sub" class="xp-sim-kpi-sub">Para 150 personas</div>
           </div>
-          <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
-            <div class="text-[10px] uppercase font-bold text-purple-300">Ganancia Bruta Estimada</div>
-            <div id="sim-kpi-gross-profit" class="text-lg font-black text-purple-200 tabular-nums mt-0.5">$0</div>
-            <div id="sim-kpi-profit-pct" class="text-[10px] text-purple-300 font-semibold">Rentabilidad calculada</div>
+          <div class="xp-sim-kpi xp-sim-kpi-hl">
+            <div class="xp-sim-kpi-label">Precio de venta / persona</div>
+            <div id="sim-kpi-suggested-price" class="xp-sim-kpi-value">$ 0</div>
+            <div id="sim-kpi-suggested-total" class="xp-sim-kpi-sub">Venta total: $ 0</div>
+          </div>
+          <div class="xp-sim-kpi">
+            <div class="xp-sim-kpi-label">Ganancia bruta</div>
+            <div id="sim-kpi-gross-profit" class="xp-sim-kpi-value">$ 0</div>
+            <div id="sim-kpi-profit-pct" class="xp-sim-kpi-sub">Margen real</div>
           </div>
         </div>
       </div>
 
-      <!-- Ingredient Explosion Table & Recipe Specs -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Ingredients Table (2 cols) -->
-        <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <!-- Insumos y ficha -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden xp-sim-ings">
+          <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>📋</span> Explosión de Insumos y Compras Requeridas
+              <span>📋</span> Insumos y compras para el evento
             </h3>
             <span id="sim-ingredients-count" class="text-xs text-slate-500 font-semibold">0 insumos</span>
           </div>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto hidden md:block xp-sim-table-wrap">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
                 <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-600 dark:text-slate-300">
-                  <th class="py-3 px-4">Insumo / Ingrediente</th>
-                  <th class="py-3 px-3 text-center">Dosis / Pax</th>
-                  <th class="py-3 px-3 text-center font-bold text-indigo-600 dark:text-indigo-400">Total Necesario</th>
-                  <th class="py-3 px-3 text-center">Stock Actual</th>
-                  <th class="py-3 px-3 text-center">Estado</th>
-                  <th class="py-3 px-4 text-right">Subtotal Insumo</th>
+                  <th class="py-3 px-4">Insumo</th>
+                  <th class="py-3 px-3 text-center">Por persona</th>
+                  <th class="py-3 px-3 text-center">Total necesario</th>
+                  <th class="py-3 px-3 text-center">Inventario</th>
+                  <th class="py-3 px-3 text-center">Por comprar</th>
+                  <th class="py-3 px-4 text-right">Costo</th>
                 </tr>
               </thead>
-              <tbody id="sim-ingredients-tbody" class="divide-y divide-slate-200 dark:divide-slate-700">
-              </tbody>
+              <tbody id="sim-ingredients-tbody" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+              <tfoot id="sim-ingredients-tfoot"></tfoot>
             </table>
           </div>
+          <div id="sim-ingredients-cards" class="md:hidden divide-y divide-slate-200 dark:divide-slate-700"></div>
         </div>
 
-        <!-- Recipe Technical Notes & Prep Card (1 col) -->
         <div class="space-y-4">
           <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>🍸</span> Ficha Técnica & Logística
+              <span>🍸</span> Ficha técnica
             </h3>
-            <div id="sim-recipe-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div id="sim-recipe-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
               Selecciona una receta para ver sus especificaciones.
             </div>
             <div class="space-y-2 pt-1 text-xs">
-              <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-700">
-                <span class="text-slate-500">Unidad de Venta:</span>
-                <strong class="text-slate-800 dark:text-slate-200" id="sim-spec-unit">Por Persona (Pax)</strong>
+              <div class="flex items-center justify-between gap-3 py-1 border-b border-slate-100 dark:border-slate-700">
+                <span class="text-slate-500">Unidad de venta</span>
+                <strong class="text-slate-800 dark:text-slate-200 text-right" id="sim-spec-unit">Por persona</strong>
               </div>
-              <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-700">
-                <span class="text-slate-500">Cristalería / Montaje:</span>
-                <strong class="text-slate-800 dark:text-slate-200" id="sim-spec-glassware">Copa Balón / Vaso Largo</strong>
+              <div class="flex items-center justify-between gap-3 py-1 border-b border-slate-100 dark:border-slate-700">
+                <span class="text-slate-500">Cristalería / montaje</span>
+                <strong class="text-slate-800 dark:text-slate-200 text-right" id="sim-spec-glassware">—</strong>
               </div>
-              <div class="flex items-center justify-between py-1">
-                <span class="text-slate-500">Merma estándar estimada:</span>
-                <strong class="text-amber-600 dark:text-amber-400" id="sim-spec-waste">3% - 5%</strong>
+              <div class="flex items-center justify-between gap-3 py-1">
+                <span class="text-slate-500">Merma de la receta</span>
+                <strong class="text-slate-800 dark:text-slate-200 text-right" id="sim-spec-waste">—</strong>
               </div>
             </div>
           </div>
 
-          <!-- Quick Action to Quote -->
-          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 border border-indigo-200 dark:border-indigo-800 p-5 rounded-2xl space-y-3">
-            <h4 class="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
-              ¿Listo para cotizar esta receta?
-            </h4>
-            <p class="text-xs text-slate-600 dark:text-slate-300">
-              Agrega este producto compuesto a tu cotización activa con la cantidad de personas simulada (<span class="font-bold text-indigo-600 dark:text-indigo-400" id="sim-quick-add-pax-label">150 Pax</span>) y el precio sugerido calculado.
+          <div class="xp-sim-cta p-5 rounded-2xl space-y-3 no-print">
+            <h4 class="text-xs font-bold uppercase tracking-wider">¿Listo para cotizar esta receta?</h4>
+            <p class="text-xs">
+              Se agrega a la cotización de eventos activa con <span class="font-bold" id="sim-quick-add-pax-label">150 Pax</span> a <span class="font-bold tabular-nums" id="sim-quick-add-price-label">$ 0</span> por persona. Si la receta ya está en la cotización, se actualiza.
             </p>
-            <button type="button" id="btn-sim-send-direct" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2">
-              <span>➕ Agregar a Cotización Activa</span>
+            <button type="button" id="btn-sim-send-direct" class="w-full xp-sim-btn xp-sim-btn-primary justify-center">
+              <span>➕ Agregar a la cotización activa</span>
             </button>
           </div>
         </div>

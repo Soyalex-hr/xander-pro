@@ -1678,59 +1678,72 @@ ${state.company.phone}`;
       document.getElementById('sim-recipe-select')?.addEventListener('change', renderRecipeSimulatorResults);
       document.getElementById('sim-pax-input')?.addEventListener('input', renderRecipeSimulatorResults);
       document.getElementById('sim-margin-slider')?.addEventListener('input', renderRecipeSimulatorResults);
+      document.getElementById('sim-waste-input')?.addEventListener('input', renderRecipeSimulatorResults);
+      document.querySelectorAll('[data-sim-price-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.xpSimPriceMode = btn.getAttribute('data-sim-price-mode');
+          renderRecipeSimulatorResults();
+        });
+      });
 
       document.querySelectorAll('.sim-quick-pax-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const paxVal = Number(btn.getAttribute('data-pax')) || 100;
           const paxInput = document.getElementById('sim-pax-input');
           if (paxInput) paxInput.value = paxVal;
-          document.querySelectorAll('.sim-quick-pax-btn').forEach(b => {
-            b.className = 'sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 hover:bg-white/20 text-indigo-200';
-          });
-          btn.className = 'sim-quick-pax-btn px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white font-extrabold';
           renderRecipeSimulatorResults();
         });
       });
 
       const handleAddSimulatedRecipeToQuote = () => {
-        const recId = document.getElementById('sim-recipe-select')?.value;
-        const pax = Math.max(1, Number(document.getElementById('sim-pax-input')?.value) || 100);
-        const marginPct = Number(document.getElementById('sim-margin-slider')?.value) || 50;
-        const rec = state.products.find(p => p.id === recId);
+        const sim = typeof getRecipeSimulation === 'function' ? getRecipeSimulation() : null;
+        const rec = sim && sim.rec;
         if (!rec) {
           showToast('Selecciona una receta válida para agregar');
           return;
         }
+        const pax = sim.pax;
+        const calculatedPrice = Math.round(sim.price);
+        if (!state.activeQuote.items) state.activeQuote.items = [];
 
-        const unitCost = calculateRecipeUnitCost(rec);
-        const markupFactor = marginPct >= 95 ? 10 : (1 / (1 - (marginPct / 100)));
-        const calculatedPrice = Math.max(Math.round(unitCost * markupFactor), Number(rec.price) || 0);
+        // Si la cotización no tiene personas, toma las del simulador
+        const quotePax = Number(state.activeQuote.guestsPax) || 0;
+        if (!quotePax) state.activeQuote.guestsPax = pax;
 
-        // Update active quote guest pax if this is the main dish/cocktail
-        state.activeQuote.guestsPax = pax;
-
-        state.activeQuote.items.push({
-          rowId: 'item-' + Date.now(),
-          productId: rec.id,
-          name: rec.name,
-          desc: rec.desc,
-          isRecipe: true,
-          qty: pax,
-          unit: rec.unit || 'Por Persona (Pax)',
-          price: calculatedPrice
-        });
+        // Si la receta ya está en la cotización, se actualiza en lugar de duplicarla
+        const existing = state.activeQuote.items.find(it => it.productId === rec.id && it.isRecipe);
+        if (existing) {
+          existing.qty = pax;
+          existing.price = calculatedPrice;
+        } else {
+          state.activeQuote.items.push({
+            rowId: 'item-' + Date.now(),
+            productId: rec.id,
+            name: rec.name,
+            desc: rec.desc,
+            isRecipe: true,
+            qty: pax,
+            unit: rec.unit || 'Por Persona (Pax)',
+            price: calculatedPrice
+          });
+        }
 
         saveState();
         renderQuoteEditorAndPdf();
         switchView('cotizador');
-        showToast(`✅ "${rec.name}" agregada con ${pax} Pax a ${formatCurrency(calculatedPrice)}/Pax`);
+        const paxNote = quotePax && quotePax !== pax ? ` (la cotización sigue con ${quotePax} personas)` : '';
+        showToast(`✅ "${rec.name}" ${existing ? 'actualizada' : 'agregada'}: ${pax} Pax a ${formatCurrency(calculatedPrice)}/Pax${paxNote}`);
       };
 
       document.getElementById('btn-sim-add-to-quote-main')?.addEventListener('click', handleAddSimulatedRecipeToQuote);
       document.getElementById('btn-sim-send-direct')?.addEventListener('click', handleAddSimulatedRecipeToQuote);
 
       document.getElementById('btn-sim-print-sheet')?.addEventListener('click', () => {
+        document.body.classList.add('xp-print-sim');
+        const done = () => { document.body.classList.remove('xp-print-sim'); window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
         window.print();
+        setTimeout(done, 60000);
       });
 
       // Products Table and Mobile Cards Actions (+ Cotizar / Modificar / Eliminar)

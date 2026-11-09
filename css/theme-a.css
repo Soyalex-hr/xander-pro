@@ -590,3 +590,63 @@ html.dark #auth-screen input.ag-glass-input { background: #0D1C2B !important; bo
   #auth-card-container .shimmer-bar, #auth-card-container .ag-floating-badge,
   #auth-card-container .pulse-glow-ring, #btn-submit-login { animation: none !important; }
 }
+
+/* ===== Simulador de recetas (Costa Caribe) ===== */
+.xp-sim-btn { display:inline-flex; align-items:center; gap:.4rem; min-height:44px; padding:.5rem .95rem; border-radius:.8rem; font-size:.78rem; font-weight:700; border:1px solid var(--xp-border-strong); background:var(--xp-surface); color:var(--xp-text); transition:background .15s, border-color .15s; cursor:pointer; }
+.xp-sim-btn:hover { border-color:var(--c-ocean, #0B5D7E); background:var(--t-ocean, #E6F1F5); }
+.xp-sim-btn-primary { background:var(--c-ocean, #0B5D7E) !important; border-color:var(--c-ocean, #0B5D7E) !important; color:#fff !important; }
+.xp-sim-btn-primary:hover { filter:brightness(1.08); }
+.xp-sim-panel { color:#fff; background:linear-gradient(135deg, #0B5D7E 0%, #0A7F86 62%, #0FA3A3 100%); box-shadow:0 10px 30px -12px rgba(11,93,126,.55); position:relative; overflow:hidden; }
+.xp-sim-panel::after { content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(255,199,90,.35), rgba(255,199,90,0) 70%); pointer-events:none; }
+.xp-sim-panel > * { position:relative; z-index:1; }
+.xp-sim-label { display:block; font-size:.7rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#CFF3F0; margin-bottom:.4rem; }
+.xp-sim-hint { color:rgba(230,250,248,.85); }
+.xp-sim-chip { font-size:.72rem; font-weight:800; color:#0B3B4F; background:#FFD27A; border-radius:999px; padding:.05rem .55rem; margin-bottom:.4rem; }
+.xp-sim .xp-sim-field { width:100%; min-height:44px; border-radius:.8rem !important; background:#fff !important; color:#0F2A3A !important; border:1px solid rgba(255,255,255,.6) !important; padding:.55rem .85rem !important; font-size:.85rem !important; font-weight:700; box-shadow:none !important; }
+.xp-sim .xp-sim-field:focus { outline:3px solid rgba(255,210,122,.75); outline-offset:1px; }
+.xp-sim-range { accent-color:#FFD27A; height:28px; }
+.sim-quick-pax-btn { min-width:40px; min-height:32px; padding:0 .55rem; border-radius:.55rem; font-size:.72rem; font-weight:700; background:rgba(255,255,255,.14); color:#E6FAF8; border:1px solid rgba(255,255,255,.18); cursor:pointer; }
+.sim-quick-pax-btn:hover { background:rgba(255,255,255,.24); }
+.sim-quick-pax-btn.is-active { background:#fff; color:#0B5D7E; border-color:#fff; }
+.xp-sim-seg { display:inline-flex; padding:3px; border-radius:.8rem; background:rgba(0,0,0,.18); }
+.xp-sim-seg button { min-height:38px; padding:0 .85rem; border-radius:.6rem; font-size:.75rem; font-weight:700; color:#E6FAF8; cursor:pointer; }
+.xp-sim-seg button[aria-pressed="true"] { background:#fff; color:#0B5D7E; }
+.xp-sim-seg button:disabled { opacity:.45; cursor:not-allowed; }
+.xp-sim-kpi { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); border-radius:.9rem; padding:.85rem 1rem; min-width:0; }
+.xp-sim-kpi-hl { background:#fff; border-color:#fff; color:#0B3B4F; }
+.xp-sim-kpi-label { font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#CFF3F0; }
+.xp-sim-kpi-hl .xp-sim-kpi-label { color:#0A7F86; }
+.xp-sim-kpi-value { font-size:1.3rem; font-weight:900; font-variant-numeric:tabular-nums; margin-top:.15rem; line-height:1.2; overflow-wrap:anywhere; }
+.xp-sim-kpi-hl .xp-sim-kpi-value { color:#0B5D7E; }
+.xp-sim-kpi-value.is-neg { color:#FFB4A2; }
+.xp-sim-kpi-sub { font-size:.7rem; font-weight:600; color:rgba(230,250,248,.9); font-variant-numeric:tabular-nums; }
+.xp-sim-kpi-hl .xp-sim-kpi-sub { color:#4B6B78; }
+.xp-sim-need { color:var(--c-ocean, #0B5D7E); }
+html.dark .xp-sim-need { color:#7FD3E6; }
+.xp-sim-badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:.68rem; font-weight:700; background:#EEF2F6; color:#475569; white-space:nowrap; }
+.xp-sim-badge.ok { background:#DDF4EA; color:#17694A; }
+.xp-sim-badge.warn { background:#FFF0D6; color:#8A5300; }
+html.dark .xp-sim-badge { background:#1E293B; color:#CBD5E1; }
+html.dark .xp-sim-badge.ok { background:rgba(46,139,87,.25); color:#8FE0B5; }
+html.dark .xp-sim-badge.warn { background:rgba(242,169,59,.2); color:#FFD27A; }
+.xp-sim-cta { background:var(--t-ocean, #E6F1F5); border:1px solid rgba(11,93,126,.18); color:#24414E; }
+.xp-sim-cta h4 { color:#0B5D7E; }
+html.dark .xp-sim-cta { background:rgba(11,93,126,.18); border-color:rgba(127,211,230,.2); color:#CBD5E1; }
+html.dark .xp-sim-cta h4 { color:#7FD3E6; }
+
+/* Imprimir lista de compras: solo el simulador, en claro */
+@media print {
+  body.xp-print-sim #dashboard-wrapper main > section:not(#view-simulador) { display:none !important; }
+  body.xp-print-sim .xp-sim-panel { background:#fff !important; color:#0F172A !important; box-shadow:none !important; border:1px solid #CBD5E1; }
+  body.xp-print-sim .xp-sim-panel::after { display:none; }
+  body.xp-print-sim .xp-sim-label, body.xp-print-sim .xp-sim-hint, body.xp-print-sim .xp-sim-kpi-label, body.xp-print-sim .xp-sim-kpi-sub { color:#475569 !important; }
+  body.xp-print-sim .xp-sim-kpi { background:#fff !important; border-color:#CBD5E1 !important; color:#0F172A !important; }
+  body.xp-print-sim .xp-sim .xp-sim-field { border-color:#CBD5E1 !important; }
+  body.xp-print-sim .xp-sim-table-wrap { display:block !important; }
+  body.xp-print-sim #sim-ingredients-cards { display:none !important; }
+}
+/* Campos del simulador: blancos y legibles sobre el panel (gana a las reglas genéricas de app.css) */
+html #view-simulador .xp-sim-panel .xp-sim-field.xp-sim-field.xp-sim-field,
+html.dark #view-simulador .xp-sim-panel .xp-sim-field.xp-sim-field.xp-sim-field { background-color:#fff !important; color:#0F2A3A !important; border-color:rgba(255,255,255,.7) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+html #view-simulador .xp-sim-panel .xp-sim-field.xp-sim-field.xp-sim-field:focus,
+html.dark #view-simulador .xp-sim-panel .xp-sim-field.xp-sim-field.xp-sim-field:focus { border-color:#FFD27A !important; box-shadow:0 0 0 3px rgba(255,210,122,.55) !important; }
