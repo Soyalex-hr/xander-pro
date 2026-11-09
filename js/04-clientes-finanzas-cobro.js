@@ -523,28 +523,38 @@
       const tbody = document.getElementById('saved-quotes-tbody');
       if (!tbody) return;
 
-      const searchTerm = (document.getElementById('quote-search-input')?.value || '').toLowerCase().trim();
+      const searchEl = document.getElementById('quote-search-input');
+      const searchTerm = (searchEl?.value || '').toLowerCase().trim();
       const statusFilter = document.getElementById('quote-filter-status')?.value || 'all';
+      const txt = v => String(v ?? '').toLowerCase();
+      const all = (state.savedQuotes || []).filter(sq => sq && typeof sq === 'object');
+      const clients = state.clients || [];
 
-      const filtered = state.savedQuotes.filter(sq => {
-        const cl = state.clients.find(c => c.id === sq.clientId);
+      const filtered = all.filter(sq => {
+        const cl = clients.find(c => c.id === sq.clientId);
         const matchesStatus = statusFilter === 'all' || sq.status === statusFilter;
         const matchesSearch = !searchTerm ||
-          sq.number.toLowerCase().includes(searchTerm) ||
-          sq.eventTitle.toLowerCase().includes(searchTerm) ||
-          (cl && cl.name.toLowerCase().includes(searchTerm));
+          txt(sq.number).includes(searchTerm) ||
+          txt(sq.eventTitle).includes(searchTerm) ||
+          txt(cl && cl.name).includes(searchTerm);
         return matchesStatus && matchesSearch;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">No se encontraron cotizaciones con los filtros actuales.</td></tr>`;
+        const hidden = all.length && (searchTerm || statusFilter !== 'all');
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">
+          ${all.length ? 'No se encontraron cotizaciones con los filtros actuales.' : 'Aún no hay cotizaciones de eventos guardadas.'}
+          ${hidden ? `<div class="mt-2 text-[11px] text-slate-400">Hay ${all.length} cotización(es) guardada(s) ocultas por el filtro${searchTerm ? ` «${searchTerm.replace(/[<>&"]/g, '')}»` : ''}.</div>
+          <button type="button" onclick="xpClearQuoteFilters()" class="mt-3 min-h-[40px] px-4 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">Ver todas las cotizaciones</button>` : ''}
+        </td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(sq => {
+      tbody.innerHTML = filtered.map(sq => { try {
         const cl = state.clients.find(c => c.id === sq.clientId);
-        const sqBase = sq.baseNumber || (typeof getQuoteBaseNumber === "function" ? getQuoteBaseNumber(sq.number) : sq.number.replace(/\s*V\d+$/i, ''));
-        const familyVersions = state.savedQuotes.filter(x => (x.baseNumber || x.number.replace(/\s*V\d+$/i, '')) === sqBase);
+        const baseOf = x => x.baseNumber || String(x.number || '').replace(/\s*V\d+$/i, '');
+        const sqBase = sq.baseNumber || (typeof getQuoteBaseNumber === "function" && sq.number ? getQuoteBaseNumber(sq.number) : baseOf(sq));
+        const familyVersions = all.filter(x => baseOf(x) === sqBase);
         const familyCount = familyVersions.length;
         const isLocked = sq.status === 'Enviada' || sq.status === 'Aprobada' || sq.status === 'Reemplazada';
 
@@ -595,8 +605,17 @@
             </td>
           </tr>
         `;
-      }).join('');
+      } catch (err) {
+        console.warn('Cotización con datos incompletos en el historial:', sq, err);
+        return `<tr><td colspan="8" class="py-3 px-4 text-xs text-slate-500">${String(sq.number || 'Cotización sin número')} — datos incompletos <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn ml-2 underline font-bold">Abrir</button></td></tr>`;
+      } }).join('');
     }
+
+    window.xpClearQuoteFilters = function () {
+      const s = document.getElementById('quote-search-input'); if (s) s.value = '';
+      const f = document.getElementById('quote-filter-status'); if (f) f.value = 'all';
+      renderSavedQuotes();
+    };
 
     function renderFinancesView() {
       const filterType = document.getElementById('finance-filter-type')?.value || 'all';
@@ -692,3 +711,12 @@
         secAutoLock.value = state.auth?.sessionTimeoutMins ?? 15;
       }
     }
+
+// El navegador a veces rellena el buscador del historial con el usuario guardado;
+// al cargar la app se limpia si nadie lo escribió.
+window.addEventListener('load', () => {
+  [800, 2500].forEach(ms => setTimeout(() => {
+    const s = document.getElementById('quote-search-input');
+    if (s && s.value && document.activeElement !== s) { s.value = ''; if (typeof renderSavedQuotes === 'function') renderSavedQuotes(); }
+  }, ms));
+});
