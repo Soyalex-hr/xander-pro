@@ -632,35 +632,35 @@
         evBarMargin.className = m === null ? '' : (m < 0 ? 'm-neg' : m < min ? 'm-low' : 'm-ok');
       }
 
+      const profitEl = document.getElementById('internal-total-profit');
+      if (profitEl) profitEl.classList.toggle('is-neg', grandTotal - totalInternalCost < 0);
+
       const entries = Object.values(requiredMap);
       if (entries.length === 0) {
-        container.innerHTML = `<div class="text-slate-400">Agrega recetas o productos del catálogo para ver el cálculo de insumos.</div>`;
+        container.innerHTML = `<div class="xp-bom-empty">Agrega recetas o productos del catálogo para ver qué insumos necesitas y cuánto ganas.</div>`;
         return;
       }
+      const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const num = v => (Number(v) || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 });
 
       container.innerHTML = entries.map(entry => {
         const p = entry.prod;
         const needed = entry.neededBase;
         const stock = Number(p.stock) || 0;
         const missing = Math.max(0, needed - stock);
-        let statusPill = '';
+        let pill;
         if (!p.trackStock) {
-          statusPill = `<span class="px-2 py-0.5 rounded bg-indigo-500/30 text-indigo-200">Bajo pedido / Servicio (${needed.toFixed(2)} ${p.unit})</span>`;
+          pill = `<span class="xp-bom-pill is-svc">Bajo pedido / servicio</span>`;
         } else if (missing > 0) {
-          statusPill = `<span class="px-2 py-0.5 rounded bg-amber-500/30 text-amber-200 font-semibold">Stock: ${stock} ${p.unit} → Comprar ${missing.toFixed(2)} ${p.unit} al aprobar</span>`;
+          pill = `<span class="xp-bom-pill is-buy">Hay ${num(stock)} ${esc(p.unit)} · comprar ${num(missing)} ${esc(p.unit)}</span>`;
         } else {
-          statusPill = `<span class="px-2 py-0.5 rounded bg-emerald-500/30 text-emerald-200">Stock suficiente (${stock} ${p.unit} disponibles)</span>`;
+          pill = `<span class="xp-bom-pill is-ok">Stock suficiente (${num(stock)} ${esc(p.unit)})</span>`;
         }
-
         return `
-          <div class="flex flex-wrap items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700">
-            <div>
-              <span class="font-semibold text-white">${p.name}</span>
-              <span class="text-slate-400 ml-1">Requerido: <strong class="text-indigo-300">${needed.toFixed(2)} ${p.unit}</strong></span>
-            </div>
-            <div>${statusPill}</div>
-          </div>
-        `;
+          <div class="xp-bom-row">
+            <div class="min-w-0"><span class="xp-bom-name">${esc(p.name)}</span> <span class="xp-bom-need">Necesitas <strong>${num(needed)} ${esc(p.unit)}</strong></span></div>
+            ${pill}
+          </div>`;
       }).join('');
     }
 
@@ -874,7 +874,7 @@
         const titleEl = document.getElementById('modal-rec-title');
         if (titleEl) titleEl.textContent = '✏️ Modificar Receta Compuesta / Menú por Personas';
         const btnSave = document.getElementById('btn-save-recipe-product');
-        if (btnSave) btnSave.textContent = 'Guardar Cambios de la Receta';
+        if (btnSave) btnSave.textContent = 'Guardar cambios';
 
         document.getElementById('rec-name').value = prod.name || '';
         document.getElementById('rec-base-pax').value = prod.basePax || 1;
@@ -902,7 +902,7 @@
         const titleEl = document.getElementById('modal-sp-title');
         if (titleEl) titleEl.textContent = '✏️ Modificar Producto Simple o Insumo';
         const btnSave = document.getElementById('btn-save-simple-product');
-        if (btnSave) btnSave.textContent = 'Guardar Cambios del Producto';
+        if (btnSave) btnSave.textContent = 'Guardar cambios';
 
         document.getElementById('sp-name').value = prod.name || '';
         document.getElementById('sp-unit').value = prod.unit || 'und';

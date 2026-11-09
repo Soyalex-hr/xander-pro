@@ -1098,47 +1098,33 @@
 • Cristalería y menaje incluidos sin costo adicional de rotura menor (hasta 3 piezas).</textarea>
             </div>
 
-            <!-- Internal Production / Ingredient Explosion Accordion -->
-            <div class="bg-slate-900 text-slate-100 rounded-xl p-4 space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-500 text-white">
-                    Uso Interno — No sale en el PDF del cliente
-                  </span>
-                  <h4 class="text-xs sm:text-sm font-bold text-white mt-1">
-                    🧮 Explosión de Insumos por Cantidad de Personas y Rentabilidad del Evento
-                  </h4>
+            <!-- Uso interno: costo, ganancia e insumos a comprar (no sale en el PDF) -->
+            <details id="xp-bom" class="xp-bom" open>
+              <summary class="xp-bom-sum">
+                <div class="min-w-0">
+                  <span class="xp-bom-tag">Solo para ti · no sale en el PDF</span>
+                  <h4 class="xp-bom-title">Costo, ganancia e insumos del evento</h4>
                 </div>
-                <div class="text-right tabular-nums">
-                  <div class="text-[11px] text-slate-400">Costo Interno Estimado vs. Utilidad Bruta</div>
-                  <div class="text-xs font-bold">
-                    Costo: <span id="internal-total-cost" class="text-amber-300">$0</span> ·
-                    Ganancia: <span id="internal-total-profit" class="text-emerald-400">$0</span>
-                  </div>
+                <div class="xp-bom-kpis tabular-nums">
+                  <div><span>Costo</span><strong id="internal-total-cost">$0</strong></div>
+                  <div><span>Ganancia</span><strong id="internal-total-profit" class="xp-bom-profit">$0</strong></div>
+                  <svg class="xp-bom-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
-              </div>
-              <div id="internal-bom-breakdown" class="text-xs space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
-            </div>
+              </summary>
+              <div id="internal-bom-breakdown" class="xp-bom-list"></div>
+            </details>
           </div>
 
-          <!-- PASO FINAL AL TERMINAR DE ARMAR LA COTIZACIÓN: BOTÓN DE VISTA PREVIA Y GENERACIÓN -->
-          <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/40 text-indigo-100 border border-indigo-400/30">
-                Paso Final · Revisión del Documento
-              </span>
-              <h3 class="text-base sm:text-lg font-extrabold">
-                ¿Terminaste de agregar los productos, personas y observaciones?
-              </h3>
-              <p class="text-xs text-indigo-200">
-                Abre la vista previa en tamaño completo para revisar cómo verá el cliente su cotización antes de guardarla, imprimirla o descargar el PDF.
-              </p>
+          <!-- Paso final: revisar cómo lo verá el cliente -->
+          <div class="xp-ev-final">
+            <div class="min-w-0">
+              <div class="xp-ev-final-t">¿Terminaste de armar la cotización?</div>
+              <p class="xp-ev-final-p">Revisa cómo la verá el cliente antes de guardarla, enviarla o descargar el PDF.</p>
             </div>
-            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end shrink-0">
-              <button type="button" id="btn-bottom-open-preview" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2">
-                <span>👁️ Ver Vista Previa antes de Generar Cotización →</span>
-              </button>
-            </div>
+            <button type="button" id="btn-bottom-open-preview" class="xp-ev-final-btn">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Ver vista previa</span>
+            </button>
           </div>
 
           <!-- Resumen fijo: total, anticipo y acciones siempre a la mano -->
@@ -3920,89 +3906,107 @@
        ========================================== -->
   <datalist id="xp-cat-categories"></datalist>
   <div id="modal-simple-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4 my-8">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 id="modal-sp-title" class="text-base font-bold text-slate-900">📦 Crear / Editar Producto Simple o Insumo</h3>
-        <button type="button" data-close-modal="modal-simple-product" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+    <div class="xp-pm bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full shadow-xl">
+      <div class="xp-pm-head">
+        <div class="min-w-0">
+          <h3 id="modal-sp-title" class="text-base font-bold text-slate-900 dark:text-white truncate">📦 Crear / Editar Producto Simple o Insumo</h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Insumos, licores, servicios o productos que se venden por unidad.</p>
+        </div>
+        <button type="button" data-close-modal="modal-simple-product" class="xp-pm-x" aria-label="Cerrar">✕</button>
       </div>
       <input type="hidden" id="sp-id" />
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div class="sm:col-span-2">
-          <label for="sp-name" class="block font-semibold text-slate-700 mb-1">Nombre del Producto / Servicio / Insumo</label>
-          <input id="sp-name" type="text" placeholder="Ej. Ron Blanco Añejo / Servicio de DJ / Botella Whisky" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <div class="sm:col-span-2">
-          <label for="sp-category" class="block font-semibold text-slate-700 mb-1">Categoría</label>
-          <input id="sp-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas, Alimentos, Servicios, Decoración, Personal" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <div>
-          <label for="sp-unit" class="block font-semibold text-slate-700 mb-1">Unidad de Medida Base</label>
-          <select id="sp-unit" class="w-full rounded-lg border border-slate-300 px-3 py-2 font-medium">
-            <option value="und">Unidad (und)</option>
-            <option value="L">Litro (L)</option>
-            <option value="oz">Onza (oz)</option>
-            <option value="ml">Mililitro (ml)</option>
-            <option value="kg">Kilogramo (kg)</option>
-            <option value="g">Gramo (g)</option>
-            <option value="srv">Servicio (srv)</option>
-            <option value="hr">Hora (hr)</option>
-          </select>
-        </div>
-        <div>
-          <label for="sp-track-stock" class="block font-semibold text-slate-700 mb-1">¿Maneja Inventario?</label>
-          <select id="sp-track-stock" class="w-full rounded-lg border border-slate-300 px-3 py-2 font-semibold text-indigo-900 bg-indigo-50/40">
-            <option value="true">Sí, controlar existencias en bodega</option>
-            <option value="false">No (Sin inventario / Bajo pedido / Servicio)</option>
-          </select>
-        </div>
-        <div>
-          <label for="sp-stock" class="block font-semibold text-slate-700 mb-1">Stock Actual (Puede ser 0)</label>
-          <input id="sp-stock" type="number" step="any" value="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums" />
-        </div>
-        <div>
-          <label for="sp-cost" class="block font-semibold text-slate-700 mb-1">Costo por Unidad Base ($)</label>
-          <input id="sp-cost" type="number" step="100" value="25000" class="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums" />
-        </div>
-        <div id="sp-min-stock-box">
-          <label for="sp-min-stock" class="block font-semibold text-slate-700 mb-1">Stock mínimo (alerta)</label>
-          <input id="sp-min-stock" type="number" step="any" min="0" placeholder="Ej. 2" class="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums" />
-          <p class="text-[10px] text-slate-500 mt-1">Avisa en Inicio cuando quede en esta cantidad o menos.</p>
-        </div>
-        <div class="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2" id="sp-pack-box">
-          <div class="font-semibold text-slate-700">Presentación de compra <span class="font-normal text-slate-500">(opcional)</span></div>
-          <p class="text-[10px] text-slate-500 -mt-1">Si compras en botellas, cajas o bultos, escribe cuánto trae y cuánto cuesta: el costo por unidad base se calcula solo.</p>
-          <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label for="sp-pack-name" class="block text-[11px] text-slate-600 mb-1">Se compra por</label>
-              <input id="sp-pack-name" type="text" placeholder="Botella" class="w-full rounded-lg border border-slate-300 px-2.5 py-2" />
+      <div class="xp-pm-body">
+        <div class="xp-pm-grid">
+          <!-- Columna 1: qué es -->
+          <section class="xp-pm-col">
+            <div class="xp-pm-sec">Datos del producto</div>
+            <div class="xp-pm-f">
+              <label for="sp-name">Nombre del producto, servicio o insumo</label>
+              <input id="sp-name" type="text" placeholder="Ej. Ron Blanco Añejo / Servicio de DJ" />
             </div>
-            <div>
-              <label for="sp-pack-size" class="block text-[11px] text-slate-600 mb-1">Trae <span id="sp-pack-unit-label">und</span></label>
-              <input id="sp-pack-size" type="number" step="any" min="0" placeholder="0,75" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 tabular-nums" />
+            <div class="xp-pm-row2">
+              <div class="xp-pm-f">
+                <label for="sp-category">Categoría</label>
+                <input id="sp-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="sp-unit">Unidad de medida</label>
+                <select id="sp-unit">
+                  <option value="und">Unidad (und)</option>
+                  <option value="L">Litro (L)</option>
+                  <option value="oz">Onza (oz)</option>
+                  <option value="ml">Mililitro (ml)</option>
+                  <option value="kg">Kilogramo (kg)</option>
+                  <option value="g">Gramo (g)</option>
+                  <option value="srv">Servicio (srv)</option>
+                  <option value="hr">Hora (hr)</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label for="sp-pack-price" class="block text-[11px] text-slate-600 mb-1">Precio de compra</label>
-              <input id="sp-pack-price" type="number" step="100" min="0" placeholder="51000" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 tabular-nums" />
+            <div class="xp-pm-f">
+              <label for="sp-desc">Descripción para el cliente (sale en el PDF)</label>
+              <input id="sp-desc" type="text" placeholder="Descripción que verá el cliente..." />
             </div>
-          </div>
-          <p id="sp-pack-hint" class="text-[11px] font-semibold text-slate-600"></p>
-        </div>
-        <div class="sm:col-span-2">
-          <label for="sp-price" class="block font-bold text-emerald-800 mb-1">Precio de venta ($)</label>
-          <input id="sp-price" type="number" step="100" value="45000" class="w-full rounded-lg border-2 border-emerald-400 px-3 py-2 font-bold tabular-nums" />
-        </div>
-        <div class="sm:col-span-2 flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2">
-          <span id="sp-margin-hint" class="text-[11px] font-bold text-slate-600">Margen: —</span>
-          <label class="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-700 cursor-pointer min-h-[36px]"><input id="sp-active" type="checkbox" checked class="w-4 h-4" /> Activo (aparece al cotizar)</label>
-        </div>
-        <div class="sm:col-span-2">
-          <label for="sp-desc" class="block font-semibold text-slate-700 mb-1">Descripción Comercial (Para el PDF)</label>
-          <input id="sp-desc" type="text" placeholder="Descripción que verá el cliente..." class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <div class="xp-pm-sec mt-1">Inventario</div>
+            <div class="xp-pm-row3">
+              <div class="xp-pm-f">
+                <label for="sp-track-stock">¿Maneja inventario?</label>
+                <select id="sp-track-stock">
+                  <option value="true">Sí, controlar stock</option>
+                  <option value="false">No (servicio / bajo pedido)</option>
+                </select>
+              </div>
+              <div class="xp-pm-f" id="sp-stock-box">
+                <label for="sp-stock">Stock actual</label>
+                <input id="sp-stock" type="number" step="any" value="0" class="tabular-nums" />
+              </div>
+              <div class="xp-pm-f" id="sp-min-stock-box">
+                <label for="sp-min-stock" title="Avisa en Inicio cuando quede en esta cantidad o menos.">Stock mínimo</label>
+                <input id="sp-min-stock" type="number" step="any" min="0" placeholder="Ej. 2" class="tabular-nums" title="Avisa en Inicio cuando quede en esta cantidad o menos." />
+              </div>
+            </div>
+          </section>
+          <!-- Columna 2: cuánto cuesta y en cuánto se vende -->
+          <section class="xp-pm-col">
+            <div class="xp-pm-sec">Costo y precio</div>
+            <div class="xp-pm-pack" id="sp-pack-box">
+              <div class="xp-pm-pack-t">Presentación de compra <span>(opcional · calcula el costo solo)</span></div>
+              <div class="xp-pm-row3">
+                <div class="xp-pm-f">
+                  <label for="sp-pack-name">Se compra por</label>
+                  <input id="sp-pack-name" type="text" placeholder="Botella" />
+                </div>
+                <div class="xp-pm-f">
+                  <label for="sp-pack-size">Trae (<span id="sp-pack-unit-label">und</span>)</label>
+                  <input id="sp-pack-size" type="number" step="any" min="0" placeholder="0,75" class="tabular-nums" />
+                </div>
+                <div class="xp-pm-f">
+                  <label for="sp-pack-price">Precio compra</label>
+                  <input id="sp-pack-price" type="number" step="100" min="0" placeholder="51000" class="tabular-nums" />
+                </div>
+              </div>
+              <p id="sp-pack-hint" class="text-[11px] font-semibold text-slate-600"></p>
+            </div>
+            <div class="xp-pm-row2">
+              <div class="xp-pm-f">
+                <label for="sp-cost">Costo por unidad ($)</label>
+                <input id="sp-cost" type="number" step="100" value="25000" class="tabular-nums" />
+              </div>
+              <div class="xp-pm-f xp-pm-price">
+                <label for="sp-price">Precio de venta ($)</label>
+                <input id="sp-price" type="number" step="100" value="45000" class="tabular-nums" />
+              </div>
+            </div>
+            <div id="sp-margin-hint" class="text-[11px] font-bold text-slate-600">Margen: —</div>
+          </section>
         </div>
       </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" data-close-modal="modal-simple-product" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold">Cancelar</button>
-        <button type="button" id="btn-save-simple-product" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">Guardar Producto</button>
+      <div class="xp-pm-foot">
+        <label class="xp-pm-active"><input id="sp-active" type="checkbox" checked /> <span>Activo <span class="xp-pm-muted">(aparece al cotizar)</span></span></label>
+        <div class="flex gap-2">
+          <button type="button" data-close-modal="modal-simple-product" class="xp-pm-btn">Cancelar</button>
+          <button type="button" id="btn-save-simple-product" class="xp-pm-btn xp-pm-primary">Guardar producto</button>
+        </div>
       </div>
     </div>
   </div>
@@ -4011,92 +4015,95 @@
        MODAL 2: CREAR / EDITAR RECETA COMPUESTA ESCALABLE POR PERSONAS
        ========================================== -->
   <div id="modal-recipe-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4 my-8">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div>
-          <h3 id="modal-rec-title" class="text-base font-bold text-slate-900">🍹 Constructor de Producto Compuesto / Receta por Personas</h3>
-          <p class="text-xs text-slate-500">Combina insumos en Onzas, Litros, Gramos o Unidades y calcula el costo por persona automáticamente.</p>
+    <div class="xp-pm xp-pm-wide bg-white dark:bg-slate-900 rounded-2xl max-w-5xl w-full shadow-xl">
+      <div class="xp-pm-head">
+        <div class="min-w-0">
+          <h3 id="modal-rec-title" class="text-base font-bold text-slate-900 dark:text-white truncate">🍹 Constructor de Producto Compuesto / Receta por Personas</h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Combina insumos en onzas, litros, gramos o unidades y calcula el costo por persona.</p>
         </div>
-        <button type="button" data-close-modal="modal-recipe-product" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+        <button type="button" data-close-modal="modal-recipe-product" class="xp-pm-x" aria-label="Cerrar">✕</button>
       </div>
-
       <input type="hidden" id="rec-id" />
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
-        <div class="sm:col-span-6">
-          <label for="rec-name" class="block font-semibold text-slate-700 mb-1">Nombre de la Receta / Menú / Paquete</label>
-          <input id="rec-name" type="text" placeholder="Ej. Barra Coctelería Premium (Por Persona)" class="w-full rounded-lg border border-slate-300 px-3 py-2 font-semibold" />
-        </div>
-        <div class="sm:col-span-3">
-          <label for="rec-base-pax" class="block font-bold text-indigo-800 mb-1">Rendimiento Base (Pax)</label>
-          <input id="rec-base-pax" type="number" min="1" value="1" class="w-full rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 font-bold tabular-nums" />
-        </div>
-        <div class="sm:col-span-3">
-          <label for="rec-price" class="block font-bold text-emerald-800 mb-1">Precio Venta / Persona</label>
-          <input id="rec-price" type="number" step="100" value="42000" class="w-full rounded-lg border-2 border-emerald-400 px-3 py-2 font-bold tabular-nums" />
-        </div>
-        <div class="sm:col-span-12">
-          <label for="rec-desc" class="block font-semibold text-slate-700 mb-1">Descripción Comercial para el PDF</label>
-          <input id="rec-desc" type="text" placeholder="Ej. Incluye 3 cócteles de autor por persona, cristalería, hielo y fruta deshidratada." class="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <div class="sm:col-span-6">
-          <label for="rec-category" class="block font-semibold text-slate-700 mb-1">Categoría</label>
-          <input id="rec-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas, Alimentos" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <div class="sm:col-span-6 flex items-end">
-          <label class="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-700 cursor-pointer min-h-[40px]"><input id="rec-active" type="checkbox" checked class="w-4 h-4" /> Activa (aparece al cotizar y en el simulador)</label>
-        </div>
-        <div class="sm:col-span-7">
-          <label for="rec-glassware" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Cristalería / Montaje Recomendado</label>
-          <input id="rec-glassware" type="text" placeholder="Ej. Copa Balón / Vaso Largo / Vajilla de Lujo" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
-        </div>
-        <div class="sm:col-span-5">
-          <label for="rec-waste" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Merma Estándar Estimada</label>
-          <input id="rec-waste" type="text" placeholder="Ej. 3% - 5%" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs" />
+      <div class="xp-pm-body">
+        <div class="xp-pm-grid xp-pm-grid-rec">
+          <!-- Columna 1: datos de la receta -->
+          <section class="xp-pm-col">
+            <div class="xp-pm-sec">Datos de la receta</div>
+            <div class="xp-pm-f">
+              <label for="rec-name">Nombre de la receta, menú o paquete</label>
+              <input id="rec-name" type="text" placeholder="Ej. Barra Coctelería Premium" class="font-semibold" />
+            </div>
+            <div class="xp-pm-row2">
+              <div class="xp-pm-f xp-pm-pax">
+                <label for="rec-base-pax">Rinde para (personas)</label>
+                <input id="rec-base-pax" type="number" min="1" value="1" class="tabular-nums" />
+              </div>
+              <div class="xp-pm-f xp-pm-price">
+                <label for="rec-price">Precio venta / persona</label>
+                <input id="rec-price" type="number" step="100" value="42000" class="tabular-nums" />
+              </div>
+            </div>
+            <div class="xp-pm-f">
+              <label for="rec-category">Categoría</label>
+              <input id="rec-category" type="text" list="xp-cat-categories" autocomplete="off" placeholder="Ej. Bebidas, Alimentos" />
+            </div>
+            <div class="xp-pm-f">
+              <label for="rec-desc">Descripción para el cliente (sale en el PDF)</label>
+              <textarea id="rec-desc" rows="2" placeholder="Ej. Incluye 3 cócteles de autor por persona, cristalería, hielo y fruta deshidratada."></textarea>
+            </div>
+            <div class="xp-pm-row2">
+              <div class="xp-pm-f">
+                <label for="rec-glassware">Cristalería / montaje</label>
+                <input id="rec-glassware" type="text" placeholder="Ej. Copa balón" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="rec-waste">Merma estimada</label>
+                <input id="rec-waste" type="text" placeholder="Ej. 3% - 5%" />
+              </div>
+            </div>
+          </section>
+          <!-- Columna 2: insumos -->
+          <section class="xp-pm-col xp-pm-ings">
+            <div class="xp-pm-sec">Insumos de la receta <span class="xp-pm-muted">(litros, onzas, kilos y gramos se convierten solos)</span></div>
+            <div class="xp-pm-addrow">
+              <div class="xp-pm-f xp-pm-add-ing">
+                <label for="rec-ing-select">Insumo</label>
+                <select id="rec-ing-select"></select>
+              </div>
+              <div class="xp-pm-f xp-pm-add-qty">
+                <label for="rec-ing-qty">Cantidad</label>
+                <input id="rec-ing-qty" type="number" step="any" min="0.01" value="2" class="font-bold tabular-nums" />
+              </div>
+              <div class="xp-pm-f xp-pm-add-unit">
+                <label for="rec-ing-unit">Unidad</label>
+                <select id="rec-ing-unit">
+                  <option value="oz">Onza (oz)</option>
+                  <option value="ml">Mililitro (ml)</option>
+                  <option value="L">Litro (L)</option>
+                  <option value="g">Gramo (g)</option>
+                  <option value="kg">Kilo (kg)</option>
+                  <option value="und">Unidad (und)</option>
+                </select>
+              </div>
+              <button type="button" id="btn-add-ing-to-recipe" class="xp-pm-btn xp-pm-dark xp-pm-add-btn">+ Agregar</button>
+            </div>
+            <div id="rec-ingredients-list" class="xp-pm-list divide-y divide-slate-200 bg-white rounded-lg border border-slate-200 p-2 overflow-y-auto"></div>
+            <div class="xp-pm-cost">
+              <div class="flex justify-between items-center font-bold text-slate-800">
+                <span>Costo por 1 persona:</span>
+                <span id="rec-calculated-cost-per-pax" class="text-sm text-indigo-700 tabular-nums">$0</span>
+              </div>
+              <div id="rec-margin-hint" class="text-right text-[11px] font-bold text-slate-600"></div>
+            </div>
+          </section>
         </div>
       </div>
-
-      <!-- Ingredients Builder -->
-      <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3 text-xs">
-        <div class="font-bold text-slate-800">Agregar insumo a la receta (litros, onzas, kilos y gramos se convierten solos)</div>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
-          <div class="sm:col-span-5">
-            <label for="rec-ing-select" class="block text-[11px] text-slate-600 mb-1">Insumo Simple</label>
-            <select id="rec-ing-select" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2"></select>
-          </div>
-          <div class="sm:col-span-3">
-            <label for="rec-ing-qty" class="block text-[11px] text-slate-600 mb-1">Cantidad usada</label>
-            <input id="rec-ing-qty" type="number" step="any" min="0.01" value="2" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 font-bold tabular-nums" />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="rec-ing-unit" class="block text-[11px] text-slate-600 mb-1">Unidad Receta</label>
-            <select id="rec-ing-unit" class="w-full rounded-lg border border-slate-300 bg-white px-2 py-2">
-              <option value="oz">Onza (oz)</option>
-              <option value="ml">Mililitro (ml)</option>
-              <option value="L">Litro (L)</option>
-              <option value="g">Gramo (g)</option>
-              <option value="kg">Kilo (kg)</option>
-              <option value="und">Unidad (und)</option>
-            </select>
-          </div>
-          <div class="sm:col-span-2">
-            <button type="button" id="btn-add-ing-to-recipe" class="w-full py-2 px-3 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800">
-              + Insumo
-            </button>
-          </div>
+      <div class="xp-pm-foot">
+        <label class="xp-pm-active"><input id="rec-active" type="checkbox" checked /> <span>Activa <span class="xp-pm-muted">(al cotizar y en el simulador)</span></span></label>
+        <div class="flex gap-2">
+          <button type="button" data-close-modal="modal-recipe-product" class="xp-pm-btn">Cancelar</button>
+          <button type="button" id="btn-save-recipe-product" class="xp-pm-btn xp-pm-primary">Guardar receta</button>
         </div>
-
-        <div id="rec-ingredients-list" class="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200 p-2 max-h-44 overflow-y-auto"></div>
-
-        <div class="flex justify-between items-center pt-1 font-bold text-slate-800">
-          <span>Costo calculado por 1 Persona (Pax):</span>
-          <span id="rec-calculated-cost-per-pax" class="text-sm text-indigo-700 tabular-nums">$0</span>
-        </div>
-        <div id="rec-margin-hint" class="text-right text-[11px] font-bold text-slate-600"></div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" data-close-modal="modal-recipe-product" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold">Cancelar</button>
-        <button type="button" id="btn-save-recipe-product" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">Guardar Receta Compuesta</button>
       </div>
     </div>
   </div>

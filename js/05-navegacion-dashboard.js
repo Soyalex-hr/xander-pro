@@ -1845,7 +1845,7 @@ ${state.company.phone}`;
         const titleEl = document.getElementById('modal-sp-title');
         if (titleEl) titleEl.textContent = '📦 Crear Nuevo Producto Simple o Insumo';
         const btnSave = document.getElementById('btn-save-simple-product');
-        if (btnSave) btnSave.textContent = 'Crear Producto';
+        if (btnSave) btnSave.textContent = 'Crear producto';
 
         document.getElementById('sp-name').value = '';
         document.getElementById('sp-unit').value = 'und';
@@ -1922,7 +1922,7 @@ ${state.company.phone}`;
         const titleEl = document.getElementById('modal-rec-title');
         if (titleEl) titleEl.textContent = '🍹 Nueva Receta / Menú Compuesto por Personas';
         const btnSave = document.getElementById('btn-save-recipe-product');
-        if (btnSave) btnSave.textContent = 'Guardar Receta Compuesta';
+        if (btnSave) btnSave.textContent = 'Guardar receta';
 
         tempRecipeIngredients = [];
         document.getElementById('rec-name').value = '';

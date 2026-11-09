@@ -33,7 +33,7 @@
     const unit = $('sp-unit')?.value || 'und';
     const lbl = $('sp-pack-unit-label'); if (lbl) lbl.textContent = unit;
     const track = $('sp-track-stock')?.value === 'true';
-    const minBox = $('sp-min-stock-box'); if (minBox) minBox.style.display = track ? '' : 'none';
+    const minBox = $('sp-min-stock-box'); if (minBox) minBox.style.display = track ? '' : 'none'; const stBox = $('sp-stock-box'); if (stBox) stBox.style.display = track ? '' : 'none';
     const size = Number($('sp-pack-size')?.value) || 0;
     const pprice = Number($('sp-pack-price')?.value) || 0;
     const hint = $('sp-pack-hint');
