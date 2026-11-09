@@ -139,8 +139,10 @@ function calcDayPass(q) {
   const extrasTotal = extraLines.reduce((a, l) => a + l.total, 0);
   const discount = Math.max(0, Number(q.discount) || 0);
   const total = Math.max(0, entries + extrasTotal - discount);
-  const requiresDeposit = q.requiresDeposit !== false;
-  const depositPct = requiresDeposit ? Math.min(100, Math.max(0, Number(q.depositPct) || 0)) : 0;
+  const rawDepPct = Math.min(100, Math.max(0, Number(q.depositPct) || 0));
+  // Sin anticipo si se eligió "No" o si el porcentaje es 0 %
+  const requiresDeposit = q.requiresDeposit !== false && rawDepPct > 0;
+  const depositPct = requiresDeposit ? rawDepPct : 0;
   const deposit = requiresDeposit ? Math.round(total * depositPct / 100) : 0;
   return {
     adults, children, infants, people: adults + children + infants, payingPeople: adults + children,
@@ -252,6 +254,8 @@ function recalcDayPass(read = true) {
   if (read) readDayPassForm();
   const dep = document.getElementById('ds-deposit-pct');
   if (dep) dep.disabled = q.requiresDeposit === false;
+  const depBox = document.getElementById('ds-deposit-pct-box');
+  if (depBox) depBox.classList.toggle('hidden', q.requiresDeposit === false);
   q.pricing = calcDayPass(q);
   const p = q.pricing;
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
