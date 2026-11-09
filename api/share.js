@@ -19,7 +19,7 @@ import { send, fail, allow, body, text, handler } from './_lib/http.js';
 import { requireSession } from './_lib/auth.js';
 
 const KINDS = ['evento', 'cabana', 'diasol', 'combinada'];
-const MAX_HTML = 900 * 1024;
+const MAX_HTML = 2600 * 1024; // Vercel acepta hasta 4,5 MB por envío
 const MAX_CSS = 600 * 1024;
 const TOKEN_RE = /^[A-Za-z0-9_-]{16,64}$/;
 

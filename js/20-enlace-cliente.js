@@ -67,6 +67,41 @@
     }
     return css;
   }
+  // Achica imágenes pesadas (logos o fotos guardados dentro de la app) para que el envío no sea enorme
+  async function shrinkImage(src, maxW) {
+    return new Promise(resolve => {
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const sc = Math.min(1, maxW / (im.naturalWidth || maxW));
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round((im.naturalWidth || maxW) * sc));
+          c.height = Math.max(1, Math.round((im.naturalHeight || maxW) * sc));
+          const ctx = c.getContext('2d');
+          ctx.drawImage(im, 0, 0, c.width, c.height);
+          let out = /^data:image\/(png|svg)/.test(src) ? c.toDataURL('image/png') : '';
+          if (!out || out.length > 250000) {
+            // Muy pesada aún: JPEG sobre fondo blanco (se ve igual en la hoja blanca)
+            const c2 = document.createElement('canvas'); c2.width = c.width; c2.height = c.height;
+            const x2 = c2.getContext('2d'); x2.fillStyle = '#fff'; x2.fillRect(0, 0, c2.width, c2.height); x2.drawImage(c, 0, 0);
+            out = c2.toDataURL('image/jpeg', 0.82);
+          }
+          resolve(out.length < src.length ? out : src);
+        } catch { resolve(src); }
+      };
+      im.onerror = () => resolve(src);
+      im.src = src;
+    });
+  }
+  async function shrinkHeavy(clone) {
+    const imgs = Array.from(clone.querySelectorAll('img')).filter(i => /^data:image\//.test(i.getAttribute('src') || '') && i.getAttribute('src').length > 120000);
+    for (const img of imgs) img.setAttribute('src', await shrinkImage(img.getAttribute('src'), 600));
+    for (const el of Array.from(clone.querySelectorAll('[style*="data:image/"]'))) {
+      const st = el.getAttribute('style');
+      const m = /url\((['"]?)(data:image\/[^'")]+)\1\)/.exec(st);
+      if (m && m[2].length > 120000) el.setAttribute('style', st.replace(m[2], await shrinkImage(m[2], 900)));
+    }
+  }
   function snapshotHtml(sheet) {
     const clone = sheet.cloneNode(true);
     clone.querySelectorAll('.no-print, [data-html2canvas-ignore], button, input, select, textarea').forEach(el => {
@@ -87,7 +122,7 @@
     });
     clone.classList.remove('hidden');
     clone.style.display = '';
-    return clone.outerHTML;
+    return clone;
   }
 
   // Prepara la hoja de cada tipo y devuelve los datos de la cotización guardada
@@ -142,13 +177,19 @@
     const d = prepare(kind);
     if (d.error) { toast(d.error); return null; }
     if (!d.sheet || !d.sheet.innerHTML.trim()) { toast('No se pudo preparar el documento'); return null; }
-    const html = snapshotHtml(d.sheet);
+    const clone = snapshotHtml(d.sheet);
+    await shrinkHeavy(clone);
+    const html = clone.outerHTML;
+    if (html.length > 2500 * 1024) { toast('La cotización tiene fotos muy pesadas para compartir por link. Usa fotos más livianas o envía el PDF.'); return null; }
     const css = collectCss(d.sheet);
     const r = await api('POST', '/api/share', {
       kind, quoteId: String(d.id), number: d.number, clientName: d.client.name || '', total: Math.round(Number(d.total) || 0),
       html, css, meta: Object.assign({ sheetWidth: d.width, phone: (state.company || {}).phone || '', email: (state.company || {}).email || '' }, d.meta)
     });
-    if (r.status !== 200 || !r.data?.ok) { toast('No se pudo crear el link: ' + (r.data?.error || 'revisa la conexión')); return null; }
+    if (r.status !== 200 || !r.data?.ok) {
+      const why = r.status === 413 ? 'la cotización es muy pesada (revisa el logo o las fotos)' : r.status === 401 ? 'tu sesión venció, vuelve a entrar' : (r.data?.error || `error ${r.status}, revisa la conexión`);
+      toast('No se pudo crear el link: ' + why); console.warn('[link]', r.status, r.data); return null;
+    }
     const key = kind + ':' + d.id;
     cache[key] = Object.assign({}, cache[key] || {}, { token: r.data.token, url: urlOf(r.data.token), kind, quoteId: String(d.id), number: d.number, updatedAt: new Date().toISOString() });
     try { localStorage.setItem(LS, JSON.stringify(cache)); } catch { /* */ }
@@ -189,7 +230,9 @@
     m.querySelector('#xp-share-sub').textContent = 'El cliente abre el link, ve la cotización y puede aceptarla desde el celular.';
     body.innerHTML = `<div class="xp-share-loading">Preparando el link…</div>`;
     m.classList.remove('hidden');
-    const res = await createLink(kind);
+    let res = null;
+    try { res = await createLink(kind); }
+    catch (e) { console.warn('[link]', e); toast('No se pudo crear el link: ' + (e && e.message ? e.message : 'revisa la conexión a internet')); }
     if (!res) { m.classList.add('hidden'); return; }
     const { url, d, acceptedAt } = res;
     const first = String(d.client.name || '').split(/[\s&,]+/)[0] || '';

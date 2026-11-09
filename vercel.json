@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/c/:token",
-      "destination": "/cotizacion.html"
+      "destination": "/cotizacion"
     },
     {
       "source": "/api/auth/logout",
