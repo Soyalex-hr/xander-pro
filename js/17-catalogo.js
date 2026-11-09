@@ -76,6 +76,7 @@
     try { ings = typeof tempRecipeIngredients !== 'undefined' ? tempRecipeIngredients : []; } catch (e) { ings = []; }
     const fake = { type: 'compuesto', basePax: Math.max(1, Number($('rec-base-pax')?.value) || 1), ingredients: ings };
     const cost = typeof calculateRecipeUnitCost === 'function' ? calculateRecipeUnitCost(fake) : 0;
+    if (!ings.length) { box.textContent = 'Agrega insumos para ver el costo y el margen.'; box.className = 'text-right text-[11px] font-bold text-slate-500'; return; }
     const r = marginText(cost, Number($('rec-price')?.value) || 0);
     box.textContent = r.txt.replace('por unidad', 'por persona');
     box.className = 'text-right text-[11px] font-bold xp-cat-mhint ' + r.cls;

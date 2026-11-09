@@ -702,3 +702,30 @@ html.dark .xp-cat-act.is-danger { background:rgba(180,35,24,.15); border-color:r
 .xp-cat-act-m { flex-direction:column; min-height:52px; padding:.3rem .2rem; font-size:.62rem; gap:.1rem; }
 .xp-cat-inactive { opacity:.6; }
 .xp-cat-ro { background:#F1F5F9 !important; color:#475569 !important; }
+
+/* ===== Ventanas (modales): nunca se corta la parte de arriba =====
+   Con align-items:center, una ventana más alta que la pantalla se sale por arriba y no se puede
+   desplazar hasta el título (pasaba en iPhone con "Nueva receta"). Se alinea arriba y se centra con
+   margen automático, que vuelve a 0 cuando no cabe. */
+div[id^="modal-"].fixed.inset-0.flex, #modal-xp-email.flex {
+  align-items: flex-start !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+div[id^="modal-"].fixed.inset-0.flex > div, #modal-xp-email.flex > div {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  div[id^="modal-"].fixed.inset-0.flex, #modal-xp-email.flex { padding-left: .5rem !important; padding-right: .5rem !important; }
+  div[id^="modal-"].fixed.inset-0.flex > div { padding: 1.1rem !important; border-radius: 1.1rem; }
+  /* Encabezado con el botón cerrar siempre visible al desplazarse */
+  #modal-recipe-product > div > div:first-child,
+  #modal-simple-product > div > div:first-child {
+    position: sticky; top: calc(-1.1rem); z-index: 5; background: inherit;
+    margin: -1.1rem -1.1rem 0; padding: 1.1rem 1.1rem .75rem; border-top-left-radius: 1.1rem; border-top-right-radius: 1.1rem;
+  }
+  #modal-recipe-product [data-close-modal].text-lg, #modal-simple-product [data-close-modal].text-lg { min-width: 44px; min-height: 44px; }
+}
