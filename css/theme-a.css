@@ -729,3 +729,66 @@ div[id^="modal-"].fixed.inset-0.flex > div, #modal-xp-email.flex > div {
   }
   #modal-recipe-product [data-close-modal].text-lg, #modal-simple-product [data-close-modal].text-lg { min-width: 44px; min-height: 44px; }
 }
+
+/* ===== Cotizador de eventos ===== */
+.xp-ev-mg { display:inline-block; min-width:48px; text-align:center; padding:.1rem .45rem; border-radius:.45rem; font-size:.7rem; font-weight:800; font-variant-numeric:tabular-nums; background:#EEF2F6; color:#64748B; }
+.xp-ev-mg.m-ok { background:#DDF4EA; color:#17694A; } .xp-ev-mg.m-low { background:#FFF0D6; color:#8A5300; } .xp-ev-mg.m-neg { background:#FDE2E1; color:#B42318; }
+html.dark .xp-ev-mg { background:#1E293B; color:#94A3B8; }
+html.dark .xp-ev-mg.m-ok { background:rgba(46,139,87,.25); color:#8FE0B5; } html.dark .xp-ev-mg.m-low { background:rgba(242,169,59,.2); color:#FFD27A; } html.dark .xp-ev-mg.m-neg { background:rgba(180,35,24,.25); color:#FCA5A5; }
+.xp-ev-line-extras { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; padding-top:.15rem; }
+.xp-ev-section { width:160px; max-width:100%; font-size:11px; padding:.25rem .5rem; border:1px dashed #CBD5E1 !important; border-radius:.5rem; background:transparent; color:#475569; }
+.xp-ev-opt { display:inline-flex; align-items:center; gap:.3rem; font-size:11px; font-weight:700; color:#475569; cursor:pointer; min-height:32px; }
+.xp-ev-opt input { width:16px; height:16px; }
+.xp-ev-row-opt { background:repeating-linear-gradient(135deg, transparent 0 10px, rgba(148,163,184,.08) 10px 20px); }
+.xp-ev-row-opt [data-line-total] { color:#94A3B8; text-decoration:line-through; text-decoration-thickness:1px; }
+.xp-ev-card { border:1px solid var(--xp-border); border-radius:1rem; padding:.85rem; background:var(--xp-surface); display:flex; flex-direction:column; gap:.6rem; }
+.xp-ev-in { width:100%; min-height:44px; border:1px solid #CBD5E1; border-radius:.65rem; padding:.45rem .65rem; font-size:14px; background:#fff; color:#0F172A; }
+textarea.xp-ev-in { min-height:56px; resize:vertical; }
+.xp-ev-card .xp-ev-section { width:100%; min-height:40px; font-size:13px; }
+.xp-ev-card .xp-ev-line-extras { display:grid; grid-template-columns:1fr auto; }
+.xp-ev-f { display:flex; flex-direction:column; gap:.2rem; font-size:10px; font-weight:700; text-transform:uppercase; color:#64748B; }
+.xp-ev-del { min-width:44px; min-height:44px; border-radius:.7rem; color:#B42318; background:#FFF5F4; border:1px solid #F4C7C3; font-weight:800; }
+html.dark .xp-ev-in { background:#0F172A; color:#F1F5F9; border-color:#334155; }
+/* Barra fija */
+.xp-ev-bar { position:sticky; bottom:12px; z-index:30; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; padding:.7rem .9rem; border-radius:1.1rem; background:rgba(255,255,255,.96); border:1px solid var(--xp-border-strong); box-shadow:0 12px 30px -12px rgba(11,59,79,.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+html.dark .xp-ev-bar { background:rgba(17,26,43,.96); }
+.xp-ev-bar-nums { display:flex; gap:1.1rem; align-items:center; font-variant-numeric:tabular-nums; }
+.xp-ev-bar-nums > div { display:flex; flex-direction:column; line-height:1.15; }
+.xp-ev-bar-nums span { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--xp-muted); }
+.xp-ev-bar-nums strong { font-size:1rem; font-weight:900; color:var(--xp-text); }
+#xp-ev-bar-total { color:var(--c-ocean, #0B5D7E); font-size:1.15rem; }
+html.dark #xp-ev-bar-total { color:#7FD3E6; }
+#xp-ev-bar-margin.m-ok { color:#17694A; } #xp-ev-bar-margin.m-low { color:#B76E00; } #xp-ev-bar-margin.m-neg { color:#B42318; }
+.xp-ev-bar-actions { display:flex; gap:.4rem; flex-wrap:wrap; }
+.xp-ev-btn { display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 .85rem; border-radius:.8rem; font-size:.78rem; font-weight:800; border:1px solid var(--xp-border-strong); background:var(--xp-surface); color:var(--xp-text); cursor:pointer; }
+.xp-ev-btn:hover { border-color:var(--c-ocean, #0B5D7E); }
+.xp-ev-btn.is-save { background:var(--c-ocean, #0B5D7E); border-color:var(--c-ocean, #0B5D7E); color:#fff; }
+@media (max-width: 767.98px) {
+  .xp-ev-bar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); padding:.55rem .6rem; gap:.45rem; border-radius:1rem; }
+  .xp-ev-bar-nums { width:100%; justify-content:space-between; gap:.5rem; }
+  .xp-ev-bar-actions { width:100%; display:grid; grid-template-columns:repeat(4, 1fr); gap:.35rem; }
+  .xp-ev-btn { flex-direction:column; justify-content:center; gap:.05rem; padding:.2rem; font-size:.66rem; min-height:48px; }
+}
+#view-cotizador.xp-ev-previewing .xp-ev-bar { display:none; }
+
+/* ===== PDF de eventos: Costa Caribe ===== */
+#pdf-header-border { border-color:#0B5D7E !important; }
+#pdf-logo-box { background:#0B5D7E !important; }
+#pdf-company-slogan { color:#0A7F86 !important; }
+#pdf-quote-version-subtitle { color:#0B5D7E !important; }
+#pdf-table-head-row { background:#0B5D7E !important; }
+#pdf-event-type-badge { background:#E2F4F4 !important; color:#0A6F75 !important; }
+#pdf-event-pax-badge { background:#E8F6F6 !important; border-color:#0FA3A3 !important; color:#0A6F75 !important; }
+#pdf-event-pax-badge span, #pdf-event-pax-badge strong, #pdf-event-pax-badge svg { color:#0A6F75 !important; }
+:is(#pdf-document-sheet, #pdf-render-clone) .text-indigo-600, :is(#pdf-document-sheet, #pdf-render-clone) .text-indigo-700, :is(#pdf-document-sheet, #pdf-render-clone) .text-indigo-950 { color:#0B5D7E !important; }
+:is(#pdf-document-sheet, #pdf-render-clone) .bg-indigo-50 { background-color:#E8F3F7 !important; }
+:is(#pdf-document-sheet, #pdf-render-clone) .border-indigo-200 { border-color:#B9DCE8 !important; }
+:is(#pdf-document-sheet, #pdf-render-clone) .bg-slate-900 { background-color:#0B3B4F !important; }
+.xp-pdf-section td { background:#E8F3F7; color:#0B5D7E; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+.xp-pdf-optional-head td { background:#FFF7E6; color:#8A5300; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; border-top:2px dashed #F2C67A; }
+.xp-pdf-optional td { background:#FFFCF5; }
+@media (max-width: 767.98px) {
+  .xp-ev-bar-nums strong { font-size:.92rem; }
+  #xp-ev-bar-total { font-size:1rem; }
+  .xp-ev-btn { min-height:44px; }
+}

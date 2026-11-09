@@ -863,6 +863,8 @@
         if (statusEl && statusEl.value) q.status = statusEl.value;
         const discEl = document.getElementById('q-discount-pct');
         if (discEl && discEl.value !== '') q.discountPct = Number(discEl.value);
+        const discAmtEl = document.getElementById('q-discount-amount');
+        if (discAmtEl && discAmtEl.value !== '') q.discountAmount = Math.max(0, Number(discAmtEl.value) || 0);
         const taxEl = document.getElementById('q-tax-pct');
         if (taxEl && taxEl.value !== '') q.taxPct = Number(taxEl.value);
         const depEl = document.getElementById('q-deposit-pct');
@@ -886,6 +888,7 @@
         ['q-issue-date', 'issueDate'],
         ['q-valid-until', 'validUntil'],
         ['q-discount-pct', 'discountPct'],
+        ['q-discount-amount', 'discountAmount'],
         ['q-tax-pct', 'taxPct'],
         ['q-deposit-pct', 'depositPct'],
         ['q-observations', 'observations']
@@ -896,6 +899,22 @@
         if (!el) return;
         ['input', 'change'].forEach(evt => {
           el.addEventListener(evt, () => {
+            if (prop === 'guestsPax') {
+              // Escalado automático: las recetas / ítems por persona que tenían la cantidad anterior siguen al nuevo número
+              const prevPax = Number(state.activeQuote.guestsPax) || 0;
+              const newPax = Number(el.value) || 0;
+              if (newPax > 0 && prevPax > 0 && newPax !== prevPax) {
+                let scaled = 0;
+                (state.activeQuote.items || []).forEach(item => {
+                  const perPerson = item.isRecipe || /persona|pax/i.test(String(item.unit || ''));
+                  if (perPerson && Number(item.qty) === prevPax) { item.qty = newPax; scaled++; }
+                });
+                if (scaled) {
+                  clearTimeout(window.__xpPaxToast);
+                  window.__xpPaxToast = setTimeout(() => showToast(`${scaled} ítem(s) por persona ajustados a ${Number(state.activeQuote.guestsPax) || newPax} personas`), 900);
+                }
+              }
+            }
             state.activeQuote[prop] = el.type === 'number' ? Number(el.value) : el.value;
             if (prop === 'guestsPax' && stagingMode === 'catalog') {
               const prodId = document.getElementById('picker-product-select')?.value;
@@ -1223,7 +1242,8 @@
           isRecipe: prod ? prod.type === 'compuesto' : unit.includes('Persona'),
           qty,
           unit,
-          price
+          price,
+          ...(prod && String(prod.category || '').trim() ? { section: String(prod.category).trim() } : {})
         });
 
         saveState();
@@ -1233,19 +1253,37 @@
       });
 
       // Delegated events on Quote Items Editor Table
-      document.getElementById('quote-items-editor-tbody')?.addEventListener('input', e => {
+      const onQuoteLineEdit = e => {
         const target = e.target;
-        if (!target.classList.contains('quote-line-input')) return;
+        if (!target.classList || !target.classList.contains('quote-line-input')) return;
         const idx = parseInt(target.getAttribute('data-item-idx'), 10);
         const field = target.getAttribute('data-field');
         const item = state.activeQuote.items[idx];
         if (!item) return;
-        item[field] = (field === 'qty' || field === 'price') ? Number(target.value) : target.value;
+        // Los campos de texto ya se guardan con "input": el "change" al salir del campo no vuelve a dibujar
+        // (si no, al tocar otro campo se reconstruye la tabla y se pierde el toque)
+        if (e.type === 'change' && field !== 'optional') return;
+        if (field === 'optional') {
+          if (e.type !== 'change') return;
+          item.optional = !!target.checked;
+        } else if (field === 'section') {
+          const v = target.value.trim();
+          if (v) item.section = v; else delete item.section;
+        } else {
+          item[field] = (field === 'qty' || field === 'price') ? Number(target.value) : target.value;
+        }
+        // El mismo ítem aparece en la tabla y en las tarjetas del celular: se sincroniza el otro campo
+        document.querySelectorAll(`#quote-items-editor-wrap .quote-line-input[data-item-idx="${idx}"][data-field="${field}"]`).forEach(el => {
+          if (el === target) return;
+          if (field === 'optional') el.checked = !!item.optional; else el.value = target.value;
+        });
         saveState();
         renderQuoteEditorAndPdf();
-      });
+      };
+      document.getElementById('quote-items-editor-wrap')?.addEventListener('input', onQuoteLineEdit);
+      document.getElementById('quote-items-editor-wrap')?.addEventListener('change', onQuoteLineEdit);
 
-      document.getElementById('quote-items-editor-tbody')?.addEventListener('click', e => {
+      document.getElementById('quote-items-editor-wrap')?.addEventListener('click', e => {
         const btn = e.target.closest('.remove-quote-line-btn');
         if (!btn) return;
         const idx = parseInt(btn.getAttribute('data-remove-idx'), 10);
@@ -1261,17 +1299,18 @@
         const defaultEvType = (state.eventTypes && state.eventTypes.length > 0) ? state.eventTypes[0].name : 'Boda / Matrimonio';
         state.activeQuote = {
           id: 'q-' + Date.now(),
-          number: `COT-2026-000${nextNum}`,
+          number: typeof xpNextEventQuoteNumber === 'function' ? xpNextEventQuoteNumber() : `COT-2026-000${nextNum}`,
           eventType: defaultEvType,
           status: 'Borrador',
           clientId: state.clients[0]?.id || '',
           eventTitle: 'Nuevo Evento Especial',
           guestsPax: 100,
-          eventDate: '2026-12-20',
+          eventDate: typeof xpTodayISO === 'function' ? xpTodayISO(30) : '2026-12-20',
           eventVenue: 'Por confirmar',
-          issueDate: '2026-11-01',
-          validUntil: '2026-11-16',
+          issueDate: typeof xpTodayISO === 'function' ? xpTodayISO(0) : '2026-11-01',
+          validUntil: typeof xpTodayISO === 'function' ? xpTodayISO(15) : '2026-11-16',
           discountPct: 0,
+          discountAmount: 0,
           taxPct: 0,
           depositPct: 50,
           observations: '• Incluye montaje previo y personal uniformado.\n• Reserva de fecha garantizada con el pago del anticipo.',
@@ -1299,11 +1338,10 @@
         q.baseNumber = baseNumber;
         q.version = version;
         q.number = `${baseNumber} V${version}`;
-        const subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const afterDisc = subtotal * (1 - (Number(q.discountPct) || 0) / 100);
-        const total = afterDisc * (1 + (Number(q.taxPct) || 0) / 100);
+        const total = xpQuoteTotals(q).total;
 
-        const existingIdx = state.savedQuotes.findIndex(sq => sq.number === q.number);
+        let existingIdx = q.id ? state.savedQuotes.findIndex(sq => sq.id === q.id) : -1;
+        if (existingIdx < 0) existingIdx = state.savedQuotes.findIndex(sq => sq.number === q.number);
         const summaryRecord = {
           id: q.id || ('sq-' + Date.now()),
           number: q.number,
@@ -1543,9 +1581,7 @@
       document.getElementById('btn-open-email-modal')?.addEventListener('click', () => {
         const q = state.activeQuote;
         const client = state.clients.find(c => c.id === q.clientId) || state.clients[0];
-        const subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const total = subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100);
-        const deposit = total * ((Number(q.depositPct) || 0) / 100);
+        const { total, deposit } = xpQuoteTotals(q);
 
         document.getElementById('em-to').value = client?.email || '';
         document.getElementById('em-subject').value = `Propuesta & Cotización ${q.number} — ${q.eventTitle} (${state.company.name})`;
@@ -1606,9 +1642,7 @@ ${state.company.phone}`;
       // Approve Quote & Register Deposit in Cash Flow
       document.getElementById('btn-approve-and-charge')?.addEventListener('click', () => {
         const q = state.activeQuote;
-        const subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const total = subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100);
-        const deposit = total * ((Number(q.depositPct) || 0) / 100);
+        const { total, deposit } = xpQuoteTotals(q);
 
         q.status = 'Aprobada';
         // Sync status to savedQuotes
@@ -2531,8 +2565,7 @@ ${state.company.phone}`;
 // Amount Preset buttons
       document.getElementById('btn-cdc-preset-total')?.addEventListener('click', () => {
         const q = currentCDCQuote || state.activeQuote || {};
-        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const total = Math.round(xpQuoteTotals(q).total);
         const amtInput = document.getElementById('cdc-input-amount');
         if (amtInput) amtInput.value = total;
         const wordsInput = document.getElementById('cdc-input-amount-words');
@@ -2543,8 +2576,7 @@ ${state.company.phone}`;
 
       document.getElementById('btn-cdc-preset-anticipo')?.addEventListener('click', () => {
         const q = currentCDCQuote || state.activeQuote || {};
-        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const total = Math.round(xpQuoteTotals(q).total);
         const anticipoVal = Math.round(total * ((Number(q.depositPct) || 50) / 100));
         const amtInput = document.getElementById('cdc-input-amount');
         if (amtInput) amtInput.value = anticipoVal;
@@ -2556,8 +2588,7 @@ ${state.company.phone}`;
 
       document.getElementById('btn-cdc-preset-saldo')?.addEventListener('click', () => {
         const q = currentCDCQuote || state.activeQuote || {};
-        const subtotal = (q.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-        const total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+        const total = Math.round(xpQuoteTotals(q).total);
         const anticipoVal = Math.round(total * ((Number(q.depositPct) || 50) / 100));
         const saldoVal = Math.max(0, total - anticipoVal);
         const amtInput = document.getElementById('cdc-input-amount');

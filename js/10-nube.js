@@ -19,7 +19,7 @@
   const ARRAY_COLLECTIONS = [
     'eventTypes', 'clients', 'products', 'savedQuotes', 'finances',
     'cabins', 'childPolicies', 'mealPlans', 'tourServices', 'cabinQuotes',
-    'eventClosures', 'notifications', 'dayPassExtras', 'dayPassQuotes'
+    'eventClosures', 'notifications', 'dayPassExtras', 'dayPassQuotes', 'quoteTemplates'
   ];
   const SETTINGS_COLLECTION = '_settings';
   const SETTINGS_KEYS = ['company', 'shoppingLists', 'priceHistory', 'dayPassConfig'];
@@ -521,7 +521,7 @@
     if (!upload) {
       // Empresa nueva sin datos: se conservan solo catálogos base
       const def = getDefaultState();
-      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications', 'dayPassQuotes'].forEach(k => { state[k] = []; });
+      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications', 'dayPassQuotes', 'quoteTemplates'].forEach(k => { state[k] = []; });
       state.eventTypes = def.eventTypes;
       state.childPolicies = def.childPolicies;
       state.mealPlans = def.mealPlans;

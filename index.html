@@ -737,6 +737,9 @@
           <button type="button" id="btn-new-clean-quote" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
             + Limpiar / Nueva Cotización
           </button>
+          <button type="button" id="btn-xp-quote-templates" onclick="xpOpenQuoteTemplates()" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+            📁 Plantillas
+          </button>
         </div>
       </div>
 
@@ -1019,10 +1022,11 @@
                 <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">3</span>
                 Ítems Incluidos en la Cotización (Precios y Cantidades Editables)
               </h3>
-              <span class="text-xs text-slate-500">Puedes modificar cualquier precio o cantidad directamente en la tabla</span>
+              <span class="text-xs text-slate-500">Edita precios y cantidades aquí. El margen es solo para ti: no sale en el PDF.</span>
             </div>
 
-            <div class="overflow-x-auto">
+            <div id="quote-items-editor-wrap">
+            <div class="overflow-x-auto hidden md:block">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500 bg-slate-50">
@@ -1031,19 +1035,30 @@
                     <th class="py-2.5 px-2 w-28">Unidad</th>
                     <th class="py-2.5 px-2 w-32 text-right">Precio Unit/Pax</th>
                     <th class="py-2.5 px-2 w-28 text-right">Subtotal</th>
+                    <th class="py-2.5 px-2 w-20 text-right" title="Solo para ti, no sale en el PDF">Margen</th>
                     <th class="py-2.5 px-2 w-10 text-center"></th>
                   </tr>
                 </thead>
                 <tbody id="quote-items-editor-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
               </table>
             </div>
+            <div id="quote-items-editor-cards" class="md:hidden space-y-3"></div>
+            </div>
+            <datalist id="xp-quote-sections">
+              <option value="Menú"></option><option value="Bebidas"></option><option value="Coctelería"></option><option value="Servicios"></option>
+              <option value="Personal"></option><option value="Decoración"></option><option value="Mobiliario"></option><option value="Montaje"></option>
+            </datalist>
 
             <!-- Descuento, Impuesto, Anticipo y Resumen de Totales en Pantalla Completa -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-3 border-t border-slate-100 items-center">
-              <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label for="q-discount-pct" class="block text-xs font-semibold text-slate-600 mb-1">Descuento Global (%)</label>
-                  <input id="q-discount-pct" type="number" min="0" max="100" step="0.5" value="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold tabular-nums" />
+                  <label for="q-discount-pct" class="block text-xs font-semibold text-slate-600 mb-1">Descuento (%)</label>
+                  <input id="q-discount-pct" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold tabular-nums" />
+                </div>
+                <div>
+                  <label for="q-discount-amount" class="block text-xs font-semibold text-slate-600 mb-1">Descuento ($)</label>
+                  <input id="q-discount-amount" type="number" inputmode="numeric" min="0" step="1000" value="0" placeholder="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold tabular-nums" />
                 </div>
                 <div>
                   <label for="q-tax-pct" class="block text-xs font-semibold text-slate-600 mb-1">IVA / Impuesto (%)</label>
@@ -1077,6 +1092,7 @@
               <label for="q-observations" class="block text-xs font-semibold text-slate-600 mb-1">
                 Observaciones especiales, logística, horarios de montaje, alergias o notas para el cliente:
               </label>
+              <p class="text-[11px] text-slate-500 -mt-0.5 mb-1.5">Los términos y condiciones del pie del PDF se editan en <button type="button" onclick="xpGoEditTerms()" class="font-bold underline text-[var(--c-ocean,#0B5D7E)] cursor-pointer">Mi Empresa → Términos</button>.</p>
               <textarea id="q-observations" rows="3" class="w-full rounded-xl border border-slate-300 p-3 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">• Incluye montaje de barra móvil 2 horas antes del inicio de la recepción.
 • Se contemplan 10 menús vegetarianos y estación de hidratación sin alcohol para niños.
 • Cristalería y menaje incluidos sin costo adicional de rotura menor (hasta 3 piezas).</textarea>
@@ -1125,6 +1141,21 @@
             </div>
           </div>
 
+          <!-- Resumen fijo: total, anticipo y acciones siempre a la mano -->
+          <div id="xp-ev-bar" class="xp-ev-bar">
+            <div class="xp-ev-bar-nums">
+              <div><span>Total</span><strong id="xp-ev-bar-total">$ 0</strong></div>
+              <div><span id="xp-ev-bar-dep-label">Anticipo</span><strong id="xp-ev-bar-dep">$ 0</strong></div>
+              <div class="xp-ev-bar-margin" title="Solo para ti, no sale en el PDF"><span>Margen</span><strong id="xp-ev-bar-margin">—</strong></div>
+            </div>
+            <div class="xp-ev-bar-actions">
+              <button type="button" onclick="xpEvSave()" class="xp-ev-btn is-save">💾<span>Guardar</span></button>
+              <button type="button" onclick="xpEvPreview()" class="xp-ev-btn">👁️<span>Vista previa</span></button>
+              <button type="button" onclick="xpOpenEmailModal && xpOpenEmailModal('event')" class="xp-ev-btn">✉️<span>Correo</span></button>
+              <button type="button" onclick="xpEvWhatsApp()" class="xp-ev-btn">💬<span>WhatsApp</span></button>
+            </div>
+          </div>
+
         </div>
 
         <!-- STEP 3: HISTORIAL DE COTIZACIONES DE HOSPEDAJE -->
@@ -1166,7 +1197,7 @@
               <button type="button" id="btn-print-pdf" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition">
                 🖨️ Imprimir
               </button>
-              <button type="button" id="btn-open-email-modal" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition">
+              <button type="button" id="btn-open-email-modal" class="hidden px-3.5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition" aria-hidden="true" tabindex="-1">
                 ✉️ Enviar por Correo
               </button>
               <button type="button" id="btn-approve-and-charge" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-950 text-emerald-300 hover:bg-emerald-900 border border-emerald-700 transition">
@@ -5444,5 +5475,6 @@
   <script src="js/15-cotizador-ux.js"></script>
   <script src="js/16-correo.js"></script>
   <script src="js/17-catalogo.js"></script>
+  <script src="js/18-eventos-ux.js"></script>
 </body>
 </html>

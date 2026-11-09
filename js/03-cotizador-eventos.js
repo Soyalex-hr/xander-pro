@@ -295,7 +295,7 @@
       }
 
       // Lock or unlock inputs based on lock state
-      const formFieldsToLock = ["q-number", "q-event-type", "q-status", "q-event-title", "q-guests-pax", "q-event-date", "q-event-venue", "q-issue-date", "q-valid-until", "q-discount-pct", "q-tax-pct", "q-deposit-pct", "q-observations"];
+      const formFieldsToLock = ["q-number", "q-event-type", "q-status", "q-event-title", "q-guests-pax", "q-event-date", "q-event-venue", "q-issue-date", "q-valid-until", "q-discount-pct", "q-discount-amount", "q-tax-pct", "q-deposit-pct", "q-observations"];
       formFieldsToLock.forEach(fId => {
         const el = document.getElementById(fId);
         if (el) {
@@ -326,47 +326,114 @@
       document.getElementById('q-deposit-pct').value = q.depositPct;
       document.getElementById('q-observations').value = q.observations;
 
-      // Render Editor Table Rows
+      // Render Editor (tabla en computador + tarjetas en celular)
+      const escA = v => String(v ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const lineCostUnit = item => {
+        const prod = item.productId ? state.products.find(p => p.id === item.productId) : null;
+        if (!prod) return null;
+        return prod.type === 'compuesto' ? calculateRecipeUnitCost(prod) : (Number(prod.cost) || 0);
+      };
+      const lineMarginHtml = item => {
+        const cu = lineCostUnit(item);
+        const price = Number(item.price) || 0;
+        if (cu === null) return '<span class="xp-ev-mg" title="Ítem libre: sin costo en el catálogo">—</span>';
+        if (price <= 0) return '<span class="xp-ev-mg m-neg">Sin precio</span>';
+        const m = ((price - cu) / price) * 100;
+        const min = window.XP_MIN_MARGIN || 30;
+        const cls = m < 0 ? 'm-neg' : m < min ? 'm-low' : 'm-ok';
+        return `<span class="xp-ev-mg ${cls}" title="Costo ${formatCurrency(cu)} por unidad">${m.toLocaleString('es-CO', { maximumFractionDigits: 0 })} %</span>`;
+      };
       const editorTbody = document.getElementById('quote-items-editor-tbody');
-      if (q.items.length === 0) {
-        editorTbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Agrega recetas por personas o productos simples usando el panel superior.</td></tr>`;
-      } else {
-        editorTbody.innerHTML = q.items.map((item, idx) => {
-          const lineTotal = (Number(item.qty) || 0) * (Number(item.price) || 0);
-          return `
-            <tr class="hover:bg-slate-50/80">
+      const editorCards = document.getElementById('quote-items-editor-cards');
+      const editorWrap = document.getElementById('quote-items-editor-wrap');
+      const sig = [isLocked ? 'L' : 'U', q.items.length, ...q.items.map(it => (it.rowId || '') + (it.optional ? 'o' : ''))].join('#');
+      if (editorWrap && editorWrap.dataset.sig === sig && editorTbody && editorTbody.querySelector('[data-item-idx]')) {
+        // Misma estructura: se actualizan valores en su lugar (no se reconstruye, así no se pierde el foco ni el toque)
+        editorWrap.querySelectorAll('.quote-line-input[data-item-idx]').forEach(el => {
+          if (el === document.activeElement) return;
+          const it = q.items[Number(el.getAttribute('data-item-idx'))];
+          if (!it) return;
+          const f = el.getAttribute('data-field');
+          if (f === 'optional') { el.checked = !!it.optional; return; }
+          const v = f === 'section' ? (it.section || '') : (it[f] ?? '');
+          if (String(el.value) !== String(v)) el.value = v;
+        });
+        q.items.forEach((item, idx) => {
+          const lt = formatCurrency((Number(item.qty) || 0) * (Number(item.price) || 0));
+          editorWrap.querySelectorAll(`[data-line-total="${idx}"]`).forEach(el => { el.textContent = lt; });
+          editorWrap.querySelectorAll(`[data-line-margin="${idx}"]`).forEach(el => { el.innerHTML = lineMarginHtml(item); });
+        });
+      } else if (editorTbody) {
+        if (editorWrap) editorWrap.dataset.sig = sig;
+        const dis = isLocked ? 'disabled' : '';
+        const lockCls = isLocked ? ' is-locked' : '';
+        const extras = (item, idx) => `
+          <div class="xp-ev-line-extras">
+            <input type="text" ${dis} list="xp-quote-sections" data-item-idx="${idx}" data-field="section" value="${escA(item.section || '')}" placeholder="Sección (opcional)" aria-label="Sección en el PDF" class="quote-line-input xp-ev-section${lockCls}" />
+            <label class="xp-ev-opt" title="Sale en el PDF como opcional y no suma al total"><input type="checkbox" ${dis} data-item-idx="${idx}" data-field="optional" class="quote-line-input" ${item.optional ? 'checked' : ''} /> Opcional</label>
+          </div>`;
+        if (q.items.length === 0) {
+          editorTbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Agrega recetas por personas o productos simples usando el panel superior.</td></tr>`;
+          if (editorCards) editorCards.innerHTML = `<div class="py-6 text-center text-xs text-slate-400 border border-dashed border-slate-300 rounded-xl">Agrega recetas o productos con el panel de arriba.</div>`;
+        } else {
+          editorTbody.innerHTML = q.items.map((item, idx) => `
+            <tr class="hover:bg-slate-50/80 ${item.optional ? 'xp-ev-row-opt' : ''}">
               <td class="py-2.5 px-2 space-y-1">
-                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="name" value="${item.name.replace(/"/g, '&quot;')}" class="quote-line-input w-full font-bold text-slate-900 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
-                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="desc" value="${(item.desc || '').replace(/"/g, '&quot;')}" placeholder="Descripci&oacute;n en el PDF..." class="quote-line-input w-full text-[11px] text-slate-500 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
+                <input type="text" ${dis} data-item-idx="${idx}" data-field="name" value="${escA(item.name)}" aria-label="Concepto" class="quote-line-input w-full font-bold text-slate-900 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
+                <input type="text" ${dis} data-item-idx="${idx}" data-field="desc" value="${escA(item.desc || '')}" placeholder="Descripci&oacute;n en el PDF..." aria-label="Descripción" class="quote-line-input w-full text-[11px] text-slate-500 ${isLocked ? 'bg-slate-100/60 cursor-not-allowed' : 'bg-transparent border-b border-transparent focus:border-indigo-400 focus:bg-white'} px-1 py-0.5 rounded" />
+                ${extras(item, idx)}
               </td>
               <td class="py-2.5 px-2 text-center">
-                <input type="number" ${isLocked ? 'disabled' : ''} step="any" min="0.1" data-item-idx="${idx}" data-field="qty" value="${item.qty}" class="quote-line-input w-20 text-center font-bold text-indigo-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed' : 'bg-indigo-50/60 border border-indigo-200'} rounded-lg px-2 py-1 tabular-nums" />
+                <input type="number" inputmode="decimal" ${dis} step="any" min="0" data-item-idx="${idx}" data-field="qty" value="${item.qty}" aria-label="Cantidad" class="quote-line-input w-20 text-center font-bold text-indigo-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed' : 'bg-indigo-50/60 border border-indigo-200'} rounded-lg px-2 py-1 tabular-nums" />
               </td>
               <td class="py-2.5 px-2">
-                <input type="text" ${isLocked ? 'disabled' : ''} data-item-idx="${idx}" data-field="unit" value="${item.unit}" class="quote-line-input w-24 text-xs font-medium text-slate-700 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'border border-slate-200'} rounded-lg px-2 py-1" />
+                <input type="text" ${dis} data-item-idx="${idx}" data-field="unit" value="${escA(item.unit || '')}" aria-label="Unidad" class="quote-line-input w-24 text-xs font-medium text-slate-700 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'border border-slate-200'} rounded-lg px-2 py-1" />
               </td>
               <td class="py-2.5 px-2 text-right">
-                <input type="number" ${isLocked ? 'disabled' : ''} step="100" min="0" data-item-idx="${idx}" data-field="price" value="${item.price}" class="quote-line-input w-28 text-right font-bold text-emerald-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'bg-emerald-50/50 border border-emerald-300'} rounded-lg px-2 py-1 tabular-nums" />
+                <input type="number" inputmode="numeric" ${dis} step="100" min="0" data-item-idx="${idx}" data-field="price" value="${item.price}" aria-label="Precio unitario" class="quote-line-input w-28 text-right font-bold text-emerald-900 ${isLocked ? 'bg-slate-100 cursor-not-allowed border-slate-200' : 'bg-emerald-50/50 border border-emerald-300'} rounded-lg px-2 py-1 tabular-nums" />
               </td>
-              <td class="py-2.5 px-2 text-right font-extrabold text-slate-900 tabular-nums">
-                ${formatCurrency(lineTotal)}
-              </td>
+              <td class="py-2.5 px-2 text-right font-extrabold text-slate-900 tabular-nums" data-line-total="${idx}">${formatCurrency((Number(item.qty) || 0) * (Number(item.price) || 0))}</td>
+              <td class="py-2.5 px-2 text-right" data-line-margin="${idx}">${lineMarginHtml(item)}</td>
               <td class="py-2.5 px-2 text-center">
-                ${isLocked ? '<span class="text-slate-300 font-bold text-xs" title="Cotizaci&oacute;n protegida">-</span>' : `<button type="button" data-remove-idx="${idx}" class="remove-quote-line-btn text-rose-500 hover:text-rose-700 font-bold px-1.5 py-1 rounded hover:bg-rose-50 cursor-pointer" title="Eliminar &iacute;tem">&#10005;</button>`}
+                ${isLocked ? '<span class="text-slate-300 font-bold text-xs" title="Cotizaci&oacute;n protegida">-</span>' : `<button type="button" data-remove-idx="${idx}" class="remove-quote-line-btn text-rose-500 hover:text-rose-700 font-bold px-1.5 py-1 rounded hover:bg-rose-50 cursor-pointer" title="Eliminar &iacute;tem" aria-label="Eliminar ítem">&#10005;</button>`}
               </td>
-            </tr>
-          `;
-        }).join('');
+            </tr>`).join('');
+          if (editorCards) {
+            editorCards.innerHTML = q.items.map((item, idx) => `
+              <div class="xp-ev-card ${item.optional ? 'xp-ev-row-opt' : ''}">
+                <div class="flex items-start gap-2">
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <input type="text" ${dis} data-item-idx="${idx}" data-field="name" value="${escA(item.name)}" aria-label="Concepto" class="quote-line-input xp-ev-in font-bold" />
+                    <textarea ${dis} rows="2" data-item-idx="${idx}" data-field="desc" placeholder="Descripción en el PDF…" aria-label="Descripción" class="quote-line-input xp-ev-in text-[12px] text-slate-600">${escA(item.desc || '')}</textarea>
+                  </div>
+                  ${isLocked ? '' : `<button type="button" data-remove-idx="${idx}" class="remove-quote-line-btn xp-ev-del" aria-label="Eliminar ítem">&#10005;</button>`}
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <label class="xp-ev-f"><span>Cantidad</span><input type="number" inputmode="decimal" ${dis} step="any" min="0" data-item-idx="${idx}" data-field="qty" value="${item.qty}" class="quote-line-input xp-ev-in text-center font-bold tabular-nums" /></label>
+                  <label class="xp-ev-f"><span>Unidad</span><input type="text" ${dis} data-item-idx="${idx}" data-field="unit" value="${escA(item.unit || '')}" class="quote-line-input xp-ev-in" /></label>
+                  <label class="xp-ev-f"><span>Precio</span><input type="number" inputmode="numeric" ${dis} step="100" min="0" data-item-idx="${idx}" data-field="price" value="${item.price}" class="quote-line-input xp-ev-in text-right font-bold tabular-nums" /></label>
+                </div>
+                ${extras(item, idx)}
+                <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                  <span data-line-margin="${idx}">${lineMarginHtml(item)}</span>
+                  <span class="font-extrabold text-slate-900 tabular-nums">${item.optional ? '<span class="text-[10px] font-bold text-slate-500 mr-1">Opcional</span>' : ''}<span data-line-total="${idx}">${formatCurrency((Number(item.qty) || 0) * (Number(item.price) || 0))}</span></span>
+                </div>
+              </div>`).join('');
+          }
+        }
       }
 
-      // Calculate Totals
-      const subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-      const discountAmount = subtotal * ((Number(q.discountPct) || 0) / 100);
-      const afterDiscount = subtotal - discountAmount;
-      const taxAmount = afterDiscount * ((Number(q.taxPct) || 0) / 100);
-      const grandTotal = afterDiscount + taxAmount;
-      const depositAmount = grandTotal * ((Number(q.depositPct) || 0) / 100);
-      const balanceAmount = Math.max(0, grandTotal - depositAmount);
+      // Calculate Totals (cálculo único: excluye opcionales, descuento % + $)
+      const T = xpQuoteTotals(q);
+      const subtotal = T.subtotal;
+      const discountAmount = T.discount;
+      const taxAmount = T.tax;
+      const grandTotal = T.total;
+      const depositAmount = T.deposit;
+      const balanceAmount = T.balance;
+      const discAmtEl = document.getElementById('q-discount-amount');
+      if (discAmtEl && document.activeElement !== discAmtEl) discAmtEl.value = Number(q.discountAmount) || 0;
+      if (discAmtEl) { discAmtEl.disabled = isLocked; }
 
       // Update Live PDF Header & Company Info
       const comp = state.company;
@@ -389,8 +456,8 @@
       }
 
       // Update PDF Event & Client Details
-      const client = state.clients.find(c => c.id === q.clientId) || state.clients[0] || {
-        name: 'Cliente General', doc: '—', email: '', phone: '', city: ''
+      const client = state.clients.find(c => c.id === q.clientId) || (q.clientId === '' ? null : state.clients[0]) || {
+        name: 'Cliente por definir', doc: '—', email: '', phone: '', city: ''
       };
       const baseNum = (typeof getQuoteBaseNumber === "function") ? getQuoteBaseNumber(q) : (q.baseNumber || q.number);
       document.getElementById("pdf-quote-number").textContent = `COTIZACI\u00D3N N\u00B0 ${baseNum} (V${q.version || 1})`;
@@ -415,28 +482,48 @@
       document.getElementById('pdf-event-venue').textContent = q.eventVenue || 'Por definir';
       document.getElementById('pdf-event-pax').textContent = `${q.guestsPax} Invitados (Pax)`;
 
-      // Render PDF Items Table
+      // Render PDF Items Table (agrupado por sección si las hay; opcionales aparte y sin sumar)
       const pdfTbody = document.getElementById('pdf-items-tbody');
-      pdfTbody.innerHTML = q.items.map(it => {
+      const escH = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const pdfRow = it => {
         const lineSub = (Number(it.qty) || 0) * (Number(it.price) || 0);
         return `
-          <tr class="pdf-avoid-break hover:bg-slate-50/50">
+          <tr class="pdf-avoid-break">
             <td class="py-2.5 px-3">
-              <div class="font-bold text-slate-900">${it.name}</div>
-              ${it.desc ? `<div class="text-[10px] text-slate-500 leading-snug mt-0.5 whitespace-pre-line">${it.desc}</div>` : ''}
+              <div class="font-bold text-slate-900">${escH(it.name)}</div>
+              ${it.desc ? `<div class="text-[10px] text-slate-500 leading-snug mt-0.5 whitespace-pre-line">${escH(it.desc)}</div>` : ''}
             </td>
-            <td class="py-2.5 px-2 text-center font-bold text-indigo-950 tabular-nums">
-              ${it.qty} <span class="text-[10px] font-semibold text-slate-500 block">${it.unit}</span>
+            <td class="py-2.5 px-2 text-center font-bold text-slate-900 tabular-nums">
+              ${escH(it.qty)} <span class="text-[10px] font-semibold text-slate-500 block">${escH(it.unit)}</span>
             </td>
-            <td class="py-2.5 px-2 text-right font-medium text-slate-700 tabular-nums">
-              ${formatCurrency(it.price)}
-            </td>
-            <td class="py-2.5 px-3 text-right font-bold text-slate-900 tabular-nums">
-              ${formatCurrency(lineSub)}
-            </td>
-          </tr>
-        `;
-      }).join('');
+            <td class="py-2.5 px-2 text-right font-medium text-slate-700 tabular-nums">${formatCurrency(it.price)}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-slate-900 tabular-nums">${formatCurrency(lineSub)}</td>
+          </tr>`;
+      };
+      const included = q.items.filter(it => !it.optional);
+      const optionals = q.items.filter(it => it.optional);
+      const hasSections = included.some(it => String(it.section || '').trim());
+      let pdfHtml = '';
+      if (hasSections) {
+        const order = [];
+        const groups = {};
+        included.forEach(it => {
+          const key = String(it.section || '').trim() || 'Otros';
+          if (!groups[key]) { groups[key] = []; order.push(key); }
+          groups[key].push(it);
+        });
+        pdfHtml = order.map(key => {
+          const sub = groups[key].reduce((a, it) => a + (Number(it.qty) || 0) * (Number(it.price) || 0), 0);
+          return `<tr class="pdf-avoid-break xp-pdf-section"><td colspan="3" class="py-2 px-3">${escH(key)}</td><td class="py-2 px-3 text-right tabular-nums">${formatCurrency(sub)}</td></tr>` + groups[key].map(pdfRow).join('');
+        }).join('');
+      } else {
+        pdfHtml = included.map(pdfRow).join('');
+      }
+      if (optionals.length) {
+        pdfHtml += `<tr class="pdf-avoid-break xp-pdf-optional-head"><td colspan="4" class="py-2 px-3">Opcionales · puedes agregarlos (no están incluidos en el total)</td></tr>` +
+          optionals.map(pdfRow).join('').replace(/<tr class="pdf-avoid-break">/g, '<tr class="pdf-avoid-break xp-pdf-optional">');
+      }
+      pdfTbody.innerHTML = pdfHtml;
 
       // Observations in PDF
       const obsBox = document.getElementById('pdf-observations-box');
@@ -450,9 +537,18 @@
 
       // Totals in PDF
       document.getElementById('pdf-subtotal').textContent = formatCurrency(subtotal);
-      document.getElementById('pdf-discount-pct').textContent = q.discountPct;
+      const discLabelParts = [];
+      if (T.discountPct > 0) discLabelParts.push(`${T.discountPct.toLocaleString('es-CO')}%`);
+      document.getElementById('pdf-discount-pct').textContent = discLabelParts.join('') || '';
+      const discRow = document.getElementById('pdf-discount-row');
+      const discLabel = discRow ? discRow.querySelector('span') : null;
+      if (discLabel) {
+        discLabel.innerHTML = T.discountPct > 0 && T.discountFixed > 0
+          ? `Descuento (<span id="pdf-discount-pct">${T.discountPct.toLocaleString('es-CO')}</span>% + ${formatCurrency(T.discountFixed)}):`
+          : T.discountPct > 0 ? `Descuento (<span id="pdf-discount-pct">${T.discountPct.toLocaleString('es-CO')}</span>%):` : 'Descuento:<span id="pdf-discount-pct" class="hidden"></span>';
+      }
       document.getElementById('pdf-discount-amount').textContent = '-' + formatCurrency(discountAmount);
-      document.getElementById('pdf-discount-row').classList.toggle('hidden', Number(q.discountPct) <= 0);
+      if (discRow) discRow.classList.toggle('hidden', discountAmount <= 0);
 
       document.getElementById('pdf-tax-pct').textContent = q.taxPct;
       document.getElementById('pdf-tax-amount').textContent = formatCurrency(taxAmount);
@@ -472,6 +568,12 @@
       if (editorGrandTotal) editorGrandTotal.textContent = formatCurrency(grandTotal);
       const editorDeposit = document.getElementById('editor-live-deposit');
       if (editorDeposit) editorDeposit.textContent = `${formatCurrency(depositAmount)} (${q.depositPct}%)`;
+      const evBarTotal = document.getElementById('xp-ev-bar-total');
+      if (evBarTotal) evBarTotal.textContent = formatCurrency(grandTotal);
+      const evBarDep = document.getElementById('xp-ev-bar-dep');
+      if (evBarDep) evBarDep.textContent = formatCurrency(depositAmount);
+      const evBarDepLabel = document.getElementById('xp-ev-bar-dep-label');
+      if (evBarDepLabel) evBarDepLabel.textContent = `Anticipo ${Number(q.depositPct) || 0}%`;
       document.getElementById('pdf-validity-notice').textContent =
         `* Cotización válida hasta el ${formatDateHuman(q.validUntil)}. La fecha del evento (${formatDateHuman(q.eventDate)}) se bloquea en agenda con el anticipo del ${q.depositPct}%.`;
 
@@ -487,6 +589,7 @@
       let totalInternalCost = 0;
 
       state.activeQuote.items.forEach(item => {
+        if (item.optional) return; // opcional: no está incluido
         const catalogProd = state.products.find(p => p.id === item.productId);
         if (!catalogProd) return;
 
@@ -521,6 +624,13 @@
 
       document.getElementById('internal-total-cost').textContent = formatCurrency(totalInternalCost);
       document.getElementById('internal-total-profit').textContent = formatCurrency(grandTotal - totalInternalCost);
+      const evBarMargin = document.getElementById('xp-ev-bar-margin');
+      if (evBarMargin) {
+        const m = grandTotal > 0 ? ((grandTotal - totalInternalCost) / grandTotal) * 100 : null;
+        const min = window.XP_MIN_MARGIN || 30;
+        evBarMargin.textContent = m === null ? '—' : `${m.toLocaleString('es-CO', { maximumFractionDigits: 0 })} %`;
+        evBarMargin.className = m === null ? '' : (m < 0 ? 'm-neg' : m < min ? 'm-low' : 'm-ok');
+      }
 
       const entries = Object.values(requiredMap);
       if (entries.length === 0) {

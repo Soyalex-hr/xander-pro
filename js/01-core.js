@@ -70,6 +70,42 @@
       return inBase / uTo.toBase;
     }
 
+    // Totales de una cotización de eventos (un solo cálculo para editor, PDF, guardado y cobros).
+    // - Los ítems marcados como opcionales salen en el PDF pero NO suman al total.
+    // - Descuento: % sobre el subtotal + valor fijo en pesos (discountAmount), sin pasar del subtotal.
+    function xpQuoteTotals(q) {
+      const items = (q && Array.isArray(q.items)) ? q.items.filter(it => it && typeof it === 'object') : [];
+      const line = it => (Number(it.qty) || 0) * (Number(it.price) || 0);
+      const subtotal = items.filter(it => !it.optional).reduce((a, it) => a + line(it), 0);
+      const optionalTotal = items.filter(it => it.optional).reduce((a, it) => a + line(it), 0);
+      const discPct = Math.min(100, Math.max(0, Number(q && q.discountPct) || 0));
+      const discountPctAmount = subtotal * discPct / 100;
+      const discountFixed = Math.min(Math.max(0, Number(q && q.discountAmount) || 0), Math.max(0, subtotal - discountPctAmount));
+      const discount = discountPctAmount + discountFixed;
+      const afterDiscount = subtotal - discount;
+      const tax = afterDiscount * (Number(q && q.taxPct) || 0) / 100;
+      const total = afterDiscount + tax;
+      const deposit = total * (Number(q && q.depositPct) || 0) / 100;
+      return { subtotal, optionalTotal, discountPct: discPct, discountPctAmount, discountFixed, discount, afterDiscount, tax, total, deposit, balance: Math.max(0, total - deposit) };
+    }
+    window.xpQuoteTotals = xpQuoteTotals;
+
+    // Siguiente número de cotización de eventos: COT-AAAA-NNNN (no se repite aunque se borren cotizaciones)
+    function xpNextEventQuoteNumber() {
+      const year = new Date().getFullYear();
+      const nums = [...(state.savedQuotes || []).map(q => q && (q.baseNumber || q.number)), state.activeQuote && (state.activeQuote.baseNumber || state.activeQuote.number)]
+        .map(n => String(n || '').match(/^COT-(\d{4})-(\d+)/i)).filter(m => m && Number(m[1]) === year).map(m => Number(m[2]));
+      const next = (nums.length ? Math.max(...nums) : 0) + 1;
+      return `COT-${year}-${String(next).padStart(4, '0')}`;
+    }
+    window.xpNextEventQuoteNumber = xpNextEventQuoteNumber;
+
+    function xpTodayISO(offsetDays = 0) {
+      const d = new Date(); d.setDate(d.getDate() + offsetDays);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    window.xpTodayISO = xpTodayISO;
+
     function formatCurrency(val) {
       const n = Number(val) || 0;
       return '$ ' + Math.round(n).toLocaleString('es-CO');

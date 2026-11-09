@@ -885,6 +885,7 @@ function openShoppingListModal(quoteObj) {
   const ingredientsMap = {};
 
   (q.items || []).forEach(it => {
+    if (it && it.optional) return; // opcional: no está incluido en el total
     const qty = Number(it.qty) || 0;
     const baseProd = state.products.find(p => p.id === it.productId);
 
@@ -1184,6 +1185,7 @@ function updateClosureCalculations() {
   const quotedRevenue = Number(q.total) || 0;
   let estimatedCost = 0;
   (q.items || []).forEach(it => {
+    if (it && it.optional) return; // opcional: no está incluido en el total
     const prod = state.products.find(p => p.id === it.productId);
     if (prod) {
       const uCost = calculateRecipeUnitCost(prod);
@@ -1306,6 +1308,7 @@ function saveCurrentEventClosure() {
   const quotedRevenue = Number(q.total) || 0;
   let estimatedCost = 0;
   (q.items || []).forEach(it => {
+    if (it && it.optional) return; // opcional: no está incluido en el total
     const prod = state.products.find(p => p.id === it.productId);
     if (prod) estimatedCost += (calculateRecipeUnitCost(prod) * (Number(it.qty) || 0));
   });

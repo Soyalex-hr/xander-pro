@@ -139,9 +139,7 @@ function confirmCreateQuoteVersion() {
     items: JSON.parse(JSON.stringify(source.items || rawCopy.items || []))
   };
 
-  const subtotal = (newQuote.items || []).reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
-  const afterDisc = subtotal * (1 - (Number(newQuote.discountPct) || 0) / 100);
-  const total = afterDisc * (1 + (Number(newQuote.taxPct) || 0) / 100);
+  const total = xpQuoteTotals(newQuote).total;
   newQuote.total = total;
 
   const summaryRecord = {

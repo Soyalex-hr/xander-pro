@@ -194,8 +194,7 @@
       const q = state.activeQuote;
       if (!q) return null;
       if (typeof renderQuoteEditorAndPdf === 'function') { try { renderQuoteEditorAndPdf(); } catch { /* */ } }
-      const subtotal = (q.items || []).reduce((a, it) => a + (Number(it.qty) || 0) * (Number(it.price) || 0), 0);
-      const total = subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100);
+      const total = xpQuoteTotals(q).total;
       const depPct = Number(q.depositPct) || 0;
       const cl = clientOf(q.clientId);
       return {

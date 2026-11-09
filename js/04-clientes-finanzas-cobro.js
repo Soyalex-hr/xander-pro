@@ -204,9 +204,10 @@
       let total = Number(q.total) || 0;
       let subtotal = 0;
       if (q.items && q.items.length > 0) {
-        subtotal = q.items.reduce((acc, it) => acc + ((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+        const tt = xpQuoteTotals(q);
+        subtotal = tt.subtotal;
         if (!total) {
-          total = Math.round(subtotal * (1 - (Number(q.discountPct) || 0) / 100) * (1 + (Number(q.taxPct) || 0) / 100));
+          total = Math.round(tt.total);
         }
       } else {
         subtotal = total;
@@ -380,7 +381,7 @@
       if (itemsWrap && itemsTbody) {
         if (showItems && q.items && q.items.length > 0) {
           itemsWrap.style.display = 'block';
-          itemsTbody.innerHTML = q.items.map(it => {
+          itemsTbody.innerHTML = q.items.filter(it => it && !it.optional).map(it => {
             const qty = Number(it.qty) || 0;
             const price = Number(it.price) || 0;
             const rowTot = qty * price;
@@ -609,6 +610,9 @@
                   <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                   <span>Cobro</span>
                 </button>
+                <button type="button" onclick="xpDuplicateSavedQuote('${sq.id}')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-xs transition inline-flex items-center gap-1 border border-sky-200 cursor-pointer" title="Crear una cotizaci&oacute;n nueva a partir de esta">
+                  <span>📋</span><span>Duplicar</span>
+                </button>
                 <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition inline-flex items-center gap-1 border border-rose-200 cursor-pointer" title="Eliminar esta cotizaci&oacute;n del historial">
                   <span>🗑️</span><span>Eliminar</span>
                 </button>
@@ -653,7 +657,8 @@
                   ? `<button type="button" onclick="openCreateQuoteVersionModal('${sq.id}')" class="${btn} bg-emerald-50 text-emerald-800 border border-emerald-200">+ Versión</button>`
                   : `<button type="button" onclick="openQuoteVersionHistoryModal('${sq.id}')" class="${btn} bg-slate-100 text-slate-700">Versiones</button>`}
                 <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn ${btn} bg-amber-50 text-amber-800 border border-amber-200">Cobro</button>
-                <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn ${btn} bg-rose-50 text-rose-700 border border-rose-200">🗑️ Eliminar</button>
+                <button type="button" onclick="xpDuplicateSavedQuote('${sq.id}')" class="${btn} bg-sky-50 text-sky-800 border border-sky-200">📋 Duplicar</button>
+                <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn ${btn} bg-rose-50 text-rose-700 border border-rose-200 col-span-2">🗑️ Eliminar</button>
               </div>
             </div>`;
           } catch (err) {
