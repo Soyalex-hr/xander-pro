@@ -1,5 +1,5 @@
 // Service Worker for Xander Pro PWA (Network-First para código de la app, Cache-First para imágenes)
-const CACHE_NAME = 'xander-pro-v60';
+const CACHE_NAME = 'xander-pro-v61';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -37,7 +37,8 @@ const ASSETS_TO_CACHE = [
   './js/19-seguimiento.js',
   './js/20-enlace-cliente.js',
   './js/21-combinada.js',
-  './js/22-temporadas.js'
+  './js/22-temporadas.js',
+  './js/23-empresa.js'
 ];
 
 self.addEventListener('install', event => {

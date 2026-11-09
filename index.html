@@ -1852,97 +1852,99 @@
     <!-- ==========================================
          VIEW 6: MÓDULO DE CONFIGURACIÓN DE MI EMPRESA Y RESPALDO
          ========================================== -->
-    <section id="view-empresa" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- Company Profile Form -->
-        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div class="border-b border-slate-100 pb-3">
-            <h2 class="text-lg font-bold text-slate-900">🏢 Datos de Mi Empresa (Aparecen en el PDF)</h2>
-            <p class="text-xs text-slate-500">Configura tu marca, logotipo, cuentas bancarias para anticipos y condiciones comerciales.</p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
-              <label for="comp-operator-name" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                &#128100; Nombre de la Persona que Maneja el Sistema (Operador)
-              </label>
-              <input id="comp-operator-name" type="text" placeholder="Ej: Alexander, Carlos, Chef Mario..." class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-              <p class="text-[11px] text-slate-400 mt-1">Este nombre aparecer&aacute; en los saludos personalizados del Dashboard, en el perfil y en la aplicaci&oacute;n.</p>
-            </div>
-<div>
-              <label for="comp-name" class="block text-xs font-semibold text-slate-700 mb-1">Nombre Comercial de la Empresa</label>
-              <input id="comp-name" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold" />
-            </div>
-            <div>
-              <label for="comp-nit" class="block text-xs font-semibold text-slate-700 mb-1">NIT / RUC / Identificación</label>
-              <input id="comp-nit" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-            </div>
-            <div>
-              <label for="comp-rnt" class="block text-xs font-semibold text-slate-700 mb-1">Registro Nacional de Turismo (RNT) <span class="font-normal text-slate-400">· opcional</span></label>
-              <input id="comp-rnt" type="text" inputmode="numeric" placeholder="Ej. 123456" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-              <p class="text-[10px] text-slate-400 mt-1">Si lo llenas, aparece en los PDF junto al NIT.</p>
-            </div>
-            <div class="sm:col-span-2">
-              <label for="comp-slogan" class="block text-xs font-semibold text-slate-700 mb-1">Eslogan o Especialidad (Bodas, Catering, Eventos)</label>
-              <input id="comp-slogan" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-            </div>
-            <div>
-              <label for="comp-phone" class="block text-xs font-semibold text-slate-700 mb-1">Teléfono / WhatsApp</label>
-              <input id="comp-phone" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-            </div>
-            <div>
-              <label for="comp-email" class="block text-xs font-semibold text-slate-700 mb-1">Correo Electrónico</label>
-              <input id="comp-email" type="email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-            </div>
-            <div>
-              <label for="comp-address" class="block text-xs font-semibold text-slate-700 mb-1">Dirección y Ciudad</label>
-              <input id="comp-address" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs" />
-            </div>
-            <div>
-              <label for="comp-logo-upload" class="block text-xs font-semibold text-slate-700 mb-1">Subir Logotipo (PNG/JPG)</label>
-              <input id="comp-logo-upload" type="file" accept="image/*" class="w-full text-xs text-slate-600" />
-            </div>
-            <div class="sm:col-span-2">
-              <label for="comp-bank" class="block text-xs font-semibold text-slate-700 mb-1">Cuentas Bancarias / Medios de Pago (Salen en el PDF)</label>
-              <textarea id="comp-bank" rows="3" class="w-full rounded-lg border border-slate-300 p-2.5 text-xs"></textarea>
-            </div>
-            <div class="sm:col-span-2">
-              <label for="comp-terms" class="block text-xs font-semibold text-slate-700 mb-1">Términos y Condiciones del Evento (Salen en el pie del PDF)</label>
-              <textarea id="comp-terms" rows="3" class="w-full rounded-lg border border-slate-300 p-2.5 text-xs"></textarea>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button type="button" id="btn-save-company" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm">
-              💾 Guardar Datos de Mi Empresa
-            </button>
+    <section id="view-empresa" class="hidden space-y-5 xp-emp">
+      <!-- Encabezado: identidad de la empresa -->
+      <div class="xp-emp-head">
+        <div class="xp-emp-id">
+          <div class="xp-emp-logo" id="xp-emp-head-logo">AE</div>
+          <div class="min-w-0">
+            <h2 class="xp-emp-name" id="xp-emp-head-name">Mi empresa</h2>
+            <p class="xp-emp-sub" id="xp-emp-head-sub">Datos, marca y configuración de la app</p>
           </div>
         </div>
+        <div class="xp-emp-tabs" role="tablist" aria-label="Secciones de Mi Empresa"><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="empresa" aria-selected="false" onclick="xpEmpresaTab('empresa')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 10h1M14 10h1M9 14h1M14 14h1"/></svg><span>Empresa</span></button><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="pagos" aria-selected="false" onclick="xpEmpresaTab('pagos')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg><span>Pagos y condiciones</span></button><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="correo" aria-selected="false" onclick="xpEmpresaTab('correo')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span>Correo</span></button><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="usuarios" aria-selected="false" onclick="xpEmpresaTab('usuarios')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.5a3.5 3.5 0 010 7M18 20a6 6 0 00-3-5.2"/></svg><span>Usuarios</span></button><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="seguridad" aria-selected="false" onclick="xpEmpresaTab('seguridad')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Seguridad</span></button><button type="button" role="tab" class="xp-emp-tab" data-emp-tab="respaldo" aria-selected="false" onclick="xpEmpresaTab('respaldo')"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span>Copia de seguridad</span></button></div>
+      </div>
 
-        <!-- Cloud Hosting & Backup Card -->
-        <div class="lg:col-span-5 space-y-4">
-          <div class="ag-glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
-            <div class="flex items-center gap-3">
-              <span class="w-9 h-9 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a5 5 0 01-.6-9.96A7 7 0 0119.5 9.5 4.5 4.5 0 0118 18z"/><path d="M12 12v6M9.5 15.5L12 18l2.5-2.5"/></svg></span>
-              <div>
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Copia de seguridad</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Tus datos se guardan en la nube y se sincronizan en todos tus dispositivos.</p>
+      <!-- Empresa -->
+      <div class="xp-emp-panel" data-emp-panel="empresa">
+        <div class="xp-emp-grid">
+          <div class="xp-emp-card">
+            <div class="xp-emp-card-h"><h3>Datos de la empresa</h3><p>Aparecen en el encabezado de todas las cotizaciones, PDF y links.</p></div>
+            <div class="xp-emp-form">
+              <div class="xp-pm-f xp-emp-span2">
+                <label for="comp-name">Nombre comercial</label>
+                <input id="comp-name" type="text" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="comp-nit">NIT / identificación</label>
+                <input id="comp-nit" type="text" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="comp-rnt">RNT <span class="xp-pm-muted">· opcional</span></label>
+                <input id="comp-rnt" type="text" placeholder="Ej. 123456" /><span class="xp-emp-hint">Sale en los PDF junto al NIT.</span>
+              </div>
+              <div class="xp-pm-f xp-emp-span2">
+                <label for="comp-slogan">Eslogan o especialidad</label>
+                <input id="comp-slogan" type="text" placeholder="Ej. Banquetes, bodas y eventos" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="comp-phone">Teléfono / WhatsApp</label>
+                <input id="comp-phone" type="text" />
+              </div>
+              <div class="xp-pm-f">
+                <label for="comp-email">Correo electrónico</label>
+                <input id="comp-email" type="email" />
+              </div>
+              <div class="xp-pm-f xp-emp-span2">
+                <label for="comp-address">Dirección y ciudad</label>
+                <input id="comp-address" type="text" />
               </div>
             </div>
-            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Si quieres tener una copia propia (por ejemplo, una vez al mes), descarga un archivo con toda la información de la empresa: clientes, productos, cabañas y cotizaciones.</p>
-            <button type="button" id="btn-export-backup" class="min-h-[44px] px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold flex items-center gap-2 hover:bg-slate-50 cursor-pointer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-              Descargar copia de seguridad
-            </button>
-            <!-- Importar y restaurar datos de ejemplo quedan desactivados: con la nube reemplazarían los datos de toda la empresa -->
-            <div class="hidden" aria-hidden="true">
-              <input type="file" id="input-import-backup" accept=".json,application/json" class="hidden" tabindex="-1" />
-              <button type="button" id="btn-reset-demo" tabindex="-1" disabled>Restaurar</button>
+            <div class="xp-emp-logo-row">
+              <div class="xp-emp-logo-prev" id="xp-emp-logo-prev">Sin logo</div>
+              <div class="min-w-0">
+                <span class="xp-emp-l">Logotipo</span>
+                <p class="xp-emp-hint">PNG o JPG cuadrado. Sale en los PDF y en el link para el cliente.</p>
+                <label class="xp-pm-btn xp-emp-file" for="comp-logo-upload">Subir logo</label>
+                <input id="comp-logo-upload" type="file" accept="image/*" class="sr-only" />
+              </div>
+            </div>
+            <div class="xp-emp-sep"></div>
+            <div class="xp-pm-f">
+              <label for="comp-operator-name">Tu nombre (quien usa la app)</label>
+              <input id="comp-operator-name" type="text" placeholder="Ej: Alexander" />
+              <span class="xp-emp-hint">Se usa en el saludo de Inicio y en el perfil.</span>
             </div>
           </div>
+          <aside class="xp-emp-card xp-emp-preview-card">
+            <div class="xp-emp-card-h"><h3>Así se ve en tus PDF</h3><p>Vista previa en vivo mientras escribes.</p></div>
+            <div class="xp-emp-preview" id="xp-emp-preview"></div>
+          </aside>
+        </div>
+      </div>
 
+      <!-- Pagos y condiciones -->
+      <div class="xp-emp-panel" data-emp-panel="pagos" hidden>
+        <div class="xp-emp-grid xp-emp-grid-even">
+          <div class="xp-emp-card">
+            <div class="xp-emp-card-h"><h3>Cuentas y medios de pago</h3><p>Salen en el PDF para que el cliente pague el anticipo o el total.</p></div>
+            <div class="xp-pm-f"><label for="comp-bank" class="sr-only">Cuentas bancarias</label><textarea id="comp-bank" rows="7" placeholder="Bancolombia Ahorros: 000-000000-00&#10;Nequi: 300 000 0000&#10;Titular: Mi Empresa SAS"></textarea></div>
+          </div>
+          <div class="xp-emp-card">
+            <div class="xp-emp-card-h"><h3>Términos y condiciones</h3><p>Salen al pie de las cotizaciones de eventos y en los paquetes.</p></div>
+            <div class="xp-pm-f"><label for="comp-terms" class="sr-only">Términos y condiciones</label><textarea id="comp-terms" rows="7" placeholder="Ej. Se reserva la fecha con el 50 % de anticipo…"></textarea></div>
+          </div>
+        </div>
+      </div>
 
-          <!-- Correo para enviar cotizaciones (SMTP) -->
+      <!-- Barra para guardar (Empresa y Pagos) -->
+      <div class="xp-emp-savebar" id="xp-emp-savebar">
+        <span class="xp-emp-hint" id="xp-emp-dirty">Los cambios se aplican a todas las cotizaciones y PDF.</span>
+        <button type="button" id="btn-save-company" class="xp-pm-btn xp-pm-primary">Guardar cambios</button>
+      </div>
+
+      <!-- Correo -->
+      <div class="xp-emp-panel xp-emp-legacy xp-emp-narrow" data-emp-panel="correo" hidden>
           <div id="xp-smtp-card" class="ag-glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
@@ -1991,8 +1993,10 @@
               </div>
             </div>
           </div>
+      </div>
 
-          <!-- Multi-User and Role Management Card in view-empresa -->
+      <!-- Usuarios -->
+      <div class="xp-emp-panel xp-emp-legacy xp-emp-narrow" data-emp-panel="usuarios" hidden>
           <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div class="flex items-center justify-between">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
@@ -2032,7 +2036,10 @@
               <!-- Rendered dynamically -->
             </div>
           </div>
-          <!-- Security Parameters & Access Control Card -->
+      </div>
+
+      <!-- Seguridad -->
+      <div class="xp-emp-panel xp-emp-legacy xp-emp-narrow" data-emp-panel="seguridad" hidden>
           <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div class="flex items-center justify-between">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -2076,7 +2083,29 @@
               </ul>
             </div>
           </div>
-        </div>
+      </div>
+
+      <!-- Copia de seguridad -->
+      <div class="xp-emp-panel xp-emp-legacy xp-emp-narrow" data-emp-panel="respaldo" hidden>
+          <div class="ag-glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a5 5 0 01-.6-9.96A7 7 0 0119.5 9.5 4.5 4.5 0 0118 18z"/><path d="M12 12v6M9.5 15.5L12 18l2.5-2.5"/></svg></span>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Copia de seguridad</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Tus datos se guardan en la nube y se sincronizan en todos tus dispositivos.</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Si quieres tener una copia propia (por ejemplo, una vez al mes), descarga un archivo con toda la información de la empresa: clientes, productos, cabañas y cotizaciones.</p>
+            <button type="button" id="btn-export-backup" class="min-h-[44px] px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold flex items-center gap-2 hover:bg-slate-50 cursor-pointer">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+              Descargar copia de seguridad
+            </button>
+            <!-- Importar y restaurar datos de ejemplo quedan desactivados: con la nube reemplazarían los datos de toda la empresa -->
+            <div class="hidden" aria-hidden="true">
+              <input type="file" id="input-import-backup" accept=".json,application/json" class="hidden" tabindex="-1" />
+              <button type="button" id="btn-reset-demo" tabindex="-1" disabled>Restaurar</button>
+            </div>
+          </div>
       </div>
     </section>
 
@@ -5465,5 +5494,6 @@
   <script src="js/20-enlace-cliente.js"></script>
   <script src="js/21-combinada.js"></script>
   <script src="js/22-temporadas.js"></script>
+  <script src="js/23-empresa.js"></script>
 </body>
 </html>

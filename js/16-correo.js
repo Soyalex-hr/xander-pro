@@ -316,7 +316,7 @@ ${ctx.deposit ? `<tr><td style="font-size:13px;color:#5B6B77;padding-top:4px">An
     try {
       const j = await api('GET');
       if (!j.smtp.configured) {
-        warn.innerHTML = `El correo de la empresa aún no está configurado. Un administrador debe llenarlo en <button type="button" class="font-bold underline cursor-pointer" onclick="xpCloseEmailModal(); switchView('empresa'); setTimeout(()=>document.getElementById('xp-smtp-card')?.scrollIntoView({behavior:'smooth'}),300)">Mi Empresa → Correo para enviar cotizaciones</button>.`;
+        warn.innerHTML = `El correo de la empresa aún no está configurado. Un administrador debe llenarlo en <button type="button" class="font-bold underline cursor-pointer" onclick="xpCloseEmailModal(); switchView('empresa'); window.xpEmpresaTab && xpEmpresaTab('correo'); setTimeout(()=>document.getElementById('xp-smtp-card')?.scrollIntoView({behavior:'smooth'}),300)">Mi Empresa → Correo para enviar cotizaciones</button>.`;
         warn.classList.remove('hidden');
       }
     } catch (e) {

@@ -22,6 +22,7 @@
   window.xpEvPreview = function () { $('btn-step-preview-quote')?.click(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   window.xpGoEditTerms = function () {
     if (typeof switchView === 'function') switchView('empresa');
+    if (typeof window.xpEmpresaTab === 'function') window.xpEmpresaTab('pagos');
     setTimeout(() => { const t = $('comp-terms'); if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); t.focus(); } }, 350);
   };
 
