@@ -747,7 +747,12 @@ function recalculateCabinQuoteLive() {
   const discount = Number(document.getElementById('hos-discount-input')?.value) || 0;
 
   // General Total
-  const subtotalAll = subtotalBase + subtotalExtraPax + subtotalKids + subtotalInfants + subtotalPets + subtotalMeals + subtotalTours;
+  // Precios por temporada (22-temporadas.js): ajuste sobre el hospedaje según las noches de la estadía
+  const seasonInfo = (!q.seasonOff && typeof window.xpSeasonForStay === 'function') ? window.xpSeasonForStay('cabana', inDate, nights) : null;
+  const seasonAdjust = seasonInfo && seasonInfo.avgPct ? Math.round((subtotalBase + subtotalExtraPax) * seasonInfo.avgPct / 100) : 0;
+  const seasonLabel = seasonAdjust ? seasonInfo.label : '';
+
+  const subtotalAll = subtotalBase + subtotalExtraPax + seasonAdjust + subtotalKids + subtotalInfants + subtotalPets + subtotalMeals + subtotalTours;
   const total = Math.max(0, subtotalAll - discount);
 
   // Deposit & Balance
@@ -759,20 +764,21 @@ function recalculateCabinQuoteLive() {
   const parsedPct = rawPct === '' ? 50 : Number(rawPct);
   const configuredDepositPct = Number.isFinite(parsedPct) ? Math.min(100, Math.max(0, parsedPct)) : 50;
   const wantsDeposit = reqDepSel ? reqDepSel.value !== 'no' : q.requiresDeposit !== false;
-  // Sin anticipo si el usuario elige "No" o deja el porcentaje en 0 %.
-  const requiresDeposit = wantsDeposit && configuredDepositPct > 0;
+  // Sin anticipo si el usuario elige "No" o deja el porcentaje en 0 % (regla común en 01-core.js)
   if (depPctInput) depPctInput.disabled = !wantsDeposit;
   const depPctBox = document.getElementById('hos-deposit-pct-box');
   if (depPctBox) depPctBox.classList.toggle('hidden', !wantsDeposit);
-  const depositPct = requiresDeposit ? configuredDepositPct : 0;
-  const deposit = requiresDeposit ? Math.round(total * (depositPct / 100)) : 0;
-  const balance = total - deposit;
+  const { requiresDeposit, depositPct, deposit, balance } = xpDepositCalc(total, wantsDeposit, configuredDepositPct);
 
   // Save pricing object in state
   const pricing = {
     nights,
     nightlyRate,
     subtotalBase,
+    seasonAdjust,
+    seasonLabel,
+    seasonPct: seasonAdjust ? Math.round(seasonInfo.avgPct * 10) / 10 : 0,
+    seasonNights: seasonAdjust ? seasonInfo.nights : 0,
     rateMode,
     perPersonRate,
     payingAdults,
@@ -885,6 +891,16 @@ function renderLiveFormulaBreakdown(cabin, calc) {
       <strong class="font-black text-slate-900 dark:text-white tabular-nums">${formatCurrency(calc.subtotalBase)}</strong>
     </div>
   `;
+  if (calc.seasonAdjust) {
+    itemsHtml += `
+    <div class="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800 ${calc.seasonAdjust > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}">
+      <div>
+        <span class="font-bold">${calc.seasonLabel}</span>
+        <div class="text-[11px] opacity-80 font-mono">${calc.seasonNights} de ${calc.nights} noche(s) en temporada</div>
+      </div>
+      <strong class="font-black tabular-nums">${calc.seasonAdjust < 0 ? '- ' + formatCurrency(-calc.seasonAdjust) : formatCurrency(calc.seasonAdjust)}</strong>
+    </div>`;
+  }
 
   // Extra pax
   if (calc.extraPaxCount > 0) {
@@ -1176,6 +1192,17 @@ function renderCabinQuotePdfSheet(q, cabin, calc) {
             </td>
           </tr>
 
+          ${calc.seasonAdjust ? `
+            <tr>
+              <td class="py-2 px-2.5">
+                <strong class="text-slate-900 block">${calc.seasonLabel}</strong>
+                <span class="text-[10px] text-slate-500">${calc.seasonNights} de ${calc.nights} noche(s) en temporada</span>
+              </td>
+              <td class="py-2 px-2.5 text-center font-mono text-[11px] text-slate-600">${calc.seasonPct > 0 ? '+' : ''}${calc.seasonPct} % sobre el hospedaje</td>
+              <td class="py-2 px-2.5 text-right font-black text-slate-900 tabular-nums">${calc.seasonAdjust < 0 ? '- ' + formatCurrency(-calc.seasonAdjust) : formatCurrency(calc.seasonAdjust)}</td>
+            </tr>
+          ` : ''}
+
           <!-- Row 2: Extra Pax -->
           ${calc.extraPaxCount > 0 ? `
             <tr>
@@ -1381,7 +1408,9 @@ function saveCurrentCabinQuote() {
   const idx = state.cabinQuotes.findIndex(x => x.id === q.id);
 
   if (idx !== -1) {
+    const keepPrev = state.cabinQuotes[idx];
     state.cabinQuotes[idx] = JSON.parse(JSON.stringify(q));
+    if (typeof window.xpKeepTrackingFields === 'function') window.xpKeepTrackingFields(keepPrev, state.cabinQuotes[idx]);
     showToast(`Cotización ${q.number} actualizada con éxito`);
   } else {
     state.cabinQuotes.unshift(JSON.parse(JSON.stringify(q)));

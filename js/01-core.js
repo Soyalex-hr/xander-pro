@@ -73,6 +73,18 @@
     // Totales de una cotización de eventos (un solo cálculo para editor, PDF, guardado y cobros).
     // - Los ítems marcados como opcionales salen en el PDF pero NO suman al total.
     // - Descuento: % sobre el subtotal + valor fijo en pesos (discountAmount), sin pasar del subtotal.
+    // Anticipo: una sola regla para eventos, cabañas y día de sol.
+    // Sin anticipo si no se pide o si el % es 0; el % siempre queda entre 0 y 100.
+    function xpDepositCalc(total, wantsDeposit, pct) {
+      const t = Math.max(0, Number(total) || 0);
+      const p = Math.min(100, Math.max(0, Number(pct) || 0));
+      const requiresDeposit = wantsDeposit !== false && p > 0;
+      const depositPct = requiresDeposit ? p : 0;
+      const deposit = requiresDeposit ? Math.round(t * depositPct / 100) : 0;
+      return { requiresDeposit, depositPct, deposit, balance: t - deposit };
+    }
+    window.xpDepositCalc = xpDepositCalc;
+
     function xpQuoteTotals(q) {
       const items = (q && Array.isArray(q.items)) ? q.items.filter(it => it && typeof it === 'object') : [];
       const line = it => (Number(it.qty) || 0) * (Number(it.price) || 0);
@@ -85,7 +97,7 @@
       const afterDiscount = subtotal - discount;
       const tax = afterDiscount * (Number(q && q.taxPct) || 0) / 100;
       const total = afterDiscount + tax;
-      const deposit = total * (Number(q && q.depositPct) || 0) / 100;
+      const deposit = xpDepositCalc(total, true, q && q.depositPct).deposit;
       return { subtotal, optionalTotal, discountPct: discPct, discountPctAmount, discountFixed, discount, afterDiscount, tax, total, deposit, balance: Math.max(0, total - deposit) };
     }
     window.xpQuoteTotals = xpQuoteTotals;

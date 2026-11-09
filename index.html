@@ -3386,7 +3386,7 @@
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2v-8zM10 14a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
       <span class="text-[10px] tracking-tight font-medium">Inicio</span>
     </button>
-    <button type="button" data-nav="cotizador" onclick="switchView('cotizador')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-indigo-600 dark:text-indigo-400 font-bold scale-105 cursor-pointer">
+    <button type="button" data-nav="cotizador" onclick="xpOpenQuickQuote()" aria-haspopup="true" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-indigo-600 dark:text-indigo-400 font-bold scale-105 cursor-pointer">
       <span class="text-lg">📋</span>
       <span class="text-[10px] tracking-tight">Cotizar</span>
     </button>
@@ -3396,14 +3396,6 @@
         <span id="badge-quotes-count-bottom" class="absolute -top-1 -right-2 px-1 rounded-full text-[9px] font-bold bg-indigo-600 text-white leading-tight hidden"></span>
       </span>
       <span class="text-[10px] tracking-tight">Historial</span>
-    </button>
-    <button type="button" data-nav="cotizador-cabanas" onclick="switchView('cotizador-cabanas')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 rounded-xl transition text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer">
-      <span class="text-lg">🏡</span>
-      <span class="text-[10px] tracking-tight">Cabañas</span>
-    </button>
-    <button type="button" data-nav="simulador" onclick="switchView('simulador')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer">
-      <span class="text-lg">🧪</span>
-      <span class="text-[10px] tracking-tight">Simulador</span>
     </button>
     <button type="button" data-nav="productos" onclick="switchView('productos')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer">
       <span class="text-lg">🍹</span>
@@ -5469,5 +5461,9 @@
   <script src="js/16-correo.js"></script>
   <script src="js/17-catalogo.js"></script>
   <script src="js/18-eventos-ux.js"></script>
+  <script src="js/19-seguimiento.js"></script>
+  <script src="js/20-enlace-cliente.js"></script>
+  <script src="js/21-combinada.js"></script>
+  <script src="js/22-temporadas.js"></script>
 </body>
 </html>

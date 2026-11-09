@@ -19,7 +19,7 @@
   const ARRAY_COLLECTIONS = [
     'eventTypes', 'clients', 'products', 'savedQuotes', 'finances',
     'cabins', 'childPolicies', 'mealPlans', 'tourServices', 'cabinQuotes',
-    'eventClosures', 'notifications', 'dayPassExtras', 'dayPassQuotes', 'quoteTemplates'
+    'eventClosures', 'notifications', 'dayPassExtras', 'dayPassQuotes', 'quoteTemplates', 'comboQuotes', 'seasons'
   ];
   const SETTINGS_COLLECTION = '_settings';
   const SETTINGS_KEYS = ['company', 'shoppingLists', 'priceHistory', 'dayPassConfig'];
@@ -274,6 +274,29 @@
   // ---------------------------------------------------------------------------
   // Motor de sincronización
   // ---------------------------------------------------------------------------
+  // Versiones locales que otro dispositivo pisó al mismo tiempo
+  const CONFLICT_COPY = ['savedQuotes', 'cabinQuotes', 'dayPassQuotes', 'comboQuotes'];
+  function keepConflictCopy(collection, local) {
+    try {
+      const label = local.number || local.name || local.eventTitle || local.id;
+      if (CONFLICT_COPY.includes(collection)) {
+        const copy = JSON.parse(JSON.stringify(local));
+        copy.id = String(local.id) + '-c' + Date.now().toString(36);
+        copy.conflictCopyOf = local.id;
+        if (copy.number) copy.number = String(copy.number) + ' (copia)';
+        if (copy.fullCopy) { copy.fullCopy.id = copy.id; if (copy.fullCopy.number) copy.fullCopy.number = copy.number; }
+        if (copy.status && copy.status !== 'Borrador') copy.status = 'Borrador';
+        state[collection].push(copy);
+        setTimeout(() => toast(`⚠️ ${label} se cambió en otro dispositivo al mismo tiempo. Se dejó la versión más reciente y tu versión quedó guardada como "${copy.number || 'copia'}".`), 300);
+      } else {
+        const list = lsGet('xp_sync_conflicts', []) || [];
+        list.unshift({ at: new Date().toISOString(), collection, data: local });
+        lsSet('xp_sync_conflicts', list.slice(0, 30));
+        setTimeout(() => toast(`⚠️ "${label}" se cambió en otro dispositivo al mismo tiempo. Se dejó la versión más reciente.`), 300);
+      }
+    } catch (e) { console.warn('[nube] copia de conflicto', e); }
+  }
+
   const sync = {
     pushTimer: null,
     pollTimer: null,
@@ -388,7 +411,15 @@
           const h = hash(json);
           if (snap[k] === h) continue;
           if (idx === -1) { arr.push(r.data); changed++; }
-          else if (JSON.stringify(arr[idx]) !== json) { arr[idx] = r.data; changed++; }
+          else {
+            const localJson = JSON.stringify(arr[idx]);
+            if (localJson !== json) {
+              // Conflicto: este dispositivo cambió el registro y otro también, antes de sincronizar.
+              // Gana la versión del servidor, pero la de aquí no se pierde.
+              if (k in snap && hash(localJson) !== snap[k]) keepConflictCopy(r.collection, arr[idx]);
+              arr[idx] = r.data; changed++;
+            }
+          }
           snap[k] = h;
         }
       }
@@ -521,7 +552,7 @@
     if (!upload) {
       // Empresa nueva sin datos: se conservan solo catálogos base
       const def = getDefaultState();
-      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications', 'dayPassQuotes', 'quoteTemplates'].forEach(k => { state[k] = []; });
+      ['clients', 'products', 'savedQuotes', 'finances', 'cabins', 'cabinQuotes', 'eventClosures', 'notifications', 'dayPassQuotes', 'quoteTemplates', 'comboQuotes', 'seasons'].forEach(k => { state[k] = []; });
       state.eventTypes = def.eventTypes;
       state.childPolicies = def.childPolicies;
       state.mealPlans = def.mealPlans;

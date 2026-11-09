@@ -95,3 +95,27 @@ CREATE TABLE IF NOT EXISTS company_mail (
   updated_at timestamptz NOT NULL DEFAULT now(),
   updated_by uuid
 );
+
+-- Links para que el cliente vea y acepte una cotización (copia fija del documento)
+CREATE TABLE IF NOT EXISTS quote_shares (
+  token        text PRIMARY KEY,
+  company_id   uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  kind         text NOT NULL,
+  quote_id     text NOT NULL,
+  number       text,
+  client_name  text,
+  total        numeric,
+  html         text NOT NULL,
+  css          text,
+  meta         jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now(),
+  created_by   uuid,
+  revoked      boolean NOT NULL DEFAULT false,
+  view_count   integer NOT NULL DEFAULT 0,
+  viewed_at    timestamptz,
+  accepted_at  timestamptz,
+  accepted_name text,
+  accepted_note text
+);
+CREATE UNIQUE INDEX IF NOT EXISTS quote_shares_quote_uq ON quote_shares (company_id, kind, quote_id);

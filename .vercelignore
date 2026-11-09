@@ -2,3 +2,4 @@
 db/
 *.bak
 *.bak*
+tests/

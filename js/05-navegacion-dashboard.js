@@ -161,7 +161,7 @@
       // Update Mobile Bottom Nav buttons
       document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
         const navId = btn.getAttribute('data-nav');
-        const isActive = navId === viewName;
+        const isActive = navId === viewName || (navId === 'cotizador' && ['cotizador-cabanas', 'dia-sol'].includes(viewName));
         btn.className = isActive
           ? 'bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-blue-600 dark:text-blue-400 font-bold scale-105 cursor-pointer'
           : 'bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer';
@@ -1357,6 +1357,7 @@
         };
 
         if (existingIdx >= 0) {
+          if (typeof window.xpKeepTrackingFields === 'function') window.xpKeepTrackingFields(state.savedQuotes[existingIdx], summaryRecord);
           state.savedQuotes[existingIdx] = summaryRecord;
         } else {
           state.savedQuotes.unshift(summaryRecord);
@@ -1684,6 +1685,7 @@ ${state.company.phone}`;
         if (!sq) return;
         if (sq.fullCopy) {
           state.activeQuote = JSON.parse(JSON.stringify(sq.fullCopy));
+          if (!state.activeQuote.id) state.activeQuote.id = sq.id;
         } else {
           state.activeQuote.number = sq.number;
           state.activeQuote.eventType = sq.eventType;

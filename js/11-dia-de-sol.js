@@ -126,6 +126,13 @@ function calcDayPass(q) {
   add(`Entrada ${t.adult.text}`, 'Día de sol', adults, Number(cfg.adultPrice) || 0);
   add(`Entrada ${t.child.text}`, 'Día de sol', children, Number(cfg.childPrice) || 0);
   add(`Entrada ${t.infant.text}`, (Number(cfg.infantPrice) || 0) > 0 ? 'Día de sol' : 'Sin costo', infants, Number(cfg.infantPrice) || 0);
+  // Precios por temporada (22-temporadas.js): ajuste sobre las entradas según la fecha
+  const season = (!q.seasonOff && typeof window.xpSeasonFor === 'function') ? window.xpSeasonFor('diasol', q.date) : null;
+  if (season && season.pct) {
+    const base = lines.reduce((a, l) => a + l.total, 0);
+    const adj = Math.round(base * season.pct / 100);
+    if (adj) lines.push({ concept: season.label, detail: `${season.pct > 0 ? '+' : ''}${season.pct} % sobre las entradas`, qty: 1, unit: adj, total: adj, season: true });
+  }
   const entries = lines.reduce((a, l) => a + l.total, 0);
 
   const extraLines = [];
@@ -139,11 +146,8 @@ function calcDayPass(q) {
   const extrasTotal = extraLines.reduce((a, l) => a + l.total, 0);
   const discount = Math.max(0, Number(q.discount) || 0);
   const total = Math.max(0, entries + extrasTotal - discount);
-  const rawDepPct = Math.min(100, Math.max(0, Number(q.depositPct) || 0));
-  // Sin anticipo si se eligió "No" o si el porcentaje es 0 %
-  const requiresDeposit = q.requiresDeposit !== false && rawDepPct > 0;
-  const depositPct = requiresDeposit ? rawDepPct : 0;
-  const deposit = requiresDeposit ? Math.round(total * depositPct / 100) : 0;
+  // Sin anticipo si se eligió "No" o si el porcentaje es 0 % (regla común en 01-core.js)
+  const { requiresDeposit, depositPct, deposit } = xpDepositCalc(total, q.requiresDeposit !== false, q.depositPct);
   return {
     adults, children, infants, people: adults + children + infants, payingPeople: adults + children,
     lines, entries, extraLines, extrasTotal, discount, total, requiresDeposit, depositPct, deposit, balance: total - deposit,
@@ -555,6 +559,7 @@ function saveDayPassQuote() {
   state.dayPassQuotes = state.dayPassQuotes || [];
   const copy = JSON.parse(JSON.stringify(q));
   const i = state.dayPassQuotes.findIndex(x => x.id === q.id);
+  if (i !== -1 && typeof window.xpKeepTrackingFields === 'function') window.xpKeepTrackingFields(state.dayPassQuotes[i], copy);
   if (i !== -1) state.dayPassQuotes[i] = copy; else state.dayPassQuotes.unshift(copy);
   saveState();
   renderDayPassHistory();

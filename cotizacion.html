@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tu cotización</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --brand:#0E6B53; --brand-h:#0A5240; --brand-50:#F3F9F7; --brand-100:#E7F2EE; --bg:#F4F6F8; --surface:#fff; --border:#E2E8F0; --text:#0F172A; --muted:#64748B; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-text-size-adjust: 100%; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px calc(150px + env(safe-area-inset-bottom)); }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .top h1 { font-size: 1.05rem; margin: 0; font-weight: 800; }
+    .top p { margin: 2px 0 0; color: var(--muted); font-size: .82rem; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: .3rem .7rem; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--brand-100); color: var(--brand); }
+    .chip.warn { background: #FFF0D6; color: #8A5300; }
+    .doc { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(15,23,42,.06); }
+    .doc-inner { transform-origin: top left; }
+    iframe { border: 0; display: block; background: #fff; }
+    .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(15,23,42,.08); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+    .bar-in { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .tot small { display: block; color: var(--muted); font-size: .72rem; font-weight: 600; }
+    .tot strong { font-size: 1.3rem; font-weight: 800; }
+    .tot span { display: block; color: var(--muted); font-size: .75rem; }
+    .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    button, .btn { min-height: 46px; padding: 0 1.1rem; border-radius: 12px; border: 1px solid #CBD5E1; background: #fff; color: var(--text); font: 700 .9rem Inter, system-ui, sans-serif; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    button.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    button.primary:hover { background: var(--brand-h); }
+    button:disabled { opacity: .6; cursor: default; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: flex-end; justify-content: center; z-index: 20; padding: 12px; }
+    .modal.on { display: flex; }
+    @media (min-width: 640px) { .modal { align-items: center; } }
+    .card { background: #fff; border-radius: 18px; padding: 20px; width: 100%; max-width: 440px; }
+    .card h2 { margin: 0 0 4px; font-size: 1.1rem; }
+    .card p { margin: 0 0 14px; color: var(--muted); font-size: .86rem; }
+    label { display: block; font-size: .78rem; font-weight: 700; margin: 10px 0 4px; }
+    input, textarea { width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid #CBD5E1; padding: .6rem .8rem; font: 500 16px Inter, system-ui, sans-serif; }
+    textarea { min-height: 80px; resize: vertical; }
+    input:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-100); }
+    .row { display: flex; gap: 8px; margin-top: 16px; }
+    .row > * { flex: 1; }
+    .err { color: #B42318; font-size: .82rem; font-weight: 600; margin-top: 8px; min-height: 1em; }
+    .ok { text-align: center; padding: 8px 0; }
+    .ok .big { width: 56px; height: 56px; border-radius: 999px; background: var(--brand-100); color: var(--brand); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .msg { text-align: center; padding: 60px 16px; color: var(--muted); }
+    .msg h1 { color: var(--text); font-size: 1.15rem; }
+    .accepted { background: var(--brand-50); border: 1px solid var(--brand-100); color: var(--brand); border-radius: 12px; padding: 10px 14px; font-weight: 700; font-size: .88rem; margin-bottom: 12px; }
+    @media print { .bar, .top, .accepted { display: none !important; } .wrap { padding: 0; } .doc { border: 0; box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"><div class="msg">Cargando tu cotización…</div></div>
+
+  <div class="bar" id="bar" hidden>
+    <div class="bar-in">
+      <div class="tot"><small>Total</small><strong id="b-total">$ 0</strong><span id="b-sub"></span></div>
+      <div class="btns">
+        <button type="button" id="b-print">Descargar o imprimir</button>
+        <button type="button" class="primary" id="b-accept">Aceptar cotización</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="m" role="dialog" aria-modal="true" aria-labelledby="m-t">
+    <div class="card" id="m-card">
+      <h2 id="m-t">Aceptar cotización</h2>
+      <p id="m-p">Al aceptar nos avisas que estás de acuerdo con esta propuesta. Te contactaremos para confirmar la reserva y el pago.</p>
+      <label for="m-name">Tu nombre</label>
+      <input id="m-name" autocomplete="name" />
+      <label for="m-note">Comentario (opcional)</label>
+      <textarea id="m-note" placeholder="Ej. Confirmamos para 80 personas"></textarea>
+      <div class="err" id="m-err"></div>
+      <div class="row">
+        <button type="button" id="m-cancel">Cancelar</button>
+        <button type="button" class="primary" id="m-ok">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var token = (location.pathname.match(/\/c\/([A-Za-z0-9_-]{16,64})/) || [])[1] || new URLSearchParams(location.search).get('t') || '';
+    var app = document.getElementById('app');
+    var data = null;
+    function money(v) { return '$ ' + Math.round(Number(v) || 0).toLocaleString('es-CO'); }
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function niceDate(iso) {
+      if (!iso) return '';
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso); if (!m) return iso;
+      var M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      return Number(m[3]) + ' de ' + M[Number(m[2]) - 1] + ' de ' + m[1];
+    }
+    function fail(msg) { app.innerHTML = '<div class="msg"><h1>No pudimos abrir la cotización</h1><p>' + esc(msg) + '</p></div>'; }
+    if (!token) return fail('El link está incompleto. Pide uno nuevo a quien te envió la cotización.');
+
+    var seenKey = 'xp_seen_' + token, seen = false;
+    try { seen = !!sessionStorage.getItem(seenKey); sessionStorage.setItem(seenKey, '1'); } catch (e) {}
+    fetch('/api/share?t=' + encodeURIComponent(token) + (seen ? '&nv=1' : ''), { credentials: 'omit' })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (r) { if (r.s !== 200 || !r.j.ok) return fail(r.j.error || 'Intenta de nuevo en unos minutos.'); data = r.j; render(); })
+      .catch(function () { fail('Revisa tu conexión a internet e intenta de nuevo.'); });
+
+    function render() {
+      document.title = 'Cotización ' + (data.number || '') + ' · ' + (data.companyName || '');
+      var meta = data.meta || {};
+      var expired = meta.validUntil && new Date(meta.validUntil + 'T23:59:59') < new Date();
+      app.innerHTML =
+        '<div class="top"><div><h1>' + esc(data.companyName || '') + '</h1><p>Cotización ' + esc(data.number || '') + (data.clientName ? ' · ' + esc(data.clientName) : '') + '</p></div>' +
+        (meta.validUntil ? '<span class="chip' + (expired ? ' warn' : '') + '">' + (expired ? 'Venció el ' : 'Válida hasta el ') + esc(niceDate(meta.validUntil)) + '</span>' : '') + '</div>' +
+        (data.acceptedAt ? '<div class="accepted" id="acc">✓ Aceptada por ' + esc(data.acceptedName || 'el cliente') + ' el ' + esc(niceDate(String(data.acceptedAt).slice(0, 10))) + '. Gracias, te contactaremos pronto.</div>' : '') +
+        '<div class="doc" id="doc"><div class="doc-inner" id="inner"><iframe id="f" title="Cotización" sandbox="allow-same-origin allow-modals allow-popups allow-popups-to-escape-sandbox" scrolling="no"></iframe></div></div>';
+      var w = meta.sheetWidth || 860;
+      var f = document.getElementById('f');
+      f.style.width = w + 'px';
+      f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><base href="' + location.origin + '/" target="_blank">' +
+        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">' +
+        '<style>' + (data.css || '') + '</style><style>html,body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif}body>*{margin:0!important;max-width:none!important;box-shadow:none!important;border:0!important;border-radius:0!important}.no-print{display:none!important}</style></head><body>' + data.html + '</body></html>';
+      function fit() {
+        try {
+          var d = f.contentDocument; if (!d || !d.body) return;
+          var h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+          f.style.height = h + 'px';
+          var box = document.getElementById('doc').clientWidth;
+          var sc = Math.min(1, box / w);
+          var inner = document.getElementById('inner');
+          inner.style.transform = 'scale(' + sc + ')';
+          document.getElementById('doc').style.height = Math.ceil(h * sc) + 'px';
+        } catch (e) {}
+      }
+      f.addEventListener('load', function () { fit(); setTimeout(fit, 400); setTimeout(fit, 1500); });
+      window.addEventListener('resize', fit);
+
+      var bar = document.getElementById('bar');
+      bar.hidden = false;
+      document.getElementById('b-total').textContent = money(data.total);
+      document.getElementById('b-sub').textContent = meta.deposit > 0 ? 'Anticipo para reservar: ' + money(meta.deposit) + (meta.depositPct ? ' (' + meta.depositPct + ' %)' : '') : '';
+      var acc = document.getElementById('b-accept');
+      if (data.acceptedAt) { acc.textContent = '✓ Aceptada'; acc.disabled = true; }
+      else if (expired) { acc.textContent = 'Cotización vencida'; acc.disabled = true; }
+      acc.onclick = function () { document.getElementById('m').classList.add('on'); setTimeout(function () { document.getElementById('m-name').focus(); }, 50); };
+      document.getElementById('b-print').onclick = function () { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { window.print(); } };
+    }
+
+    var m = document.getElementById('m');
+    document.getElementById('m-cancel').onclick = function () { m.classList.remove('on'); };
+    m.addEventListener('click', function (e) { if (e.target === m) m.classList.remove('on'); });
+    document.getElementById('m-ok').onclick = function () {
+      var name = document.getElementById('m-name').value.trim();
+      var err = document.getElementById('m-err');
+      if (!name) { err.textContent = 'Escribe tu nombre.'; return; }
+      var btn = this; btn.disabled = true; btn.textContent = 'Enviando…'; err.textContent = '';
+      fetch('/api/share?t=' + encodeURIComponent(token) + '&action=accept', { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, note: document.getElementById('m-note').value.trim() }) })
+        .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+        .then(function (r) {
+          if (r.s !== 200 || !r.j.ok) { err.textContent = r.j.error || 'No se pudo enviar. Intenta de nuevo.'; btn.disabled = false; btn.textContent = 'Aceptar'; return; }
+          data.acceptedAt = r.j.acceptedAt || new Date().toISOString(); data.acceptedName = name;
+          document.getElementById('m-card').innerHTML = '<div class="ok"><div class="big"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div><h2>¡Gracias, ' + esc(name.split(' ')[0]) + '!</h2><p>Recibimos tu aceptación. Te contactaremos pronto para confirmar la reserva y el pago.</p><button type="button" class="primary" style="width:100%" onclick="document.getElementById(\'m\').classList.remove(\'on\')">Listo</button></div>';
+          var a = document.getElementById('b-accept'); a.textContent = '✓ Aceptada'; a.disabled = true;
+        })
+        .catch(function () { err.textContent = 'Sin conexión. Intenta de nuevo.'; btn.disabled = false; btn.textContent = 'Aceptar'; });
+    };
+  })();
+  </script>
+</body>
+</html>

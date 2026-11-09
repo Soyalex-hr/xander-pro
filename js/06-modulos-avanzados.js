@@ -2230,6 +2230,20 @@ function createQuoteForClient(clientId) {
   showToast(`Nueva cotizaci\u00F3n ${nextNumber} creada para ${client.name}`);
 }
 window.createQuoteForClient = createQuoteForClient;
+// Carga una cotización guardada en el editor (la usaban Inicio y la campana, pero no existía)
+function loadSavedQuoteIntoActive(sq) {
+  if (!sq) return;
+  if (sq.fullCopy) {
+    state.activeQuote = JSON.parse(JSON.stringify(sq.fullCopy));
+  } else {
+    Object.assign(state.activeQuote, { number: sq.number, eventType: sq.eventType, eventTitle: sq.eventTitle, clientId: sq.clientId, guestsPax: sq.guestsPax, eventDate: sq.eventDate, validUntil: sq.validUntil, status: sq.status });
+  }
+  if (!state.activeQuote.id) state.activeQuote.id = sq.id;
+  if (sq.status) state.activeQuote.status = sq.status;
+  saveState();
+  if (typeof renderQuoteEditorAndPdf === 'function') renderQuoteEditorAndPdf();
+}
+window.loadSavedQuoteIntoActive = loadSavedQuoteIntoActive;
 function loadSavedQuoteIntoActiveQuoteById(quoteId) {
   const sq = (state.savedQuotes || []).find(q => q.id === quoteId);
   if (sq) {

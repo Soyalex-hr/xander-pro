@@ -79,6 +79,7 @@
     switchView(KIND[kind]?.view || 'dashboard');
   }
   window.xpOpenQuote = openQuote;
+  window.xpAllQuotes = allQuotes;
 
   function newQuote(kind) {
     toggleNewMenu(false);
@@ -140,25 +141,29 @@
         </button>`;
     }).join('');
 
-    // Para hacer hoy
-    const todo = [];
-    expiring.forEach(x => {
-      const dd = dayDiff(x.valid, today);
-      todo.push({ dot: dd <= 1 ? '#C2410C' : '#B45309', title: `${x.number} ${dd === 0 ? 'vence hoy' : dd === 1 ? 'vence mañana' : `vence en ${dd} días`}`, sub: `${x.client} · ${money(x.total)}`, action: 'Hacer seguimiento', go: `xpOpenQuote('${x.kind}','${x.id}')` });
-    });
+    // Seguimiento y pendientes (19-seguimiento.js); liquidar eventos sigue aquí
+    let todo = [];
+    if (typeof window.xpFollowUpItems === 'function') {
+      try { todo = window.xpFollowUpItems(q); } catch (e) { console.warn('Seguimiento:', e); }
+    } else {
+      expiring.forEach(x => {
+        const dd = dayDiff(x.valid, today);
+        todo.push({ dot: dd <= 1 ? '#C2410C' : '#B45309', title: `${x.number} ${dd === 0 ? 'vence hoy' : dd === 1 ? 'vence mañana' : `vence en ${dd} días`}`, sub: `${x.client} · ${money(x.total)}`, actions: [{ label: 'Hacer seguimiento', go: `xpOpenQuote('${x.kind}','${x.id}')` }] });
+      });
+    }
     const closures = state.eventClosures || [];
     (state.savedQuotes || []).filter(s => s.status === 'Aprobada' && parse(s.eventDate) && parse(s.eventDate) < today && !closures.some(c => c.quoteId === s.id || c.quoteNumber === s.number)).slice(0, 3).forEach(s => {
-      todo.push({ dot: '#94A3B8', title: `Liquidar ${s.eventTitle || s.number}`, sub: `Evento del ${shortDate(parse(s.eventDate))} · registrar costos reales`, action: 'Liquidar', go: `switchView('rentabilidad')` });
+      todo.push({ dot: '#94A3B8', title: `Liquidar ${s.eventTitle || s.number}`, sub: `Evento del ${shortDate(parse(s.eventDate))} · registrar costos reales`, actions: [{ label: 'Liquidar', go: `switchView('rentabilidad')` }] });
     });
-    q.filter(x => x.status === 'Borrador' && x.issued && dayDiff(today, x.issued) >= 3).slice(0, 3).forEach(x => {
-      todo.push({ dot: '#94A3B8', title: `${x.number} sigue en borrador`, sub: `${x.client} · creada hace ${dayDiff(today, x.issued)} días`, action: 'Terminar', go: `xpOpenQuote('${x.kind}','${x.id}')` });
-    });
-    const todoHtml = todo.length ? todo.slice(0, 6).map(t => `
-      <div class="xp-row">
+    const showAll = !!window.__xpTodoAll;
+    const todoShown = showAll ? todo : todo.slice(0, 6);
+    const todoHtml = todo.length ? todoShown.map(t => `
+      <div class="xp-row xp-fu-row">
         <span class="xp-dot" style="background:${t.dot}"></span>
         <span class="xp-row-main"><strong>${esc(t.title)}</strong><span>${esc(t.sub)}</span></span>
-        <button type="button" class="xp-link" onclick="${t.go}">${t.action}</button>
-      </div>`).join('') : `<div class="xp-empty">${ico(I.check, 'w-5 h-5')}<span>Todo al día. No hay cotizaciones por vencer ni eventos por liquidar.</span></div>`;
+        <span class="xp-fu-actions">${(t.actions || []).map(a => `<button type="button" class="${a.primary ? 'xp-fu-btn xp-fu-primary' : 'xp-fu-btn'}" onclick="${a.go}">${esc(a.label)}</button>`).join('')}</span>
+      </div>`).join('') + (todo.length > 6 ? `<button type="button" class="xp-link xp-fu-more" onclick="window.__xpTodoAll=!window.__xpTodoAll;renderXpHome()">${showAll ? 'Ver menos' : `Ver los ${todo.length} pendientes`}</button>` : '')
+      : `<div class="xp-empty">${ico(I.check, 'w-5 h-5')}<span>Todo al día. No hay cotizaciones por hacer seguimiento, por vencer ni eventos por liquidar.</span></div>`;
 
     // Próximos 7 días
     const soon = q.filter(x => x.date && ['Aprobada', 'Enviada'].includes(x.status) && dayDiff(x.date, today) >= 0 && dayDiff(x.date, today) <= 7).sort((a, b) => a.date - b.date);
@@ -218,7 +223,7 @@
 
       <div class="xp-grid-2">
         <section class="xp-card xp-list" aria-labelledby="xp-todo-t">
-          <div class="xp-list-head"><h2 id="xp-todo-t" class="xp-h2">Para hacer hoy</h2><span class="xp-muted">${todo.length} pendiente(s)</span></div>
+          <div class="xp-list-head"><h2 id="xp-todo-t" class="xp-h2">Seguimiento y pendientes</h2><span class="xp-muted">${todo.length} pendiente(s)</span></div>
           ${todoHtml}
         </section>
         <section class="xp-card xp-list" aria-labelledby="xp-soon-t">
