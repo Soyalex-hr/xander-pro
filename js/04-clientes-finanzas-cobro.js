@@ -540,8 +540,16 @@
         return matchesStatus && matchesSearch;
       });
 
+      const mobileBox = document.getElementById('saved-quotes-mobile-cards');
+      const escH = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
       if (filtered.length === 0) {
         const hidden = all.length && (searchTerm || statusFilter !== 'all');
+        if (mobileBox) mobileBox.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-500">
+          ${all.length ? 'No se encontraron cotizaciones con los filtros actuales.' : 'Aún no hay cotizaciones de eventos guardadas.'}
+          ${hidden ? `<div class="mt-2 text-[11px] text-slate-400">Hay ${all.length} cotización(es) ocultas por el filtro.</div>
+          <button type="button" onclick="xpClearQuoteFilters()" class="mt-3 min-h-[44px] px-4 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 cursor-pointer">Ver todas las cotizaciones</button>` : ''}
+        </div>`;
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">
           ${all.length ? 'No se encontraron cotizaciones con los filtros actuales.' : 'Aún no hay cotizaciones de eventos guardadas.'}
           ${hidden ? `<div class="mt-2 text-[11px] text-slate-400">Hay ${all.length} cotización(es) guardada(s) ocultas por el filtro${searchTerm ? ` «${searchTerm.replace(/[<>&"]/g, '')}»` : ''}.</div>
@@ -601,15 +609,83 @@
                   <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                   <span>Cobro</span>
                 </button>
+                <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition inline-flex items-center gap-1 border border-rose-200 cursor-pointer" title="Eliminar esta cotizaci&oacute;n del historial">
+                  <span>🗑️</span><span>Eliminar</span>
+                </button>
               </div>
             </td>
           </tr>
         `;
       } catch (err) {
         console.warn('Cotización con datos incompletos en el historial:', sq, err);
-        return `<tr><td colspan="8" class="py-3 px-4 text-xs text-slate-500">${String(sq.number || 'Cotización sin número')} — datos incompletos <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn ml-2 underline font-bold">Abrir</button></td></tr>`;
+        return `<tr><td colspan="8" class="py-3 px-4 text-xs text-slate-500">${String(sq.number || 'Cotización sin número')} — datos incompletos <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn ml-2 underline font-bold">Abrir</button> <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn ml-2 underline font-bold text-rose-700">Eliminar</button></td></tr>`;
       } }).join('');
+
+      // Tarjetas para celular (antes este contenedor quedaba vacío y en el iPhone no se veía el historial)
+      if (mobileBox) {
+        mobileBox.innerHTML = filtered.map(sq => {
+          try {
+            const cl = clients.find(c => c.id === sq.clientId);
+            const isLocked = sq.status === 'Enviada' || sq.status === 'Aprobada' || sq.status === 'Reemplazada';
+            const st = sq.status || 'Borrador';
+            const stCls = st === 'Aprobada' ? 'bg-emerald-100 text-emerald-800' : st === 'Enviada' ? 'bg-amber-100 text-amber-800' : st === 'Reemplazada' ? 'bg-slate-100 text-slate-600 line-through' : st === 'Rechazada' ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800';
+            const items = (sq.fullCopy && Array.isArray(sq.fullCopy.items)) ? sq.fullCopy.items.length : null;
+            const btn = 'min-h-[44px] px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1 cursor-pointer transition';
+            return `
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-indigo-700 tabular-nums">${escH(sq.number || 'Sin número')}</div>
+                  <div class="font-bold text-sm text-slate-900 dark:text-white leading-snug">${escH(sq.eventTitle || 'Evento sin nombre')}</div>
+                  <div class="text-[11px] text-slate-500">${escH(cl ? cl.name : 'Sin cliente')}${sq.eventType ? ' · ' + escH(sq.eventType) : ''}</div>
+                </div>
+                <span class="shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${stCls}">${escH(st)}</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[11px]">
+                <div><div class="text-slate-400">Evento</div><div class="font-semibold text-slate-700 dark:text-slate-200 tabular-nums">${sq.eventDate ? formatDateHuman(sq.eventDate) : '—'}</div></div>
+                <div><div class="text-slate-400">Personas</div><div class="font-semibold text-slate-700 dark:text-slate-200 tabular-nums">${Number(sq.guestsPax) || 0} Pax</div></div>
+                <div class="text-right"><div class="text-slate-400">Total</div><div class="font-extrabold text-slate-900 dark:text-white tabular-nums">${formatCurrency(sq.total)}</div></div>
+              </div>
+              ${items === 0 ? '<div class="text-[11px] font-semibold text-amber-700 bg-amber-50 rounded-lg px-2.5 py-1.5">Sin productos agregados</div>' : ''}
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn ${btn} bg-indigo-600 text-white">Abrir / PDF</button>
+                ${isLocked
+                  ? `<button type="button" onclick="openCreateQuoteVersionModal('${sq.id}')" class="${btn} bg-emerald-50 text-emerald-800 border border-emerald-200">+ Versión</button>`
+                  : `<button type="button" onclick="openQuoteVersionHistoryModal('${sq.id}')" class="${btn} bg-slate-100 text-slate-700">Versiones</button>`}
+                <button type="button" data-cdc-quote="${sq.id}" class="generate-cdc-quote-btn ${btn} bg-amber-50 text-amber-800 border border-amber-200">Cobro</button>
+                <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn ${btn} bg-rose-50 text-rose-700 border border-rose-200">🗑️ Eliminar</button>
+              </div>
+            </div>`;
+          } catch (err) {
+            console.warn('Cotización con datos incompletos (celular):', sq, err);
+            return `<div class="bg-white rounded-2xl border border-slate-200 p-4 text-xs text-slate-500">${escH(sq.number || 'Cotización sin número')} — datos incompletos
+              <div class="grid grid-cols-2 gap-2 mt-2"><button type="button" data-load-quote="${sq.id}" class="load-saved-quote-btn min-h-[44px] rounded-xl bg-indigo-600 text-white font-bold">Abrir</button>
+              <button type="button" data-delete-quote="${sq.id}" class="xp-delete-quote-btn min-h-[44px] rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-bold">Eliminar</button></div></div>`;
+          }
+        }).join('');
+      }
     }
+
+    // Eliminar una cotización de eventos del historial (con confirmación)
+    window.xpDeleteSavedQuote = function (id) {
+      const list = state.savedQuotes || [];
+      const sq = list.find(x => x && x.id === id);
+      if (!sq) { showToast('No se encontró la cotización'); return; }
+      try {
+        const sess = JSON.parse(localStorage.getItem('xp_cloud_session') || 'null');
+        if (sess && sess.user && sess.user.role === 'Consulta') { showToast('Tu usuario es de solo consulta: no puede eliminar cotizaciones'); return; }
+      } catch (e) { /* sin sesión en la nube */ }
+      const cl = (state.clients || []).find(c => c.id === sq.clientId);
+      const label = `${sq.number || 'Sin número'} · ${sq.eventTitle || 'Evento'}${cl ? ' · ' + cl.name : ''}`;
+      const warn = sq.status === 'Aprobada' ? '\n\nATENCIÓN: esta cotización está APROBADA por el cliente.'
+        : sq.status === 'Enviada' ? '\n\nEsta cotización ya fue enviada al cliente.' : '';
+      if (!confirm(`¿Eliminar la cotización ${label}?${warn}\n\nSe borra del historial en todos tus dispositivos y no se puede deshacer.`)) return;
+      state.savedQuotes = list.filter(x => x !== sq);
+      saveState();
+      renderSavedQuotes();
+      if (typeof window.renderXpHome === 'function') { try { window.renderXpHome(); } catch (e) { /* */ } }
+      showToast(`🗑️ Cotización ${sq.number || ''} eliminada`);
+    };
 
     window.xpClearQuoteFilters = function () {
       const s = document.getElementById('quote-search-input'); if (s) s.value = '';

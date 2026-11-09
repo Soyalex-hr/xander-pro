@@ -1637,7 +1637,12 @@ ${state.company.phone}`;
         switchView('cotizador');
       });
 
-      document.getElementById('saved-quotes-tbody')?.addEventListener('click', e => {
+      document.getElementById('view-historial')?.addEventListener('click', e => {
+        const del = e.target.closest('.xp-delete-quote-btn');
+        if (del) window.xpDeleteSavedQuote(del.getAttribute('data-delete-quote'));
+      });
+
+      document.getElementById('view-historial')?.addEventListener('click', e => {
         const btn = e.target.closest('.load-saved-quote-btn');
         if (!btn) return;
         const sqId = btn.getAttribute('data-load-quote');
@@ -2578,7 +2583,7 @@ ${state.company.phone}`;
       });
 
       // Delegate click for data-cdc-quote in saved quotes table
-      document.getElementById('saved-quotes-tbody')?.addEventListener('click', e => {
+      document.getElementById('view-historial')?.addEventListener('click', e => {
         const cdcBtn = e.target.closest('[data-cdc-quote]');
         if (cdcBtn) {
           const qId = cdcBtn.dataset.cdcQuote;
