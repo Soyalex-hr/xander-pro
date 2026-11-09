@@ -386,11 +386,10 @@ function switchCabanasTab(tab) {
     const btn = document.getElementById(`tab-btn-${t}`);
     if (pane) pane.classList.toggle('hidden', t !== tab);
     if (btn) {
-      if (t === tab) {
-        btn.className = 'cabanas-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-teal-600 text-white shadow-xs cursor-pointer';
-      } else {
-        btn.className = 'cabanas-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer';
-      }
+      // Estilo de pestaña en css/theme-a.css (.xp-tabbar)
+      btn.classList.add('cabanas-tab-btn');
+      btn.classList.toggle('is-on', t === tab);
+      btn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
     }
   });
 
