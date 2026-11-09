@@ -269,10 +269,12 @@ function loadCabinQuoteIntoEditor(quoteId = null) {
   if (mpSel && q.mealPlanId) mpSel.value = q.mealPlanId;
   if (mpPaxIn) mpPaxIn.value = q.mealPlanPax !== undefined ? q.mealPlanPax : 2;
   if (discIn) discIn.value = q.discountAmount || 0;
-  if (depPctIn) depPctIn.value = q.depositPercentage || 50;
+  if (depPctIn) depPctIn.value = (q.depositPercentage === 0 || q.depositPercentage) ? q.depositPercentage : 50;
   const reqDepSel = document.getElementById('hos-requires-deposit-select');
   if (reqDepSel) reqDepSel.value = q.requiresDeposit === false ? 'no' : 'yes';
   if (depPctIn) depPctIn.disabled = q.requiresDeposit === false;
+  const depPctBoxL = document.getElementById('hos-deposit-pct-box');
+  if (depPctBoxL) depPctBoxL.classList.toggle('hidden', q.requiresDeposit === false);
   if (expIn) expIn.value = q.expirationDate || '';
   if (obsIn) obsIn.value = q.observations || '';
   updateDefaultObservationsHint();
@@ -751,10 +753,17 @@ function recalculateCabinQuoteLive() {
   // Deposit & Balance
   // Anticipo opcional (retrocompatible: cotizaciones antiguas = con anticipo)
   const reqDepSel = document.getElementById('hos-requires-deposit-select');
-  const requiresDeposit = reqDepSel ? reqDepSel.value !== 'no' : q.requiresDeposit !== false;
   const depPctInput = document.getElementById('hos-deposit-pct-input');
-  if (depPctInput) depPctInput.disabled = !requiresDeposit;
-  const configuredDepositPct = Number(depPctInput?.value) || 50;
+  // 0 % es un valor válido (antes se convertía en 50 %). Vacío = 50 % por defecto.
+  const rawPct = depPctInput ? String(depPctInput.value).trim() : String(q.depositPercentage ?? 50);
+  const parsedPct = rawPct === '' ? 50 : Number(rawPct);
+  const configuredDepositPct = Number.isFinite(parsedPct) ? Math.min(100, Math.max(0, parsedPct)) : 50;
+  const wantsDeposit = reqDepSel ? reqDepSel.value !== 'no' : q.requiresDeposit !== false;
+  // Sin anticipo si el usuario elige "No" o deja el porcentaje en 0 %.
+  const requiresDeposit = wantsDeposit && configuredDepositPct > 0;
+  if (depPctInput) depPctInput.disabled = !wantsDeposit;
+  const depPctBox = document.getElementById('hos-deposit-pct-box');
+  if (depPctBox) depPctBox.classList.toggle('hidden', !wantsDeposit);
   const depositPct = requiresDeposit ? configuredDepositPct : 0;
   const deposit = requiresDeposit ? Math.round(total * (depositPct / 100)) : 0;
   const balance = total - deposit;

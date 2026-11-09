@@ -517,9 +517,12 @@
     }
 
     function renderSavedQuotes() {
-      ['badge-quotes-count', 'badge-quotes-count-drawer', 'badge-quotes-count-bottom'].forEach(id => {
+      ['badge-quotes-count', 'badge-quotes-count-drawer', 'badge-quotes-count-bottom', 'badge-quotes-count-sidebar'].forEach(id => {
         const b = document.getElementById(id);
-        if (b) b.textContent = state.savedQuotes.length;
+        if (!b) return;
+        const n = (state.savedQuotes || []).length;
+        b.textContent = n;
+        b.classList.toggle('hidden', n === 0);
       });
       const tbody = document.getElementById('saved-quotes-tbody');
       if (!tbody) return;

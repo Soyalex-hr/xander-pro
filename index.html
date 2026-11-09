@@ -236,7 +236,7 @@
               <span class="nav-icon-box w-6 h-6 rounded-lg flex items-center justify-center shrink-0 bg-blue-100 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 transition-transform group-hover:scale-110"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg></span>
               <span class="sidebar-text truncate">Cotizaciones</span>
             </div>
-            <span id="badge-quotes-count-sidebar" class="sidebar-badge px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300">2</span>
+            <span id="badge-quotes-count-sidebar" class="sidebar-badge px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 hidden"></span>
           </button>
           <!-- Productos e Insumos -->
           <button type="button" data-nav="productos" onclick="switchView('productos')" class="sidebar-nav-btn ag-sidebar-btn w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group text-left cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium text-xs" title="Productos e Insumos">
@@ -3153,7 +3153,7 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label for="hos-requires-deposit-select" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">¿Solicitar Anticipo?</label>
-                  <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 pointer-events-none z-10 flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg></span><select id="hos-requires-deposit-select" data-ic="1" style="padding-left:2.4rem" onchange="handleCabinQuoteInputChange()" class="w-full min-h-[44px] sm:min-h-0 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold cursor-pointer">
+                  <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 pointer-events-none z-10 flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg></span><select id="hos-requires-deposit-select" data-ic="1" style="padding-left:2.4rem" onchange="(function(s){var i=document.getElementById('hos-deposit-pct-input');if(s.value!=='no'&amp;&amp;i&amp;&amp;!(Number(i.value)>0))i.value=50;})(this);handleCabinQuoteInputChange()" class="w-full min-h-[44px] sm:min-h-0 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold cursor-pointer">
                     <option value="yes">Sí, con anticipo</option>
                     <option value="no">No, pago total al check-in</option>
                   </select></div>
@@ -3162,9 +3162,9 @@
                   <label for="hos-discount-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Descuento Comercial ($)</label>
                   <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500 dark:text-rose-400 pointer-events-none z-10 flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></span><input type="number" id="hos-discount-input" data-ic="1" style="padding-left:2.4rem" min="0" step="5000" value="0" onchange="handleCabinQuoteInputChange()" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold tabular-nums" /></div>
                 </div>
-                <div>
+                <div id="hos-deposit-pct-box">
                   <label for="hos-deposit-pct-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">% Anticipo Sugerido</label>
-                  <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 dark:text-blue-400 pointer-events-none z-10 flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 5L5 19M6.5 9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></span><input type="number" id="hos-deposit-pct-input" data-ic="1" style="padding-left:2.4rem" min="0" max="100" value="50" onchange="handleCabinQuoteInputChange()" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold tabular-nums" /></div>
+                  <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 dark:text-blue-400 pointer-events-none z-10 flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 5L5 19M6.5 9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></span><input type="number" id="hos-deposit-pct-input" data-ic="1" style="padding-left:2.4rem" min="0" max="100" value="50" onchange="handleCabinQuoteInputChange()" oninput="handleCabinQuoteInputChange()" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold tabular-nums" /></div>
                 </div>
                 <div>
                   <label for="hos-expiry-date-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Válida Hasta (Vigencia)</label>
@@ -3421,7 +3421,7 @@
     <button type="button" data-nav="historial" onclick="switchView('historial')" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer">
       <span class="text-lg relative">
         🗂️
-        <span id="badge-quotes-count-bottom" class="absolute -top-1 -right-2 px-1 rounded-full text-[9px] font-bold bg-indigo-600 text-white leading-tight">2</span>
+        <span id="badge-quotes-count-bottom" class="absolute -top-1 -right-2 px-1 rounded-full text-[9px] font-bold bg-indigo-600 text-white leading-tight hidden"></span>
       </span>
       <span class="text-[10px] tracking-tight">Historial</span>
     </button>
