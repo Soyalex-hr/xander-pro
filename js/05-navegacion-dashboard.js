@@ -2389,8 +2389,12 @@ ${state.company.phone}`;
             console.log('SW registration note:', err);
           });
         };
+        // Antes se recargaba la página cada vez que llegaba una versión nueva (se veía como
+        // "refresca dos veces" al entrar). No hace falta: index.html, JS y CSS se piden primero
+        // a internet, así que la página ya abre con la versión nueva. El Service Worker nuevo
+        // se activa en silencio y queda listo para trabajar sin conexión.
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
+          console.log('[pwa] versión nueva lista');
         });
         if (document.readyState === 'complete') {
           regSW();
