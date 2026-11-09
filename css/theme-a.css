@@ -52,10 +52,10 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   border: 1px solid var(--xp-border) !important;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
 }
-.ag-tilt-card, .ag-tilt-card:hover { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important; transform: none !important; }
-.ag-tilt-card:hover { border-color: var(--xp-border-strong) !important; }
-.ag-floating-badge { animation: none !important; }
-.ag-specular-glow::after { display: none !important; }
+.ag-tilt-card:not(#auth-card-container), .ag-tilt-card:not(#auth-card-container):hover { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important; transform: none !important; }
+.ag-tilt-card:not(#auth-card-container):hover { border-color: var(--xp-border-strong) !important; }
+.ag-floating-badge:not(#auth-screen *) { animation: none !important; }
+.ag-specular-glow:not(#auth-card-container)::after { display: none !important; }
 [class*="backdrop-blur"]:not(.fixed):not([id^="modal-"]) { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 .shadow-2xl:not([id^="modal-"] > *):not([id$="-popover"]):not(#app-sidebar), .shadow-xl:not(#app-sidebar), .shadow-lg { box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important; }
 [class*="shadow-"][class*="-500/"], [class*="shadow-"][class*="-600/"] { --tw-shadow-color: transparent !important; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important; }
@@ -480,15 +480,15 @@ html.dark #auth-screen { background: linear-gradient(160deg, #0A1520 0%, #0D2433
 #auth-screen .blob-2 { background: radial-gradient(circle, #F2A93B 10%, #E8724A 60%, transparent 80%) !important; }
 #auth-screen .blob-3 { background: radial-gradient(circle, #0FA3A3 10%, #2E8B57 60%, transparent 80%) !important; }
 #auth-screen .blob-4 { background: radial-gradient(circle, #F6C27A 10%, #0FA3A3 60%, transparent 80%) !important; }
-#auth-screen .login-blob { opacity: 0.18; }
+#auth-screen .login-blob { opacity: 0.34; }
+html.dark #auth-screen .login-blob { opacity: 0.5; }
 #auth-card-container { background: rgba(255, 255, 255, 0.92) !important; border: 1px solid #E6DED0 !important; box-shadow: 0 20px 50px rgba(16, 40, 58, 0.12) !important; }
 html.dark #auth-card-container { background: rgba(16, 32, 48, 0.92) !important; border-color: #1C3142 !important; }
-#auth-card-container .shimmer-bar { background: linear-gradient(90deg, #0B5D7E, #0FA3A3, #F2A93B, #E8724A, #0B5D7E) !important; background-size: 200% 100% !important; }
+#auth-card-container .shimmer-bar { background-image: linear-gradient(90deg, #0B5D7E, #0FA3A3, #F2A93B, #E8724A, #0B5D7E) !important; }
 #auth-card-container .pulse-glow-ring { background: rgba(15, 163, 163, 0.35) !important; }
 #auth-card-container .bg-gradient-to-tr { background: transparent !important; box-shadow: 0 10px 24px rgba(11, 93, 126, 0.25) !important; padding: 0 !important; overflow: hidden; }
 #auth-card-container .bg-gradient-to-tr img { filter: none !important; }
-#btn-submit-login { background: var(--xp-brand) !important; background-image: none !important; box-shadow: 0 8px 20px rgba(11, 93, 126, 0.25) !important; }
-#btn-submit-login:hover { background: var(--xp-brand-hover) !important; }
+#btn-submit-login { background-color: var(--xp-brand) !important; box-shadow: 0 8px 20px rgba(11, 93, 126, 0.25) !important; }
 #auth-screen input:focus { border-color: var(--xp-brand) !important; box-shadow: 0 0 0 3px var(--xp-brand-100) !important; }
 /* Logo del menú lateral: el ícono ya trae su propio fondo */
 #app-sidebar .ag-floating-badge, #app-sidebar .bg-gradient-to-tr { background: transparent !important; padding: 0 !important; overflow: hidden; }
@@ -523,4 +523,70 @@ div[id^="modal-"].fixed.inset-0, #modal-xp-email {
     max-height: calc(100dvh - 4rem - env(safe-area-inset-top, 0px) - 90px - env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
   }
+}
+
+
+/* =====================================================================
+   Inicio de sesión animado — mar Costa Caribe
+   (manchas de color en movimiento, olas, tarjeta que entra flotando,
+   ícono que flota con halo turquesa, barra brillante y botón con degradado)
+   ===================================================================== */
+#auth-screen::before, #auth-screen::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  z-index: 0;
+}
+#auth-screen::before {
+  height: 170px;
+  background-size: 50% 170px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 170' preserveAspectRatio='none'%3E%3Cpath d='M0 70 C 120 70 240 30 360 30 S 600 70 720 70 S 960 110 1080 110 S 1320 70 1440 70 V170 H0 Z' fill='%230FA3A3' fill-opacity='0.22'/%3E%3C/svg%3E");
+  animation: xp-wave 16s linear infinite;
+}
+#auth-screen::after {
+  height: 120px;
+  background-size: 50% 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C 120 60 240 90 360 90 S 600 60 720 60 S 960 30 1080 30 S 1320 60 1440 60 V120 H0 Z' fill='%230B5D7E' fill-opacity='0.18'/%3E%3C/svg%3E");
+  animation: xp-wave 11s linear infinite reverse;
+}
+html.dark #auth-screen::before { opacity: 0.8; }
+html.dark #auth-screen::after { opacity: 0.9; }
+@keyframes xp-wave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Tarjeta: entra flotando y conserva el brillo */
+#auth-card-container.login-card-animated { animation: card-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+#auth-card-container { box-shadow: 0 24px 60px -18px rgba(11, 93, 126, 0.35), 0 0 40px -12px rgba(15, 163, 163, 0.30) !important; }
+#auth-card-container .shimmer-bar { background-size: 300% 100% !important; animation: border-shimmer 5s ease infinite !important; }
+#auth-card-container .ag-floating-badge { animation: ag-weightless-bounce 4s ease-in-out infinite !important; }
+#auth-card-container .pulse-glow-ring { animation: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite !important; border-radius: 1rem; }
+
+/* Botón: degradado océano → turquesa en movimiento */
+#btn-submit-login {
+  background-image: linear-gradient(120deg, #0B5D7E 0%, #0A8585 45%, #0FA3A3 70%, #0B5D7E 100%) !important;
+  background-size: 220% 220% !important;
+  animation: btn-gradient-shift 5s ease infinite !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+#btn-submit-login:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -6px rgba(11, 93, 126, 0.45) !important; filter: brightness(0.94); }
+#btn-submit-login:active { transform: translateY(1px) scale(0.99); }
+#btn-submit-login .xp-ico { transition: transform 0.2s ease; }
+#btn-submit-login:hover .xp-ico { transform: translateX(3px); }
+
+/* Campos: íconos visibles en color océano */
+#auth-screen .relative > span.absolute { color: var(--c-ocean, #0B5D7E) !important; z-index: 2; }
+#auth-screen .relative > button.absolute { z-index: 2; }
+#auth-screen .relative > span.absolute .xp-ico { width: 1.05rem; height: 1.05rem; }
+#auth-screen input.ag-glass-input { background: #FFFFFF !important; border: 1px solid #D4CBBB !important; min-height: 44px; }
+html.dark #auth-screen input.ag-glass-input { background: #0D1C2B !important; border-color: #2C465A !important; }
+#btn-toggle-login-pwd { min-width: 44px; justify-content: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  #auth-screen::before, #auth-screen::after, #auth-screen .login-blob,
+  #auth-card-container .shimmer-bar, #auth-card-container .ag-floating-badge,
+  #auth-card-container .pulse-glow-ring, #btn-submit-login { animation: none !important; }
 }
