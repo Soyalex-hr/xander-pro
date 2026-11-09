@@ -815,7 +815,7 @@
     if (cloud.active()) {
       const pending = sync.pendingCount();
       if (pending && !window.confirm(`Hay ${pending} cambio(s) sin subir a la nube (sin conexión). Si cierras sesión ahora se quedarán solo en este dispositivo.\n\n¿Cerrar sesión de todas formas?`)) return;
-      api('POST', '/api/auth/logout').catch(() => {});
+      api('POST', '/api/auth/me').catch(() => {});
       sync.stop();
       cloud.clear();
       metaCache = null;

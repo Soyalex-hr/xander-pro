@@ -5,6 +5,10 @@
     {
       "source": "/c/:token",
       "destination": "/cotizacion.html"
+    },
+    {
+      "source": "/api/auth/logout",
+      "destination": "/api/auth/me"
     }
   ],
   "headers": [
