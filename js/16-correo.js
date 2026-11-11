@@ -384,7 +384,8 @@ ${ctx.deposit ? `<tr><td style="font-size:13px;color:#5B6B77;padding-top:4px">An
     if (ev && !document.querySelector('[data-xp-email="event"]')) ev.insertAdjacentElement('afterend', mk('event', 'px-4 py-2.5 rounded-xl text-xs font-extrabold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm transition flex items-center gap-1.5 cursor-pointer'));
     // Cabañas: barra de la vista previa
     document.querySelectorAll('#hos-preview-fullscreen button[onclick="downloadCabinQuotePdf()"]').forEach((btn, i) => {
-      if (btn.nextElementSibling?.dataset?.xpEmail) return;
+      // Revisa todo el grupo (antes solo el botón siguiente; con "Link para el cliente" en medio se duplicaba)
+      if (btn.parentElement && btn.parentElement.querySelector('[data-xp-email="cabin"]')) return;
       btn.insertAdjacentElement('afterend', mk('cabin', i === 0
         ? 'min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs flex items-center gap-1.5 cursor-pointer hover:bg-slate-50'
         : 'w-full py-2 px-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer hover:bg-slate-50'));
